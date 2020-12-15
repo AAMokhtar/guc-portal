@@ -1,17 +1,17 @@
-const mongoose= require("mongoose");
-const Schema= mongoose.Schema;
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const Course = new Schema({
-    CourseCode:{ 
-        type: String,
-        required: true,
-        unique: true
-    },
-    InstructorID: {type: Schema.Types.ObjectId, ref: 'Staff'},
+const course = new Schema({
+  courseCode: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  instructorID: { type: Schema.Types.ObjectId, ref: "Staff" },
 
-    CoordinatorID: {type: Schema.Types.ObjectId, ref: 'Staff'},
-    //course name
-    TAList: [{ type: Schema.Types.ObjectId, ref: 'Staff'}],
-    Slots: [{ type: Schema.Types.ObjectId, ref: 'Slot'}]
+  coordinatorID: { type: Schema.Types.ObjectId, ref: "Staff" },
+  //course name
+  taList: [{ type: Schema.Types.ObjectId, ref: "Staff" }],
+  slots: [{ type: Schema.Types.ObjectId, ref: "Slot" }],
 });
-module.exports= mongoose.model("Course", Course);
+module.exports = mongoose.model("Course", course);

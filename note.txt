@@ -1,0 +1,4 @@
+to run using nodemon:
+npx nodemon <file path>
+
+add this note to readme and delete this file

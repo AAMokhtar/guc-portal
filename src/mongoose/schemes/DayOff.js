@@ -17,4 +17,4 @@ const schema = request.discriminator(
     },
   })
 );
-module.exports = mongoose.model("DayOff", Department);
+module.exports = mongoose.model("DayOff", schema);

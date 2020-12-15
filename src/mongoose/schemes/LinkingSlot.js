@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
-const request = require("Request.js");
-const schema = request.discriminator(
+const Request = require("Request.js");
+const Schema = mongoose.Schema;
+
+const schema = Request.discriminator(
   "LinkingSlot",
   new mongoose.Schema({
     slot: {
@@ -10,4 +12,4 @@ const schema = request.discriminator(
     },
   })
 );
-module.exports = mongoose.model("LinkingSlot", schema);
+module.exports = schema;

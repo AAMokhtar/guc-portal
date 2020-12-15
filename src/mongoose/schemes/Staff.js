@@ -1,6 +1,8 @@
-const e = require("express");
 const mongoose = require("mongoose");
 //const { CustomGender } = require("../util/CustomGender");
+const Notification = require("./Notification");
+const Location = require("./Location");
+const Schema = mongoose.Schema;
 
 const schema = new mongoose.Schema({
   id: {
@@ -61,4 +63,4 @@ const schema = new mongoose.Schema({
     type: [Notification],
   },
 });
-module.exports = mongoose.model("Staff", schema);
+module.exports = schema;

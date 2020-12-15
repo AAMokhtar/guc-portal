@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const slot = new Schema({
+const schema = new Schema({
   academicStaffID: {
     type: Schema.Types.ObjectId,
     ref: "Staff",
@@ -14,4 +14,4 @@ const slot = new Schema({
   },
   slots: [{ type: Schema.Types.ObjectId, ref: "Slot" }],
 });
-module.exports = mongoose.model("Schedule", slot);
+module.exports = schema;

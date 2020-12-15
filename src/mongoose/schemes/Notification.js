@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Request = require("./Request");
 const schema = new mongoose.Schema({
   message: Request,
   /*   notificationType: {
@@ -11,4 +12,4 @@ const schema = new mongoose.Schema({
   date: { type: Date, default: Date.now() },
   read: { type: Boolean, default: false },
 });
-module.exports = mongoose.model("Notification", schema);
+module.exports = schema;

@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
-const request = require("Request.js");
-const schema = request.discriminator(
+const Request = require("Request.js");
+const Schema = mongoose.Schema;
+
+const schema = Request.discriminator(
   "Leave",
   new mongoose.Schema({
     leaveType: {
@@ -19,4 +21,4 @@ const schema = request.discriminator(
     },
   })
 );
-module.exports = mongoose.model("Leave", schema);
+module.exports = schema;

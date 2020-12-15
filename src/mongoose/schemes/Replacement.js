@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
-const request = require("Request.js");
-const schema = request.discriminator(
+const Request = require("Request.js");
+const Schema = mongoose.Schema;
+
+const schema = Request.discriminator(
   "Replacement",
   new mongoose.Schema({
     replacementDay: {
@@ -9,4 +11,4 @@ const schema = request.discriminator(
     },
   })
 );
-module.exports = mongoose.model("Replacement", schema);
+module.exports = schema;

@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
 const schema = new mongoose.Schema({
   senderID: {
     type: Schema.Types.ObjectId,
@@ -24,4 +26,4 @@ const schema = new mongoose.Schema({
   sentDate: Date,
   responseDate: Date,
 });
-module.exports = mongoose.model("Request", schema);
+module.exports = schema;

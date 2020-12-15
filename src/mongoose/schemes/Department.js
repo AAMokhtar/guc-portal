@@ -8,6 +8,6 @@ const Department = new Schema({
     unique: true,
   },
   coursesIDs: [{ type: Schema.Types.ObjectId, ref: "Course" }],
-  HODID: { type: Schema.Types.ObjectId, ref: "Staff" },
+  hodID: { type: Schema.Types.ObjectId, ref: "Staff" },
 });
 module.exports = mongoose.model("Department", Department);

@@ -61,4 +61,4 @@ const schema = new mongoose.Schema({
     type: [Notification],
   },
 });
-module.exports = mongoose.model("Staff", slot);
+module.exports = mongoose.model("Staff", schema);

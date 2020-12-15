@@ -1,32 +1,32 @@
-const mongoose= require("mongoose");
-const Schema= mongoose.Schema;
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const Location = new Schema({
-    Name:{ 
-        type: String,
-        required: true,
-        unique:true
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  capacity: {
+    type: Number,
+    validate: {
+      validator: Number.isInteger,
+      message: "{VALUE} is not an integer value",
     },
-    capacity: {
-        type:Number,
-        validate : {
-            validator : Number.isInteger,
-            message   : '{VALUE} is not an integer value'
-          },
-        required: true
+    required: true,
+  },
+  currentlyTakenSeats: {
+    type: Number,
+    validate: {
+      validator: Number.isInteger,
+      message: "{VALUE} is not an integer value",
     },
-    currentlyTakenSeats: {
-        type:Number,
-        validate : {
-            validator : Number.isInteger,
-            message   : '{VALUE} is not an integer value'
-          },
-        required: true
-    },
-    Type: {
-        type: String,
-        enum: ['Hall', 'Lab', 'Tutorial','Office'],
-        required: true
-    }
+    required: true,
+  },
+  type: {
+    type: String,
+    enum: ["Hall", "Lab", "Tutorial", "Office"],
+    required: true,
+  },
 });
-module.exports= mongoose.model("Location", Location);
+module.exports = mongoose.model("Location", Location);

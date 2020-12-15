@@ -11,4 +11,4 @@ const schema = new mongoose.Schema({
   date: { type: Date, default: Date.now() },
   read: { type: Boolean, default: false },
 });
-module.exports = schema;
+module.exports = mongoose.model("Notification", schema);

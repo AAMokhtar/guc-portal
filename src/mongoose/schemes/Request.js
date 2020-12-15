@@ -24,4 +24,4 @@ const schema = new mongoose.Schema({
   sentDate: Date,
   responseDate: Date,
 });
-module.exports = schema;
+module.exports = mongoose.model("Request", schema);

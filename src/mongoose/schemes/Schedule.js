@@ -14,4 +14,4 @@ const slot = new Schema({
   },
   slots: [{ type: Schema.Types.ObjectId, ref: "Slot" }],
 });
-module.exports = mongoose.model("Slot", slot);
+module.exports = mongoose.model("Schedule", slot);

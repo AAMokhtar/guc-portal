@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const location = new Schema({
+const Location = new Schema({
   name: {
     type: String,
     required: true,
@@ -29,4 +29,4 @@ const location = new Schema({
     required: true,
   },
 });
-module.exports = mongoose.model("Location", location);
+module.exports = mongoose.model("Location", Location);

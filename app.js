@@ -38,4 +38,65 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+//------------------------------------------------------------------------
+//                    MAYAR'S TRASH
+//------------------------------------------------------------------------
+/*
+//mongoose to connect to database
+const mongoose = require('mongoose');
+//to encrypt and decrypt passwords
+const bcrypt = require('bcyrptjs');
+//required to store information about current user
+const jst = require('jsonwebtoken');
+
+//key used for jsonwebtoken
+const jwtKey = "akjhfdkadsjhfdsjklalsdsfajhjkhsdfakjhfdsa";
+
+//process request body as a JSON object
+app.use(express.json());
+//process request body as array/string
+//extended set to false as we don't need to parse the extended syntax
+app.use(express.urlencoded({extended:false}));
+
+//mongoose connection parameters to fix deprecation warnings
+const mongConnectionParams = 
+{
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopolgy: true
+}
+
+//TODO: enter mongoose connection here
+//connects to mongoose database
+const mongooseURL = "";
+mongoose.connect(mongooseURL, mongConnectionParams)
+  .then( () =>
+    {
+      console.log("Database is up and running");
+    }
+  ).catch( () =>
+    {
+      console.log("Database failed to connect")
+    }
+  );
+
+//Authentication middeware
+//Used to check if user has a jsonwebtoken (i.e. logged in)
+const authenticate = (req, res, next) =>
+    {
+      const token = req.header('auth-token');
+      if
+    }
+
+//login route
+app.post('/login', async (req, res) =>
+    {
+
+    }
+)
+*/
+//------------------------------------------------------------------------
+//                    END OF MAYAR'S TRASH
+//------------------------------------------------------------------------
+
 module.exports = app;

@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 //const { CustomGender } = require("../util/CustomGender");
 const Notification = require("./Notification");
-const Location = require("./Location");
 const Schema = mongoose.Schema;
 
 const schema = new mongoose.Schema({
@@ -35,6 +34,7 @@ const schema = new mongoose.Schema({
     {
       date: {
         type: Date,
+        //date is on this format "YYYY-MM-DD" --> var example = new Date("1999-12-30");
       },
       signIn: {
         type: [Date],
@@ -47,18 +47,12 @@ const schema = new mongoose.Schema({
   accidentDays: {
     type: Number,
   },
-  officeLocation: {
-    type: Location,
-  },
+  officeLocationID: { type: Schema.Types.ObjectId, ref: "Location" },
   salary: {
     type: Number,
   },
-  facultyID: {
-    type: { type: Schema.Types.ObjectId, ref: "Faculty" },
-  },
-  departmentID: {
-    type: { type: Schema.Types.ObjectId, ref: "Department" },
-  },
+  facultyID: { type: Schema.Types.ObjectId, ref: "Faculty" },
+  departmentID: { type: Schema.Types.ObjectId, ref: "Department" },
   notifications: {
     type: [Notification],
   },

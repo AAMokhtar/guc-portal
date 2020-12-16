@@ -16,7 +16,7 @@ app.get("/hr/addMissingSign", async function (req, res) {
         type: Date,
       },
     }
-    */
+    
   try {
     let data = req.body.data;
     const { hrID, staffID, date, signIn, signOut } = data;

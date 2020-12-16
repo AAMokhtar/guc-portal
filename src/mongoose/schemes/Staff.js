@@ -62,8 +62,10 @@ const schema = new mongoose.Schema({
   notifications: {
     type: [Notification],
   },
+
+  /// string or object ?
   others: {
-    type: String,
+    type: Object,
   },
 });
 module.exports = schema;

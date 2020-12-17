@@ -232,6 +232,8 @@ const link = new LinkingSlot({
   sentDate: Date.now(),
   slot: null,
 });
+
+/// SYNTAX ERRORS .. the following part is not completed
 // console.log(assert.equal(link.__t, "LinkingSlot"));
 
 /* app.get('/slot-linking', authenticateAndAuthoriseCC, (req, res) =>

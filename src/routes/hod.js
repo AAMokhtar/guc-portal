@@ -19,7 +19,10 @@ app.post("/hod/assignInstructor", async function (req, res) {
         let output = await course.findOneAndUpdate(
           {
             courseCode,
-            _id: { $in: res.coursesIDs, role: { $ne: "HOD" } },
+            _id: {
+              $in: res.coursesIDs,
+              // , role: { $ne: "HOD" }
+            },
           },
           {
             $push: { taList: staffID },
@@ -92,7 +95,10 @@ app.delete("/hod/deleteInstructor", async function (req, res) {
         let output = await course.findOneAndUpdate(
           {
             courseCode,
-            _id: { $in: res.coursesIDs, role: { $ne: "HOD" } },
+            _id: {
+              $in: res.coursesIDs,
+              //,role: { $ne: "HOD" }
+            },
           },
           {
             $pull: { taList: staffID },
@@ -133,7 +139,7 @@ app.post("/hod/updateInstructor", async function (req, res) {
           {
             courseCode,
             _id: { $in: res.coursesIDs },
-            role: { $ne: "HOD" },
+            //     role: { $ne: "HOD" },
             taList: staffIDBefore,
           },
           {

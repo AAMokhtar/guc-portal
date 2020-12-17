@@ -56,10 +56,19 @@ const schema = new mongoose.Schema({
   notifications: {
     type: [Notification],
   },
-
   // string or object ?
   others: {
     type: Object,
+  },
+  role: {
+    type: String,
+    enum: ["HR", "Course Coordinator", "Course Instructor", "TA", "HOD"],
+    required: true,
+  },
+  schedule: {
+    type: [Schema.Types.ObjectId],
+    ref: "Slot",
+    required: true,
   },
 });
 module.exports = schema;

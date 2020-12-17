@@ -57,7 +57,7 @@ const schema = new mongoose.Schema({
     type: [Notification],
   },
 
-  /// string or object ?
+  // string or object ?
   others: {
     type: Object,
   },

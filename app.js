@@ -45,21 +45,27 @@ app.use(function(err, req, res, next) {
 //mongoose to connect to database
 const mongoose = require('mongoose');
 //to encrypt and decrypt passwords
-const bcrypt = require('bcyrptjs');
+const bcrypt = require('bcryptjs');
 //required to store information about current user
 const jst = require('jsonwebtoken');
 const { nextTick } = require('process');
 
-//-----------------MODELS----------------------------------------
+//------------------------------------------------------MODELS----------------------------------------
 
-const Staff = require('./models/staff');
-const HR = require('./models/hr');
-const CC = require('./models/courseCoordinator');
-const CI = require('./models/courseInstructor');
-const TA = require('./models/ta');
-const HOD = require('./models/hod');
+const Staff = require('./src/mongoose/dao/staff.js');
+const Academic = require('./src/mongoose/dao/academic.js');
+const HR = require('./src/mongoose/dao/hr.js');
+const CC = require('./src/mongoose/dao/courseCoordinator.js');
+const CI = require('./src/mongoose/dao/courseInstructor.js');
+const TA = require('./src/mongoose/dao/ta.js');
+const HOD = require('./src/mongoose/dao/hod.js');
+const Request = require('./src/mongoose/dao/request.js');
+const LinkingSlot = require('./src/mongoose/dao/linkingSlot.js');
+const Leave = require('./src/mongoose/dao/leave.js');
+const DayOff = require('./src/mongoose/dao/dayOff.js');
+const Replacement = require('./src/mongoose/dao/replacement.js')
 
-//----------------END OF MODELS----------------------------------
+//-----------------------------------------------------END OF MODELS----------------------------------
 
 //TODO: save it in an env file?
 //key used for jsonwebtoken
@@ -86,6 +92,9 @@ mongoose.connect(mongooseURL, mongConnectionParams)
       console.log("Database failed to connect")
     }
   );
+
+
+//-------------------------------------------------AUTHENTICATORS, VALIDATORS AND AUTHORIZATIONS--------------------------------------------------------
 
 //TODO: test
 //function that validates string as one following the email format
@@ -156,6 +165,10 @@ function authenticateAndAuthoriseCC(req, res, next)
   }
 }
 
+//-----------------------------------------------------------END OF AUTHENTICATORS, VALIDATORS AND AUTHORISATION------------------------
+
+
+
 //login route
 app.post('/login', async (req, res) =>
     {
@@ -205,13 +218,15 @@ app.post('/login', async (req, res) =>
         {
           const role = "HR";
         }
-        //else the prefix of the id is ac-
+        //else the prefix of the id is ac- and is therefore an academic staff
         //no other prefixes are available
         //registeration should not add an id with prefixes other than those two
         else
         {
-          //TODO: check with others: role or traverse all sub models of academic?
-          const role = "balabizo";
+          //search the academic model for the record with the id
+          const existingAcademic = await Academic.findOne({academicID: id});
+          //get the role of the academic staff 
+          const role = existingAcademic.role;
         }
 
         //fill the token payload with the staff id and role in uni
@@ -230,6 +245,28 @@ app.post('/login', async (req, res) =>
       }
     }
 );
+
+//---------------------------------------COURSE COORDINATOR FUNCTIONALITIES-------------------------------------------------
+
+//test to see if I can differentiate between requests
+const link = new LinkingSlot({senderID: "ac-123", receiverID: "ac-1", status: "Pending", comment: "cheetos 7ar nar", sentDate: Date.now(), slot: null});
+console.log(assert.equal(link.__t, 'LinkingSlot'));
+
+app.get('/slot-linking', authenticateAndAuthoriseCC, (req, res) =>
+  {
+    //gets the payload of the token
+    //the payload is stored in req.user in the authentication method
+    const user = req.user;
+
+    //get the notifications of the user
+    const notifs = (Acadmic.findOne({id: user.id})).notifications;
+    //filter by slot linking type
+    for
+  }
+);
+
+//-------------------------------------END OF COURSE COORDINATOR FUNCTIONALITIES---------------------------------------------
+
 
 //------------------------------------------------------------------------
 //                    END OF MAYAR'S TRASH

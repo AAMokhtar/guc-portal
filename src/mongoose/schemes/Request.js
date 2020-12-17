@@ -13,7 +13,7 @@ const schema = new mongoose.Schema({
   },
   receiverID: {
     type: Schema.Types.ObjectId,
-    ref: "HOD",
+    ref: "Academic",
     required: true,
   },
   status: {

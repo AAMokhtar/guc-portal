@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const staff = require("./Staff.js");
+const staff = require("../dao/staff.js");
 const Schema = mongoose.Schema;
 const schema = staff.discriminator(
   "Academic",
@@ -7,6 +7,16 @@ const schema = staff.discriminator(
     academicID: {
       type: [Schema.Types.ObjectId],
       ref: "Staff",
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: [
+        "Couse Coordinator",
+        "Course Instructor",
+        "TA",
+        "HOD",
+      ],
       required: true,
     },
     schedule: {

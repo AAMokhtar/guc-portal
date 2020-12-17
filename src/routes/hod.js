@@ -6,6 +6,7 @@ const { json } = require("express");
 app.post("/hod/assignInstructor", async function (req, res) {
   let { staffID, courseCode } = req.body;
   try {
+    // NOT  COMPLETED !
     // get uID
     let uID;
     // make sure staff id is valid

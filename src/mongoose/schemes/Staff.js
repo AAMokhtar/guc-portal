@@ -4,7 +4,7 @@ const Notification = require("./Notification");
 const Schema = mongoose.Schema;
 
 const schema = new mongoose.Schema({
-  id: {
+  _id: {
     type: String,
     unique: true,
     required: true,

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Request = require("Request.js");
 const Schema = mongoose.Schema;
 
 const schema = new Schema({

@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const LinkingSlot = require("./LinkingSlot");
+const Replacement = require("./Replacement");
 const Schema = mongoose.Schema;
 
 const schema = new mongoose.Schema({
@@ -13,7 +15,7 @@ const schema = new mongoose.Schema({
   },
   receiverID: {
     type: Schema.Types.ObjectId,
-    ref: "Academic",
+    ref: "Staff",
     required: true,
   },
   status: {
@@ -25,5 +27,17 @@ const schema = new mongoose.Schema({
   },
   sentDate: Date,
   responseDate: Date,
+  leave: {
+    type: Leave,
+  },
+  linkingSlot: {
+    type: LinkingSlot,
+  },
+  dayOff: {
+    type: DayOff,
+  },
+  replacement: {
+    type: Replacement,
+  },
 });
 module.exports = schema;

@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const LinkingSlot = require("./LinkingSlot");
 const Replacement = require("./Replacement");
+const DayOff = require("./DayOff");
+const Leave = require("./Leave");
 const Schema = mongoose.Schema;
 
 const schema = new mongoose.Schema({
@@ -25,8 +27,6 @@ const schema = new mongoose.Schema({
   comment: {
     type: String,
   },
-  sentDate: Date,
-  responseDate: Date,
   leave: {
     type: Leave,
   },
@@ -39,5 +39,7 @@ const schema = new mongoose.Schema({
   replacement: {
     type: Replacement,
   },
+  sentDate: Date,
+  responseDate: Date,
 });
 module.exports = schema;

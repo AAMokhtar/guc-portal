@@ -29,3 +29,34 @@ app.get("/hr/addMissingSign", async function (req, res) {
   }
 });
 */
+
+//------------------------------------------------DEPENDENCIES--------------------------------------
+
+var express = require("express");
+var router = express.Router();
+var isEmail = require("isemail");
+//to encrypt and decrypt passwords
+//required to store information about current user
+const jwt = require("jsonwebtoken");
+//-----------------------------------------------END OF DEPENDENCIES----------------------------
+
+//-------------------------------------------------MODELS---------------------------------------------------------------------------------------
+
+const staff = require("../mongoose/dao/staff.js");
+
+router.post("/register", async (req, res) => {
+  try {
+    let { email, password, role } = req.body.data;
+    let staffID = await staff.generateID(role);
+    if (await staff.checkIfEmailExists(email)) throw Error("Email Exists !!");
+    if (password == null) throw Error("Enter a password Please !!");
+    let result = await staff.create({ staffID, ...req.body.data });
+    res.status(201).json({ msg: "success", user: result });
+  } catch (error) {
+    console.log(error);
+
+    res.status(400).json({ msg: error.message });
+  }
+});
+
+module.exports = router;

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 //const { CustomGender } = require("../util/CustomGender");
 const Notification = require("./Notification");
+const Slot = require('./slot.js');
 const Schema = mongoose.Schema;
 
 const schema = new mongoose.Schema({
@@ -53,6 +54,7 @@ const schema = new mongoose.Schema({
   },
   facultyID: { type: Schema.Types.ObjectId, ref: "Faculty" },
   departmentID: { type: Schema.Types.ObjectId, ref: "Department" },
+  courseIDs: [{ type: Schema.Types.ObjectId, ref: "Course" }],
   notifications: {
     type: [Notification],
   },
@@ -66,9 +68,7 @@ const schema = new mongoose.Schema({
     required: true,
   },
   schedule: {
-    type: [Schema.Types.ObjectId],
-    ref: "Slot",
-    required: true,
+    type: [Slot],
   },
 });
 module.exports = schema;

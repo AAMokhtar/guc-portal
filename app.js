@@ -1,13 +1,27 @@
-var createError = require("http-errors");
 var express = require("express");
+var app = express();
+
+var createError = require("http-errors");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const assert = require("assert");
+const properties = require('./properties');
+//console colors
+const chalk = require('chalk');
+const green = chalk.bold.green;
+const red = chalk.bold.red;
+
+
+//routers
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+var staffRouter = require("./src/routes/staff");
 
-var app = express();
+//routes
+app.use("/", indexRouter);
+app.use("/users", usersRouter);
+app.use("/staff", staffRouter);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -19,8 +33,23 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+//DB connection
+require('./src/mongoose/util/connect&Initialize')(() => {
+  app.listen(properties.PORT, (err) => {
+    if(err) console.log(red('app failed to start ' + '(PORT: '+ properties.PORT +')'));
+    console.log(green('app is listening to port '+ properties.PORT));
+  });
+}); 
+
+
+//------------------------------------------------------------------------
+//                    MAYAR'S TRASH
+//------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------
+//                    END OF MAYAR'S TRASH
+//------------------------------------------------------------------------
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -37,37 +66,5 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
-
-//------------------------------------------------------------------------
-//                    MAYAR'S TRASH
-//------------------------------------------------------------------------
-
-//mongoose to connect to database
-const mongoose = require("mongoose");
-
-
-//mongoose connection parameters to fix deprecation warnings
-const mongConnectionParams = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useUnifiedTopology: true,
-};
-
-//TODO: enter mongoose connection here
-//connects to mongoose database
-const mongooseURL = "";
-mongoose
-  .connect(mongooseURL, mongConnectionParams)
-  .then(() => {
-    console.log("Database is up and running");
-  })
-  .catch(() => {
-    console.log("Database failed to connect");
-  });
-
-
-//------------------------------------------------------------------------
-//                    END OF MAYAR'S TRASH
-//------------------------------------------------------------------------
 
 module.exports = app;

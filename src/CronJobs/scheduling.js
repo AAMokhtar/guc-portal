@@ -52,4 +52,4 @@ const cron = require('node-cron');
  * the 11th of each month at 12:00AM 
  */
 const nextMonthAttendance = require('./nextMonthAttendance');
-module.exports.nxtAtt =  cron.schedule('0 0 11 * *', nextMonthAttendance;
+module.exports.nxtAtt =  cron.schedule('0 0 11 * *', nextMonthAttendance);

@@ -19,13 +19,13 @@ const staff = require("../mongoose/dao/staff.js");
 //login route
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body.data;
 
     //if user didn't enter email or password
     if (!email || !password) {
       return res
         .status(400)
-        .json({ msg: "Please enter both email and passowrd" });
+        .json({ msg: "Please enter both email and password" });
     }
 
     //if email entered is not valid
@@ -38,10 +38,7 @@ router.post("/login", async (req, res) => {
     //TODO: validate password
 
     //check if email exists in database
-    const existingstaff = await staff.findByCredentials(
-      req.body.email,
-      req.body.password
-    );
+    const existingstaff = await staff.findByCredentials(email, password);
 
     //user passed all checks
     //should log in and receive a token
@@ -49,17 +46,17 @@ router.post("/login", async (req, res) => {
     //First find the role of the user
 
     //get the id of the staff
-    const { id, role } = existingstaff;
+    const { staffID, role } = existingstaff;
 
     //fill the token payload with the staff id and role in uni
-    const payload = { id, role };
+    const payload = { staffID, role };
     //create a token
     let token = jwt.sign(payload, "secret", {
       noTimestamp: true,
       expiresIn: "1h",
     });
     //give the token to the user by adding it to the header of the response
-    res.header({ token });
+    res.header({ "auth-token": token });
 
     //TODO: what to send to the user?
     return res.json({ msg: "Login Successful" });

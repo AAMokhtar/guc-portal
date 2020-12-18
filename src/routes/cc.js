@@ -2,6 +2,8 @@
 var express = require('express');
 var router = express.Router();
 
+router.use(express.json());
+router.use(express.urlencoded({ extended: false }));
 
 const { authenticateAndAuthoriseCC } = require('./auth.js');
 
@@ -10,7 +12,8 @@ const { authenticateAndAuthoriseCC } = require('./auth.js');
 //--------------------------------------MODELS----------------------------------------------------
 
 const Staff = require('../mongoose/dao/staff.js');
-const Request = require('../mongoose/dao/request.js')
+const Request = require('../mongoose/dao/request.js');
+const Slot = require('../mongoose/dao/slot.js');
 
 //---------------------------------END OF MODELS--------------------------------------------------
 
@@ -18,12 +21,14 @@ const Request = require('../mongoose/dao/request.js')
 
 //show slot linking notifications route
 router.get('/slot-linking-notifications', authenticateAndAuthoriseCC, async (req, res) => {
+    try
+    {
     //gets the payload of the token
     //the payload is stored in req.user in the authentication method
     const user = req.user;
 
     //get the notifications of the user
-    const notifs = await (Staff.findOne({ _id: user.id })).notifications;
+    const notifs = await (Staff.findOne({ staffID: user.id })).notifications;
 
     //filters notifications to get only the slot linking ones
     const SLNotifs = notifs.filter( (notif) =>
@@ -39,11 +44,18 @@ router.get('/slot-linking-notifications', authenticateAndAuthoriseCC, async (req
         return res.status(200).json( { msg: "There are currently no slot linking notifications."} );
     
     }
+    catch(error)
+    {
+        res.status(500).json({ msg: error.message });
+    }
+}
 );
 
 //accept a slot linking request route
 router.post('/slot-linking-notifications/accept', authenticateAndAuthoriseCC, async (req, res) =>
 {
+    try
+    {
     //gets the payload of the token
     //the payload is stored in req.user in the authentication method
     const user = req.user;
@@ -80,7 +92,7 @@ router.post('/slot-linking-notifications/accept', authenticateAndAuthoriseCC, as
     //request did not receive a reply yet
 
     //get the record of the staff to add the slot to
-    const requestSender = await Staff.findOne( {_id: request.senderID} );
+    const requestSender = await Staff.findOne( { staffID: request.senderID } );
 
     //get the slot to be added
     const slot = request.linkingSlot.slot;
@@ -111,13 +123,19 @@ router.post('/slot-linking-notifications/accept', authenticateAndAuthoriseCC, as
     await request.save();
 
     return res.status(200).json( {msg: "Slot linking accepted."} );
-
+    }
+    catch(error)
+    {
+        res.status(500).json({ msg: error.message });
+    }
 }
 );
 
 //reject a slot linking request route
 router.post('/slot-linking-notifications/reject', authenticateAndAuthoriseCC, async (req, res) =>
 {
+    try
+    {
     //gets the payload of the token
     //the payload is stored in req.user in the authentication method
     const user = req.user;
@@ -161,15 +179,143 @@ router.post('/slot-linking-notifications/reject', authenticateAndAuthoriseCC, as
     await request.save();
 
     return res.status(200).json( {msg: "Slot linking rejected."} );
+    }
+    catch(error)
+    {
+        res.status(500).json({ msg: error.message });
+    }
+
+}
+);
+
+//add a slot of the course coordinated by the cc
+router.post('/course-slot/add', authenticateAndAuthoriseCC, async (req, res) => 
+{
+    try
+    {
+    //gets the payload of the token
+    //the payload is stored in req.user in the authentication method
+    const user = req.user;
+
+    //get the attributes of the slot to be added
+    const {weekday, slotNum, locationId} = req.body;
+    
+
+    //check if the location is already reserved during the chosen time (search for a slot already in the table with the same location and time)
+    const intersectingSlot = await Slot.find( {weekday: weekday, number: slotNum, location: locationId} );
+
+    //if the location is already taken during the chosen time by a slot
+    if(intersectingSlot)
+        return res.status(400).json( { msg: "Location chosen is already taken by a slot." } );
+
+    //get the record of the course coordinator
+    //populate the courses of the coordinator 
+    //populate the ids of the coordinators of those courses
+    //returns the courses attributed to the cc with their respective coordinator records
+    const courses =  await (Staff
+                                .findOne( {staffID: user.id} )  
+                                .populate({
+                                    path: "courseIDs",
+                                    populate: {
+                                        path: "coordinatorID"
+                                    }
+                                })).courseIDs;
+
+    //get the course coordinated by the coordinator
+    const courseCoordinated = courses.filter( (course) =>
+    {
+        course.coordinatorID.staffID === user.id;
+    });
+
+
+    //add the slot to the slot table
+    await Slot.create( { weekday: weekday, number: slotNum, location: locationId, course: courseCoordinated._id } );
+
+
+    //add the slot to the course table
+    const slot =  await Slot.findOne( { weekday: weekday, number: slotNum, location: locationId } );
+    courseCoordinated.slots.push(slot._id);
+    await courseCoordinated.save();
+
+    return res.status(200).json( { msg: "Slot added", slot: slot } );
+
+    }
+    catch(error)
+    {
+        res.status(500).json({ msg: error.message });
+    }
+
+}
+);
+
+//delete a slot of the course coordinated by the cc
+router.delete('/course-slot/delete', authenticateAndAuthoriseCC, async (req, res) => 
+{
+    try
+    {
+    //gets the payload of the token
+    //the payload is stored in req.user in the authentication method
+    const user = req.user;
+
+    //get the id of the slot to be deleted
+    const { slotId } = req.body;
+
+
+    //if there is no such slot
+    const slot = Slot.findOne( {_id: slotId } );
+    if(!slot)
+        return res.status(400).json( { msg: "There is no slot with the id given." } );
+
+
+    
+    //if the slot is not for the course assigned to the cc
+
+    //get the record of the course coordinator
+    //populate the courses of the coordinator 
+    //populate the ids of the coordinators of those courses
+    //returns the courses attributed to the cc with their respective coordinator records
+    const courses =  await (Staff
+        .findOne( {staffID: user.id} )  
+        .populate({
+            path: "courseIDs",
+            populate: {
+                path: "coordinatorID"
+            }
+        })).courseIDs;
+    //get the course coordinated by the coordinator
+    const courseCoordinated = courses.filter( (course) =>
+    {
+    course.coordinatorID.staffID === user.id;
+    });
+    //if the slot's course is not the course coordinated by the cc
+    if(courseCoordinated._id !== slot.course)
+        return res.status(400).json( { msg: "Slot is assigned to a course coordinated by another coordinator." } );
+
+
+    //remove from slot table
+    Slot.deleteOne( { _id: slotId } );
+    //if the slot is already taken by a staff => remove from schedule
+    //delete linking slot requests attributed to that slot
+    //course slot also
+    
+
+    //add the slot to the slot table
+    const slot = {weekday: weekday, number: slotNum, location: locationId, course: courseCoordinated._id} ;
+    Slot.create( slot );
+
+    return res.status(200).json( { msg: "Slot added", slot: slot } );
+
+    }
+    catch(error)
+    {
+        res.status(500).json({ msg: error.message });
+    }
 
 }
 );
 
 
-router.post('/cc/course/add')
+//-------------------------------------END OF COURSE COORDINATOR FUNCTIONALITIES---------------------------------------------
 
 
- //-------------------------------------END OF COURSE COORDINATOR FUNCTIONALITIES---------------------------------------------
-
-
- module.exports = router;
+module.exports = router;

@@ -18,7 +18,7 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var staffRouter = require("./src/routes/staff");
 var generalRouter = require('./src/routes/general');
-var ccRouter = equire('./src/routes/cc');
+var ccRouter = require('./src/routes/cc');
 
 //routes
 app.use("/", indexRouter);
@@ -62,5 +62,6 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
 
 module.exports = app;

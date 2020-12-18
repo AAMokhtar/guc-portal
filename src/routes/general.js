@@ -3,12 +3,17 @@
 var express = require('express');
 var router = express.Router();
 
+router.use(express.json());
+router.use(express.urlencoded({ extended: false }));
 
 //to encrypt and decrypt passwords
 const bcrypt = require('bcryptjs');
 //required to store information about current user
-const jst = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
+const properties = require('../../properties.js');
+//key used for jsonwebtoken
+const key = properties.JWT_KEY;
 //-----------------------------------------------END OF DEPENDENCIES----------------------------
 
 
@@ -83,13 +88,13 @@ router.post("/login", async (req, res) => {
         //First find the role of the user
 
         //get the id of the staff
-        const id = existingStaff.id;
+        const id = existingStaff.staffID;
         const role = existingStaff.role
 
         //fill the token payload with the staff id and role in uni
         const payload = { id: id, role: role };
         //create a token
-        const token = jwt.sign(payload, jwtKey);
+        const token = jwt.sign(payload, key);
         //give the token to the user by adding it to the header of the response
         res.header({ "auth-token": token });
 
@@ -100,7 +105,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
+//------------------------------------------END OF ROUTES-----------------------------------------------------
 
-  //------------------------------------------END OF ROUTES-----------------------------------------------------
-
-  module.exports = router;
+module.exports = router;

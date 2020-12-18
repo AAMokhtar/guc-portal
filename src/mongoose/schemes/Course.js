@@ -7,7 +7,7 @@ const schema = new Schema({
     unique: true,
   },
   instructorIDs: [{ type: Schema.Types.ObjectId, ref: "Staff" }],
-  coordinatorIDs: { type: Schema.Types.ObjectId, ref: "Staff" },
+  coordinatorID: { type: Schema.Types.ObjectId, ref: "Staff" },
   //course name
   taList: [{ type: Schema.Types.ObjectId, ref: "Staff" }],
   slots: [{ type: Schema.Types.ObjectId, ref: "Slot" }],

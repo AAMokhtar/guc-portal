@@ -2,7 +2,7 @@
 const jst = require('jsonwebtoken');
 const properties = require('../../properties.js');
 
-//TODO: save it in a separate file?
+
 //key used for jsonwebtoken
 const key = properties.JWT_KEY;
 

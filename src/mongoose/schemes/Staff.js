@@ -29,7 +29,7 @@ const schema = new mongoose.Schema({
     enum: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
   },
   leaveBalance: {
-    type: String,
+    type: Number,
   },
   attendance: [
     {
@@ -47,6 +47,10 @@ const schema = new mongoose.Schema({
   ],
   accidentDays: {
     type: Number,
+    validate: {
+      validator: Number.isInteger,
+      message: "{VALUE} is not an integer value",
+    },
   },
   officeLocationID: { type: Schema.Types.ObjectId, ref: "Location" },
   salary: {

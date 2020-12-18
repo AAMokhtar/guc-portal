@@ -17,7 +17,7 @@ const Request = require('../mongoose/dao/request.js')
 //---------------------------------------COURSE COORDINATOR FUNCTIONALITIES-------------------------------------------------
 
 //show slot linking notifications route
-router.get('/cc/slot-linking-notifications', authenticateAndAuthoriseCC, async (req, res) => {
+router.get('/slot-linking-notifications', authenticateAndAuthoriseCC, async (req, res) => {
     //gets the payload of the token
     //the payload is stored in req.user in the authentication method
     const user = req.user;
@@ -42,7 +42,7 @@ router.get('/cc/slot-linking-notifications', authenticateAndAuthoriseCC, async (
 );
 
 //accept a slot linking request route
-router.post('/cc/slot-linking-notifications/accept', authenticateAndAuthoriseCC, async (req, res) =>
+router.post('/slot-linking-notifications/accept', authenticateAndAuthoriseCC, async (req, res) =>
 {
     //gets the payload of the token
     //the payload is stored in req.user in the authentication method
@@ -116,7 +116,7 @@ router.post('/cc/slot-linking-notifications/accept', authenticateAndAuthoriseCC,
 );
 
 //reject a slot linking request route
-router.post('/cc/slot-linking-notifications/reject', authenticateAndAuthoriseCC, async (req, res) =>
+router.post('/slot-linking-notifications/reject', authenticateAndAuthoriseCC, async (req, res) =>
 {
     //gets the payload of the token
     //the payload is stored in req.user in the authentication method

@@ -17,11 +17,15 @@ const red = chalk.bold.red;
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var staffRouter = require("./src/routes/staff");
+var generalRouter = require('./src/routes/general');
+var ccRouter = equire('./src/routes/cc');
 
 //routes
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/staff", staffRouter);
+app.use("/course-coordinator", ccRouter);
+app.use("/general", generalRouter);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -42,14 +46,6 @@ require('./src/mongoose/util/connect&Initialize')(() => {
 }); 
 
 
-//------------------------------------------------------------------------
-//                    MAYAR'S TRASH
-//------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------
-//                    END OF MAYAR'S TRASH
-//------------------------------------------------------------------------
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

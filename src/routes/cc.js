@@ -5,7 +5,7 @@ var router = express.Router();
 router.use(express.json());
 router.use(express.urlencoded({ extended: false }));
 
-const { authenticateAndAuthoriseCC } = require('./auth.js');
+const { authenticateAndAuthorise } = require('./auth.js');
 
 //-----------------------------------------------END OF DEPENDENCIES----------------------------
 
@@ -14,13 +14,14 @@ const { authenticateAndAuthoriseCC } = require('./auth.js');
 const Staff = require('../mongoose/dao/staff.js');
 const Request = require('../mongoose/dao/request.js');
 const Slot = require('../mongoose/dao/slot.js');
+const LinkingSlot = require('../mongoose/dao/linkingSlot.js');
 
 //---------------------------------END OF MODELS--------------------------------------------------
 
 //---------------------------------------COURSE COORDINATOR FUNCTIONALITIES-------------------------------------------------
 
 //show slot linking notifications route
-router.get('/slot-linking-notifications', authenticateAndAuthoriseCC, async (req, res) => {
+router.get('/slot-linking-notifications', authenticateAndAuthorise("Course Coordinator"), async (req, res) => {
     try
     {
     //gets the payload of the token
@@ -28,7 +29,7 @@ router.get('/slot-linking-notifications', authenticateAndAuthoriseCC, async (req
     const user = req.user;
 
     //get the notifications of the user
-    const notifs = await (Staff.findOne({ staffID: user.id })).notifications;
+    const notifs = (await Staff.findOne({ staffID: user.staffID })).notifications;
 
     //filters notifications to get only the slot linking ones
     const SLNotifs = notifs.filter( (notif) =>
@@ -52,7 +53,7 @@ router.get('/slot-linking-notifications', authenticateAndAuthoriseCC, async (req
 );
 
 //accept a slot linking request route
-router.post('/slot-linking-notifications/accept', authenticateAndAuthoriseCC, async (req, res) =>
+router.post('/slot-linking-notifications/accept', authenticateAndAuthorise("Course Coordinator"), async (req, res) =>
 {
     try
     {
@@ -66,6 +67,9 @@ router.post('/slot-linking-notifications/accept', authenticateAndAuthoriseCC, as
     //get the request to be accepted from the database
     const request = await Request.findOne( { _id: requestID });
 
+    //get the objectId of the staff
+    const staffID = (await Staff.findOne( { staffID: user.staffID } ) )._id;
+
 
 
     //if there is no such request
@@ -77,7 +81,7 @@ router.post('/slot-linking-notifications/accept', authenticateAndAuthoriseCC, as
         return res.status(400).json( { msg: "Request entered is not a slot linking request."} );
 
      //if the request is not directed towards the current user
-    if(request.receiverID !== user.id)
+    if(request.receiverID !== staffID)
         return res.status(400).json( { msg: "Request entered is not directed to current user."} );
 
     //if request already received the response (not pending)
@@ -132,7 +136,7 @@ router.post('/slot-linking-notifications/accept', authenticateAndAuthoriseCC, as
 );
 
 //reject a slot linking request route
-router.post('/slot-linking-notifications/reject', authenticateAndAuthoriseCC, async (req, res) =>
+router.post('/slot-linking-notifications/reject',authenticateAndAuthorise("Course Coordinator"), async (req, res) =>
 {
     try
     {
@@ -145,7 +149,9 @@ router.post('/slot-linking-notifications/reject', authenticateAndAuthoriseCC, as
 
     //get the request to be rejected from the database
     const request = await Request.findOne( { _id: requestID });
-
+    
+    //get the objectId of the staff
+    const staffID = (await Staff.findOne( { staffID: user.staffID } ) )._id;
 
 
     //if there is no such request
@@ -157,7 +163,7 @@ router.post('/slot-linking-notifications/reject', authenticateAndAuthoriseCC, as
         return res.status(400).json( { msg: "Request entered is not a slot linking request."} );
 
      //if the request is not directed towards the current user
-    if(request.receiverID !== user.id)
+    if(request.receiverID !== staffID)
         return res.status(400).json( { msg: "Request entered is not directed to current user."} );
 
     //if request already received the response (not pending)
@@ -189,7 +195,7 @@ router.post('/slot-linking-notifications/reject', authenticateAndAuthoriseCC, as
 );
 
 //add a slot of the course coordinated by the cc
-router.post('/course-slot/add', authenticateAndAuthoriseCC, async (req, res) => 
+router.post('/course-slot/add', authenticateAndAuthorise("Course Coordinator"), async (req, res) => 
 {
     try
     {
@@ -210,10 +216,10 @@ router.post('/course-slot/add', authenticateAndAuthoriseCC, async (req, res) =>
 
     //get the record of the course coordinator
     //populate the courses of the coordinator 
-    //populate the ids of the coordinators of those courses
+    //populate the coordinators of those courses
     //returns the courses attributed to the cc with their respective coordinator records
-    const courses =  await (Staff
-                                .findOne( {staffID: user.id} )  
+    const courses =  (await Staff
+                                .findOne( {staffID: user.staffID} )  
                                 .populate({
                                     path: "courseIDs",
                                     populate: {
@@ -224,7 +230,7 @@ router.post('/course-slot/add', authenticateAndAuthoriseCC, async (req, res) =>
     //get the course coordinated by the coordinator
     const courseCoordinated = courses.filter( (course) =>
     {
-        course.coordinatorID.staffID === user.id;
+        course.coordinatorID.staffID === user.staffID;
     });
 
 
@@ -249,7 +255,7 @@ router.post('/course-slot/add', authenticateAndAuthoriseCC, async (req, res) =>
 );
 
 //delete a slot of the course coordinated by the cc
-router.delete('/course-slot/delete', authenticateAndAuthoriseCC, async (req, res) => 
+router.delete('/course-slot/delete', authenticateAndAuthorise("Course Coordinator"), async (req, res) => 
 {
     try
     {
@@ -262,7 +268,7 @@ router.delete('/course-slot/delete', authenticateAndAuthoriseCC, async (req, res
 
 
     //if there is no such slot
-    const slot = Slot.findOne( {_id: slotId } );
+    const slot = await Slot.findOne( {_id: slotId } );
     if(!slot)
         return res.status(400).json( { msg: "There is no slot with the id given." } );
 
@@ -272,20 +278,20 @@ router.delete('/course-slot/delete', authenticateAndAuthoriseCC, async (req, res
 
     //get the record of the course coordinator
     //populate the courses of the coordinator 
-    //populate the ids of the coordinators of those courses
+    //populate the the coordinators of those courses
     //returns the courses attributed to the cc with their respective coordinator records
-    const courses =  await (Staff
-        .findOne( {staffID: user.id} )  
-        .populate({
-            path: "courseIDs",
-            populate: {
-                path: "coordinatorID"
-            }
-        })).courseIDs;
+    const courses =  (await Staff
+                                .findOne( {staffID: user.staffID} )  
+                                .populate({
+                                    path: "courseIDs",
+                                    populate: {
+                                        path: "coordinatorID"
+                                    }
+                                })).courseIDs;
     //get the course coordinated by the coordinator
     const courseCoordinated = courses.filter( (course) =>
     {
-    course.coordinatorID.staffID === user.id;
+        course.coordinatorID.staffID === user.staffID;
     });
     //if the slot's course is not the course coordinated by the cc
     if(courseCoordinated._id !== slot.course)
@@ -293,9 +299,27 @@ router.delete('/course-slot/delete', authenticateAndAuthoriseCC, async (req, res
 
 
     //remove from slot table
-    Slot.deleteOne( { _id: slotId } );
+    await Slot.deleteOne( { _id: slotId } );
+
+
+
     //if the slot is already taken by a staff => remove from schedule
+
+    //get the staff that takes the course coordinated by cc
+    //remove the slot from the schedule if it shares the same id as the slot to be removed
+    await Staff.update( { courseIDs: courseCoordinated._id },
+                        { 
+                            $pull : { "schedule._id":  slotId}
+                        },
+                        { multi: true } );
+    
+
     //delete linking slot requests attributed to that slot
+
+    const LSid = LinkingSlot.findOne( { slot : slotId });
+
+
+    await 
     //course slot also
     
 

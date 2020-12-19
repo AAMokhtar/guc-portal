@@ -1,51 +1,60 @@
 var express = require("express");
 var app = express();
+const bodyParser = require("body-parser");
 
 var createError = require("http-errors");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const assert = require("assert");
-const properties = require('./properties');
+const properties = require("./properties");
 //console colors
-const chalk = require('chalk');
+const chalk = require("chalk");
 const green = chalk.bold.green;
 const red = chalk.bold.red;
-
 
 //routers
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+<<<<<<< HEAD
 var staffRouter = require("./src/routes/staff");
 var generalRouter = require('./src/routes/general');
 var ccRouter = require('./src/routes/cc');
+=======
+var hrRouter = require("./src/routes/hr");
+>>>>>>> 78ecf82331a432ec7eb0485626a971f306a87350
 
-//routes
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/staff", staffRouter);
-app.use("/course-coordinator", ccRouter);
-app.use("/general", generalRouter);
+var staffRouter = require("./src/routes/staff");
+var generalRouter = require("./src/routes/general");
+var ccRouter = require("./src/routes/cc");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
 app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-
+//routes
+app.use("/", indexRouter);
+app.use("/users", usersRouter);
+app.use("/staff", staffRouter);
+app.use("/course-coordinator", ccRouter);
+app.use("/hr", hrRouter);
+app.use("/general", generalRouter);
 //DB connection
-require('./src/mongoose/util/connect&Initialize')(() => {
+require("./src/mongoose/util/connect&Initialize")(() => {
   app.listen(properties.PORT, (err) => {
-    if(err) console.log(red('app failed to start ' + '(PORT: '+ properties.PORT +')'));
-    console.log(green('app is listening to port '+ properties.PORT));
+    if (err)
+      console.log(
+        red("app failed to start " + "(PORT: " + properties.PORT + ")")
+      );
+    console.log(green("app is listening to port " + properties.PORT));
   });
-}); 
-
-
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

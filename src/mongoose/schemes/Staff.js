@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
 //const { CustomGender } = require("../util/CustomGender");
 const Notification = require("./Notification");
-const Slot = require('./slot.js');
+const Slot = require("./slot.js");
+const bcrypt = require("bcryptjs");
+
 const Schema = mongoose.Schema;
 
 const schema = new mongoose.Schema({
-  _id: {
+  staffID: {
     type: String,
     unique: true,
     required: true,
@@ -13,9 +15,11 @@ const schema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
+    required: true,
   },
   password: {
     type: String,
+    required: true,
   },
   name: {
     type: String,
@@ -75,4 +79,32 @@ const schema = new mongoose.Schema({
     type: [Slot],
   },
 });
+
+/* schema.methods.generateAuthToken = async function () {
+  const self = this;
+  const token = jwt.sign({ _id: self._id.toString() }, process.env.JWT_SECRET);
+
+  //user.tokens = user.tokens.concat({ token });
+  await user.save();
+
+  return token;
+}; */
+
+// Hash the plain text password before saving
+schema.pre("save", async function (next) {
+  const user = this;
+
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 8);
+  }
+
+  next();
+});
+
+// Delete user tasks when user is removed
+/* schema.pre("remove", async function (next) {
+  const user = this;
+  await Task.deleteMany({ owner: user._id });
+  next();
+}); */
 module.exports = schema;

@@ -50,14 +50,14 @@ router.post("/login", async (req, res) => {
     //First find the role of the user
 
     //get the id of the staff
-    const { staffID, role } = existingstaff;
+    const { staffID, role, id } = existingstaff;
 
     //fill the token payload with the staff id and role in uni
-    const payload = { staffID, role };
+    const payload = { staffID, role, objectID: id };
     //create a token
     let token = jwt.sign(payload, key, {
       noTimestamp: true,
-      expiresIn: "1h",
+      expiresIn: "2h",
     });
     //give the token to the user by adding it to the header of the response
     res.header({ "auth-token": token });

@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const properties = require("../../properties.js");
 
-
 //key used for jsonwebtoken
 const key = properties.JWT_KEY;
 

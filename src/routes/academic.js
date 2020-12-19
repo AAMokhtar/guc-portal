@@ -30,7 +30,10 @@ const Staff = require('../mongoose/dao/staff.js');
 
 //---------------------------------------ACADEMIC STAFF FUNCTIONALITIES-------------------------------------------------
 
-router.get('/schedule', authenticateAndAuthorise)
+router.get('/schedule', authenticateAndAuthoriseAC, (req, res) =>
+{
+    
+});
 
 //-------------------------------------END OF ACADEMIC FUNCTIONALITIES---------------------------------------------
 

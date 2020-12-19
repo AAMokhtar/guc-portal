@@ -6,6 +6,10 @@ var isEmail = require("isemail");
 //to encrypt and decrypt passwords
 //required to store information about current user
 const jwt = require("jsonwebtoken");
+const properties = require("../../properties.js");
+
+//key used for jsonwebtoken
+const key = properties.JWT_KEY;
 //-----------------------------------------------END OF DEPENDENCIES----------------------------
 
 //-------------------------------------------------MODELS---------------------------------------------------------------------------------------
@@ -51,7 +55,7 @@ router.post("/login", async (req, res) => {
     //fill the token payload with the staff id and role in uni
     const payload = { staffID, role };
     //create a token
-    let token = jwt.sign(payload, "secret", {
+    let token = jwt.sign(payload, key, {
       noTimestamp: true,
       expiresIn: "1h",
     });

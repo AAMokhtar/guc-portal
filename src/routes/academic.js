@@ -30,9 +30,22 @@ const Staff = require('../mongoose/dao/staff.js');
 
 //---------------------------------------ACADEMIC STAFF FUNCTIONALITIES-------------------------------------------------
 
-router.get('/schedule', authenticateAndAuthoriseAC, (req, res) =>
+//shows the schedule
+router.get('/schedule', authenticateAndAuthoriseAC, async (req, res) =>
 {
-    
+    try
+    {
+        //gets the payload of the token
+        //the payload is stored in req.user in the authentication method
+        const user = req.user;
+
+        const schedule = (await Staff.findOne( { _id: u } ))
+    }
+    catch(error)
+    {
+        return res.status(500).json( { msg: error.message } );
+    }
+
 });
 
 //-------------------------------------END OF ACADEMIC FUNCTIONALITIES---------------------------------------------

@@ -194,4 +194,45 @@ router.get(
     }
   }
 );
+router.get(
+  "/viewDayOff",
+  authenticateAndAuthorise("HOD"),
+  async function (req, res) {
+    try {
+      // get uID
+      let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+      let { coursesIDs } = await department.findOne({ hodID: objectID });
+      let result = await course.find({ _id: { $in: coursesIDs } });
+      let temp = [];
+      result.forEach((element) => {
+        // staff ?
+        temp = _.union(temp, element.instructorIDs, element.taList);
+      });
+
+      result = await staff.find({ _id: { $in: temp } }, "dayOff staffID");
+      if (staffID) {
+        let actualStaff;
+        result.forEach((element) => {
+          if (element.staffID == staffID) actualStaff = element;
+        });
+        if (!actualStaff)
+          throw Error(
+            "Staff memeber doesnt exist in the same department of this HOD"
+          );
+        result = actualStaff;
+      }
+      res.status(200).json({
+        result: result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
 module.exports = router;

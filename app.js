@@ -7,8 +7,8 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const assert = require("assert");
-const properties = require('./properties');
-const cronJobs = require('./src/CronJobs/scheduling');
+const properties = require("./properties");
+const cronJobs = require("./src/CronJobs/scheduling");
 //console colors
 const chalk = require("chalk");
 const green = chalk.bold.green;
@@ -18,10 +18,10 @@ const red = chalk.bold.red;
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var staffRouter = require("./src/routes/staff");
-var generalRouter = require('./src/routes/general');
-var ccRouter = require('./src/routes/cc');
+var generalRouter = require("./src/routes/general");
+var ccRouter = require("./src/routes/cc");
 var hrRouter = require("./src/routes/hr");
-
+var hodRouter = require("./src/routes/hod");
 
 var staffRouter = require("./src/routes/staff");
 var generalRouter = require("./src/routes/general");
@@ -45,12 +45,13 @@ app.use("/staff", staffRouter);
 app.use("/course-coordinator", ccRouter);
 app.use("/hr", hrRouter);
 app.use("/general", generalRouter);
+app.use("/hod", hodRouter);
 
 //start monitoring cron jobs
 cronJobs.nxtAtt.start();
 
 //DB + server connection
-require('./src/mongoose/util/connect&Initialize')(() => {
+require("./src/mongoose/util/connect&Initialize")(() => {
   app.listen(properties.PORT, (err) => {
     if (err)
       console.log(
@@ -75,6 +76,5 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
-
 
 module.exports = app;

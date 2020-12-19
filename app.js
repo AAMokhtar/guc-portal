@@ -26,6 +26,7 @@ var hodRouter = require("./src/routes/hod");
 var staffRouter = require("./src/routes/staff");
 var generalRouter = require("./src/routes/general");
 var ccRouter = require("./src/routes/cc");
+var academicRouter = require("./src/routes/academic");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -46,6 +47,7 @@ app.use("/course-coordinator", ccRouter);
 app.use("/hr", hrRouter);
 app.use("/general", generalRouter);
 app.use("/hod", hodRouter);
+app.use("/academic", academicRouter);
 
 //start monitoring cron jobs
 cronJobs.nxtAtt.start();

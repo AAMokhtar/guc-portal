@@ -30,7 +30,6 @@ module.exports = function (callback) {
     require("../dao/notification");
     require("../dao/replacement");
     require("../dao/request");
-    require("../dao/schedule");
     require("../dao/slot");
     require("../dao/staff");
 

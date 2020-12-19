@@ -49,6 +49,12 @@ const staff = require("../mongoose/dao/staff.js");
 router.post("/register", async (req, res) => {
   try {
     let { email, password, role } = req.body.data;
+    if (!isEmail.validate(email)) {
+      return res
+        .status(400)
+        .json({ msg: "Please enter a valid email address" });
+    }
+
     let staffID = await staff.generateID(role);
     if (await staff.checkIfEmailExists(email)) throw Error("Email Exists !!");
     if (password == null) throw Error("Enter a password Please !!");
@@ -65,6 +71,12 @@ router.post("/HRregister", async (req, res) => {
   try {
     // the role in this route has to be an HR
     let { email, password, role } = req.body.data;
+    if (!isEmail.validate(email)) {
+      return res
+        .status(400)
+        .json({ msg: "Please enter a valid email address" });
+    }
+
     if (role != "HR") throw Error("wrong register route");
     let staffID = await staff.generateID(role);
     if (await staff.checkIfEmailExists(email)) throw Error("Email Exists !!");
@@ -83,6 +95,12 @@ router.post(
   async (req, res) => {
     try {
       let { email, password, role } = req.body.data;
+      if (!isEmail.validate(email)) {
+        return res
+          .status(400)
+          .json({ msg: "Please enter a valid email address" });
+      }
+
       let staffID = await staff.generateID(role);
       if (await staff.checkIfEmailExists(email)) throw Error("Email Exists !!");
       if (password == null) throw Error("Enter a password Please !!");

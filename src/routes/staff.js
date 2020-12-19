@@ -168,8 +168,8 @@ router.put('/resetpassword', async function(req, res) {
 /**
  * Sign a user into the system 
  */
-// router.put('/signin', async function(req, res) {
+router.put('/signin', async function(req, res) {
 
-// });
+});
 
 module.exports = router;

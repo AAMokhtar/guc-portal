@@ -9,6 +9,7 @@ var logger = require("morgan");
 const assert = require("assert");
 const properties = require("./properties");
 const cronJobs = require("./src/CronJobs/scheduling");
+
 //console colors
 const chalk = require("chalk");
 const green = chalk.bold.green;
@@ -22,11 +23,11 @@ var generalRouter = require("./src/routes/general");
 var ccRouter = require("./src/routes/cc");
 var hrRouter = require("./src/routes/hr");
 var hodRouter = require("./src/routes/hod");
-
 var staffRouter = require("./src/routes/staff");
 var generalRouter = require("./src/routes/general");
 var ccRouter = require("./src/routes/cc");
 var academicRouter = require("./src/routes/academic");
+const { authenticate } = require("./src/routes/auth");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -40,11 +41,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 //routes
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+app.use("/general", generalRouter);
+app.use("/hr", hrRouter);
+app.use(authenticate);
 app.use("/staff", staffRouter);
 app.use("/course-coordinator", ccRouter);
-app.use("/hr", hrRouter);
 app.use("/general", generalRouter);
 app.use("/hod", hodRouter);
 app.use("/academic", academicRouter);

@@ -52,7 +52,7 @@ function authenticateAndAuthorise(role) {
         //if current user is a course coordinator, continue executing the next function
         next();
       } else {
-        res.status(401).json({ msg: "Unauthorized to access this page." });
+        return res.status(401).json({ msg: "Unauthorized to access this page." });
       }
     } catch (
       error //catches error thrown should token fail verification
@@ -87,7 +87,7 @@ function authenticateAndAuthoriseAC(req, res, next) {
       if (verified.role !== "HR") {
         next();
       } else {
-        res.status(401).json({ msg: "Unauthorized to access this page." });
+        return res.status(401).json({ msg: "Unauthorized to access this page." });
       }
     } catch (
       error //catches error thrown should token fail verification

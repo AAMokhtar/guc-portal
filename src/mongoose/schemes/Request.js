@@ -23,6 +23,7 @@ const schema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["Pending", "Accepted", "Rejected"],
+    default: "Pending",
   },
   comment: {
     type: String,

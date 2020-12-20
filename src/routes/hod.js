@@ -1,6 +1,7 @@
 const app = require("../../app");
 const staff = require("../mongoose/dao/staff");
 const department = require("../mongoose/dao/department");
+const request = require("../mongoose/dao/request");
 const course = require("../mongoose/dao/course");
 const express = require("express");
 const { json } = require("express");
@@ -225,6 +226,41 @@ router.get(
       }
       res.status(200).json({
         result: result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+router.get(
+  "/viewRequests",
+  authenticateAndAuthorise("HOD"),
+  async function (req, res) {
+    try {
+      // get uID
+      let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+      let requests;
+
+      if (staffID) {
+        let staffDoc = await staff.findOne({ staffID });
+        requests = await request.find({
+          receiverID: objectID,
+          senderID: staffDoc.id,
+        });
+      } else {
+        requests = await reqeust.find({
+          receiverID: objectID,
+        });
+      }
+
+      res.status(200).json({
+        result: requests,
       });
 
       // make sure staff id is valid

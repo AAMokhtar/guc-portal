@@ -389,6 +389,8 @@ router.get(
   authenticateAndAuthorise("HOD"),
   async function (req, res) {
     try {
+      //// NEEDS MODIFICATIONS !!!!!
+
       // get uID
       // let { staffID } = req.query;
       let { staffID: uID, objectID } = req.user;
@@ -473,6 +475,86 @@ router.get(
 
       // make sure staff id is valid
     } catch (error) {
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+router.get(
+  "/viewAssignements",
+  authenticateAndAuthorise("HOD"),
+  async function (req, res) {
+    try {
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+      let requests;
+
+      let departmentDoc = await department
+        .findOne({ hodID: objectID })
+        .populate({
+          path: "coursesIDs",
+          populate: {
+            path: "instructorIDs taList coordinatorID",
+          },
+        });
+
+      //console.log(JSON.stringify(departmentDoc));
+      let result = [];
+
+      await Promise.all(
+        departmentDoc.coursesIDs.map(async (course) => {
+          let courseID = course._id;
+          //     console.log(courseID);
+          let courseResult = [];
+
+          course.instructorIDs.forEach((ta) => {
+            let slotsResults = [];
+
+            ta.schedule.forEach((schedule) => {
+              if (courseID.equals(schedule.course)) slotsResults.push(schedule);
+            });
+
+            courseResult.push({
+              staffID: ta.staffID,
+              staffObjectID: ta.id,
+              role: ta.role,
+              schedule: slotsResults,
+            });
+          });
+          course.taList.forEach((ta) => {
+            let slotsResults = [];
+
+            ta.schedule.forEach((schedule) => {
+              if (courseID.equals(schedule.course)) slotsResults.push(schedule);
+            });
+            courseResult.push({
+              staffID: ta.staffID,
+              staffObjectID: ta.id,
+              role: ta.role,
+              schedule: slotsResults,
+            });
+          });
+
+          result.push({
+            courseCode: course.courseCode,
+            courseID: course.id,
+            result: courseResult,
+          });
+        })
+      );
+
+      //  departmentDoc = departmentDoc.populate("coursesIDs");
+      //   .("coursesIDs.taList");
+      res.status(200).json({
+        result: result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      console.log(error);
       res.status(400).json({
         msg: error.message,
       });

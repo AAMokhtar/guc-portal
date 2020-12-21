@@ -20,12 +20,13 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var staffRouter = require("./src/routes/staff");
 var generalRouter = require("./src/routes/general");
-var ccRouter = require("./src/routes/cc");
 var hrRouter = require("./src/routes/hr");
 var hodRouter = require("./src/routes/hod");
 var staffRouter = require("./src/routes/staff");
 var generalRouter = require("./src/routes/general");
 var ccRouter = require("./src/routes/cc");
+var ciRouter = require("./src/routes/ci");
+
 var academicRouter = require("./src/routes/academic");
 const { authenticate } = require("./src/routes/auth");
 
@@ -49,6 +50,7 @@ app.use("/course-coordinator", ccRouter);
 app.use("/general", generalRouter);
 app.use("/hod", hodRouter);
 app.use("/academic", academicRouter);
+app.use("/ci", ciRouter);
 
 //start monitoring cron jobs
 cronJobs.nxtAtt.start();

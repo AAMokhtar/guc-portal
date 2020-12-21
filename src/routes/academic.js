@@ -686,10 +686,36 @@ router.post('/compensation-leave-request/send', authenticateAndAuthoriseAC, asyn
         //the payload is stored in req.user in the authentication method
         const user = req.user;
 
-        //gets the string denoting which weekday
-        const { dayOff, reason } = req.body;
+        //gets the date for the comp leave
+        //a date to compensate in
+        //and a string denoting the reason
+        const { leaveDate, compDate, reason } = req.body;
 
-        //reason is mandatory here
+        //user should enter all three
+
+        if(!leaveDate)
+            return res.status(400).json( { msg: "Please enter the date for the leave." } );
+        if(!compDate)
+            return res.status(400).json( { msg: "Please enter the date for the compensation." } );
+        if(!reason)
+            return res.status(400).json( { msg: "Please enter the reason for the compensation leave." } );
+
+
+        //check that the leave and compensation dates are dates
+
+        if(!(leaveDate instanceof Date))
+            return res.status(400).json( { msg: "Please enter the leave date as a date." } );
+        if(!(compDate instanceof Date))
+            return res.status(400).json( { msg: "Please enter the compensation date as a date." } );
+
+
+        //if the leave date already passed
+
+        if(leaveDate < Date.now())
+            return res.status(400).json( { msg: "Leave date input already passed." } );
+
+        //leave date is not a working day
+        //comp Date should be in the same month as leave(their weird month that starts at 11 and ends at 10?)
 
         //check if start date is yet to come
         //check if the number of working days missed can be subtracted from the leave balance

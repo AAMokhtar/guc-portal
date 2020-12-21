@@ -9,28 +9,41 @@ const Schema = mongoose.Schema;
 const schema = new mongoose.Schema({
   staffID: {
     type: String,
-    unique: true,
-    required: true,
+    unique: [true, "the provided staff id is not unique"],
+    required: [true, "please enter your staff id"],
   },
   email: {
     type: String,
-    unique: true,
-    required: true,
+    unique: [true, "the email entered is not unique"],
+    required: [true, "please provide your email"],
   },
   password: {
     type: String,
-    required: true,
+    required: [true, "please provide a password"],
   },
   name: {
     type: String,
   },
   gender: {
     type: String,
-    enum: ["Male", "Female"],
+    enum: {
+      values: ["Male", "Female"],
+      message: "please enter a valid gender (Male,Female)",
+    },
   },
   dayOff: {
     type: String,
-    enum: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+    enum: {
+      values: [
+        "Saturday",
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+      ],
+      message: "{VALUE} is not an valid day",
+    },
   },
   leaveBalance: {
     type: Number,
@@ -72,7 +85,11 @@ const schema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["HR", "Course Coordinator", "Course Instructor", "TA", "HOD"],
+    enum: {
+      values: ["HR", "Course Coordinator", "Course Instructor", "TA", "HOD"],
+      message:
+        'please endter a valid role from these values: ["HR", "Course Coordinator", "Course Instructor", "TA", "HOD"]',
+    },
     required: true,
   },
   schedule: {

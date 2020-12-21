@@ -3,6 +3,7 @@ var router = express.Router();
 
 const HTTP_CODES = require('./r_util/httpCodes');
 const bcrypt = require("bcryptjs");
+const isEmail = require("isemail");
 
 
 
@@ -14,6 +15,10 @@ const LinkingSlot = require('../mongoose/dao/linkingSlot.js');
 const Leave = require('../mongoose/dao/leave.js');
 const DayOff = require('../mongoose/dao/dayOff.js');
 const Replacement = require('../mongoose/dao/replacement.js');
+const faculty = require('../mongoose/dao/faculty');
+const department = require('../mongoose/dao/department');
+const Location = require('../mongoose/dao/location');
+
 
 //=====================:-ROUTES-:======================
 /**
@@ -29,7 +34,7 @@ router.get('/myprofile', async function(req, res) {
     }
 
     //remove sensitive info 
-    delete user.password;
+    user.set('password', null); // password is null
 
     //otherwise return the user
     return res.status(HTTP_CODES.OK).send(user); 
@@ -39,60 +44,145 @@ router.get('/myprofile', async function(req, res) {
  * update a user's info. 
  * NOTE: academic members can’t update their salary, faculty and department.
  * req.body contains the updated user 
+ * @param email is the updated emai;
+ * @param gender is the updated gender
+ * @param officeLocation is the updated office location name
+ * @param facultyName is the name of the updated faculty
+ * @param departmentName is the name of the updated department
+ * @param others is any extra info the user wants to provide (JSON)
  */
-//TODO: UPDATE IT
 router.put('/updateprofile', async function(req, res) {
-
-    var updatedUser = req.body;
     const curid = req.user.staffID;
 
-    //id and name should not be updated so 
-    //we remove them in case they are provided
-    delete updatedUser.staffID;
-    delete updatedUser.name;
-    
-    //password is updated in another route
-    delete updatedUser.password;
+    var updatedUser = req.body;
+    var user = await Staff.findOne({'staffID': curid});
 
-    //they are unauthorized to update the following
-    delete updatedUser.dayOff;
-    delete updatedUser.leaveBalance;
-    delete updatedUser.attendance;
-    delete updatedUser.accidentDays;
-    delete updatedUser.notifications;
-    delete updatedUser.role;
-    delete updatedUser.schedule;
-    delete updatedUser.courseIDs
-
-
-    //is the current user in HR?
-    const isHR = curid.startsWith('h');
-
-    //academic members cannot update their salary, faculty, department
-    if(!isHR){
-        delete updatedUser.salary;
-        delete updatedUser.facultyID;
-        delete updatedUser.departmentID;
-    }
-    else{
-       //TODO: get object ids of new faculty + department. verify that 
-       //this department falls under the faculty 
-    }
-
-    //===validate other data===
-    //isemail validate
-    //check if email exists
-    //gender male female
-    //office location exists then get officeLocation object id
-    //salary is a positive number
-
-    //update the document having curid with the info in updateduser;
-    const user = await Staff.findOneAndUpdate({'staffID': curid}, updatedUser, {new: true});
 
     //undefined document --> not found
     if(!user){
         return res.status(HTTP_CODES.NOT_FOUND).json({msg: "user not found"});
     }
+    
+    //password is updated in another route
+    /**
+     * the users are unauthorized to update the following:
+     * staffID
+     * name
+     * dayOff
+     * leaveBalance
+     * attendance
+     * accidentDays
+     * notifications
+     * role
+     * schedule
+     * courseIDs
+     */
+
+    //academic members cannot update their salary, faculty, department
+    if(curid.startsWith('h')){
+        //get object ids of new faculty + department. verify that 
+        //this department falls under the faculty 
+        
+        //=================FACULTY=================
+        //if faculty name provided, find it and update the user
+        if(updatedUser.facultyName){
+            const userFaculty = await faculty.findOne({name: updatedUser.facultyName});
+
+            if(!userFaculty){
+                return res.status(HTTP_CODES.NOT_FOUND).json({msg: "no faculty exists with the name " + updatedUser.facultyName});
+            }
+
+            //manually populating + updating faculty
+            user.facultyID = userFaculty;
+        }
+
+        //faculty name is not provided, populate the users's current faculty
+        else{
+            user.populate('facultyID');
+        }
+
+        //=================DEPARTMENT=================
+        //user want to update the department
+        if(updatedUser.departmentName){
+            userFaculty = user.facultyID;
+
+            //populate and filter departments by the provided name
+            userFaculty.populate({
+                path: 'departments',
+                match: {
+                    name: updatedUser.departmentName
+                }
+            });
+
+            const department = userFaculty.departments
+
+            //no department exists with that name
+            if(department.length < 1){
+                return res.status(HTTP_CODES.NOT_FOUND)
+                .json({msg: "no department exists with the name" + updatedUser.departmentName +" under the faculty "+ userFaculty.name});
+            }
+            
+
+            //update the user's department
+            user.departmentID = department[0]._id;
+        }
+
+        //=================SALARY=================
+        //salary is provided
+        if(updatedUser.salary){
+
+            //salary should be non-negative
+            if(updatedUser.salary < 0){
+                return res
+                .status(HTTP_CODES.BAD_REQUEST)
+                .json({ msg: "salary should be a non-negative number"});
+            }
+            user.salary = updatedUser.salary;
+        }
+    }
+
+    //=================EMAIL=================
+    //email is provided
+    if(updatedUser.officeLocation){
+        if (!isEmail.validate(updatedUser.email)) {
+            return res
+            .status(HTTP_CODES.BAD_REQUEST)
+            .json({ msg: "Please enter a valid email address" });
+        }
+    }
+
+    //============OFFICE-LOCATION=============
+    //user provided an office location
+    if(updatedUser.officeLocation){
+        const office = await Location.findOne({name: updatedUser.officeLocation});
+
+        //location does not exist
+        if(!office){
+            return res
+            .status(HTTP_CODES.NOT_FOUND)
+            .json({ msg: "office location does not exist" });
+        }
+
+        //location is not an office
+        if(office.type != "Office"){
+            return res
+            .status(HTTP_CODES.NOT_FOUND)
+            .json({ msg: "the office location provided is not of type office"});
+        }
+
+        //update the user's office location
+        user.officeLocationID = office._id;
+    }
+
+    //============OFFICE-LOCATION=============
+    if(updatedUser.others){
+        user.others = updatedUser.others;
+    }
+
+    //should they update role or schedule from here?
+
+    //save the updated user document
+    await user.save();
     
     return res.status(HTTP_CODES.OK).send(user);
 });

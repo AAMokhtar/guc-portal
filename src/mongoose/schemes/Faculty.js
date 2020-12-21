@@ -7,6 +7,6 @@ const schema = new Schema({
     required: true,
     unique: true,
   },
-  departments: [Department],
+  departments: [{ type: Schema.Types.ObjectId, ref: "Department"}],
 });
 module.exports = schema;

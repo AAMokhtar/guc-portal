@@ -1,12 +1,16 @@
 const app = require("../../app");
 const staff = require("../mongoose/dao/staff");
+const mongoose = require("mongoose");
 const department = require("../mongoose/dao/department");
+const request = require("../mongoose/dao/request");
 const course = require("../mongoose/dao/course");
 const express = require("express");
+let slot = require("../mongoose/dao/slot");
 const { json } = require("express");
 var router = express.Router();
 const { authenticateAndAuthorise } = require("./auth.js");
 var _ = require("lodash");
+const { schedule } = require("node-cron");
 
 /// make sure that the staff has the correct role
 router.post(
@@ -19,27 +23,64 @@ router.post(
       // get uID
       let uID = req.user.staffID;
       // make sure staff id is valid
-      let temp = await staff.findOne({ staffID });
-      if (temp) {
-        let objectID = temp.id;
+      let tempStaff = await staff.findOne({ staffID });
+      if (tempStaff) {
+        let objectID = tempStaff.id;
         // make sure HOD ID is valid and it has the right to add to this course
         let doc = await staff.find({ staffID: uID, role: "HOD" });
-        console.log(doc);
+        //     console.log(doc);
         if (doc && doc.length > 0) {
           let result = await department.findOne({ id: doc.departmentID });
-          console.log(result);
           // make sure coursecode is valid
-          let output = await course.findOneAndUpdate(
-            {
-              courseCode,
-              _id: {
-                $in: result.coursesIDs,
-                // , role: { $ne: "HOD" }
+          let output;
+          if (tempStaff.role == "HR") {
+            throw Error("Cannot assign hr to a course !");
+          } else if (tempStaff.role == "Course Instructor") {
+            output = await course.findOneAndUpdate(
+              {
+                courseCode,
+                _id: {
+                  $in: result.coursesIDs,
+                  // , role: { $ne: "HOD" }
+                },
               },
-            },
-            {
-              $addToSet: { taList: objectID },
-            },
+              {
+                $addToSet: { instructorIDs: objectID },
+              },
+              { new: true }
+            );
+          } else if (tempStaff.role == "TA") {
+            output = await course.findOneAndUpdate(
+              {
+                courseCode,
+                _id: {
+                  $in: result.coursesIDs,
+                  // , role: { $ne: "HOD" }
+                },
+              },
+              {
+                $addToSet: { taList: objectID },
+              },
+              { new: true }
+            );
+          } else if (tempStaff.role == "Course Coordinator") {
+            output = await course.findOneAndUpdate(
+              {
+                courseCode,
+                _id: {
+                  $in: result.coursesIDs,
+                  // , role: { $ne: "HOD" }
+                },
+              },
+              {
+                coordinatorID: objectID,
+              },
+              { new: true }
+            );
+          }
+          let updateStaff = await staff.findByIdAndUpdate(
+            { _id: objectID },
+            { $addToSet: { courseIDs: output.id } },
             { new: true }
           );
           res.status(200).json({
@@ -74,22 +115,61 @@ router.delete(
         let objectID = temp.id;
         // make sure HOD ID is valid and it has the right to add to this course
         let doc = await staff.find({ staffID: uID, role: "HOD" });
-        console.log(doc);
+        //  console.log(doc);
         if (doc && doc.length > 0) {
           let result = await department.findOne({ id: doc.departmentID });
-          console.log(result);
+          //  console.log(result);
           // make sure coursecode is valid
-          let output = await course.findOneAndUpdate(
-            {
-              courseCode,
-              _id: {
-                $in: result.coursesIDs,
-                // , role: { $ne: "HOD" }
+          let output;
+          let tempStaff = temp;
+          if (tempStaff.role == "HR") {
+            throw Error("Cannot assign hr to a course !");
+          } else if (tempStaff.role == "Course Instructor") {
+            output = await course.findOneAndUpdate(
+              {
+                courseCode,
+                _id: {
+                  $in: result.coursesIDs,
+                  // , role: { $ne: "HOD" }
+                },
               },
-            },
-            {
-              $pull: { taList: objectID },
-            },
+              {
+                $pull: { instructorIDs: objectID },
+              },
+              { new: true }
+            );
+          } else if (tempStaff.role == "TA") {
+            output = await course.findOneAndUpdate(
+              {
+                courseCode,
+                _id: {
+                  $in: result.coursesIDs,
+                  // , role: { $ne: "HOD" }
+                },
+              },
+              {
+                $pull: { taList: objectID },
+              },
+              { new: true }
+            );
+          } else if (tempStaff.role == "Course Coordinator") {
+            output = await course.findOneAndUpdate(
+              {
+                courseCode,
+                _id: {
+                  $in: result.coursesIDs,
+                  // , role: { $ne: "HOD" }
+                },
+              },
+              {
+                coordinatorID: objectID,
+              },
+              { new: true }
+            );
+          }
+          let updateStaff = await staff.findByIdAndUpdate(
+            { _id: objectID },
+            { $pull: { courseIDs: output.id } },
             { new: true }
           );
           res.status(200).json({
@@ -128,18 +208,51 @@ router.post(
         if (doc && doc.length > 0) {
           let result = await department.findOne({ id: doc.departmentID });
           // make sure coursecode is valid
-          let output = await course.findOneAndUpdate(
-            {
-              courseCode,
-              _id: { $in: result.coursesIDs },
-              //     role: { $ne: "HOD" },
-              taList: firstStaff,
-            },
-            {
-              $set: { "taList.$": secondStaff },
-            },
-            { new: true }
-          );
+
+          let output;
+          let tempStaff = firstStaff.role;
+          if (tempStaff.role == "HR") {
+            throw Error("Cannot assign hr to a course !");
+          } else if (tempStaff.role == "Course Instructor") {
+            output = await course.findOneAndUpdate(
+              {
+                courseCode,
+                _id: { $in: result.coursesIDs },
+                //     role: { $ne: "HOD" },
+                taList: firstStaff,
+              },
+              {
+                $set: { "instructorIDs.$": secondStaff },
+              },
+              { new: true }
+            );
+          } else if (tempStaff.role == "TA") {
+            output = await course.findOneAndUpdate(
+              {
+                courseCode,
+                _id: { $in: result.coursesIDs },
+                //     role: { $ne: "HOD" },
+                taList: firstStaff,
+              },
+              {
+                $set: { "taList.$": secondStaff },
+              },
+              { new: true }
+            );
+          } else if (tempStaff.role == "Course Coordinator") {
+            output = await course.findOneAndUpdate(
+              {
+                courseCode,
+                _id: { $in: result.coursesIDs },
+                //     role: { $ne: "HOD" },
+                taList: firstStaff,
+              },
+              {
+                coordinatorID: secondStaff,
+              },
+              { new: true }
+            );
+          }
           res.status(200).json({
             result: output,
           });
@@ -181,6 +294,7 @@ router.get(
         // staff ?
         temp = _.union(temp, element.instructorIDs, element.taList);
       });
+      // console.log(temp);
 
       result = await staff.find({ _id: { $in: temp } });
       res.status(200).json({
@@ -225,6 +339,136 @@ router.get(
       }
       res.status(200).json({
         result: result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+router.get(
+  "/viewRequests",
+  authenticateAndAuthorise("HOD"),
+  async function (req, res) {
+    try {
+      // get uID
+      let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+      let requests;
+
+      if (staffID) {
+        let staffDoc = await staff.findOne({ staffID });
+        requests = await request.find({
+          receiverID: objectID,
+          senderID: staffDoc.id,
+        });
+      } else {
+        requests = await reqeust.find({
+          receiverID: objectID,
+        });
+      }
+
+      res.status(200).json({
+        result: requests,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+router.get(
+  "/viewCoverage",
+  authenticateAndAuthorise("HOD"),
+  async function (req, res) {
+    try {
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+      let requests;
+
+      let departmentDoc = await department
+        .findOne({ hodID: objectID })
+        .populate({
+          path: "coursesIDs",
+          populate: {
+            path: "instructorIDs taList coordinatorID",
+          },
+        });
+      let usedSlots = 0;
+      let result = [];
+      //console.log(JSON.stringify(departmentDoc));
+
+      await Promise.all(
+        departmentDoc.coursesIDs.map(async (course) => {
+          let slots = await slot.find({ course: course._id });
+          let tempRes = [];
+
+          course.instructorIDs.forEach((ta) => {
+            ta.schedule.forEach((schedule) => {
+              let { weekday: taWeekDay, number: taNumber } = schedule;
+              slots.forEach((s) => {
+                let { weekday, number } = s;
+                if (weekday == taWeekDay && number == taNumber) {
+                  let item = JSON.stringify({ weekday, number });
+                  if (tempRes.indexOf(item) == -1) {
+                    tempRes.push(item);
+                  }
+                  // console.log(tempRes);
+                }
+              });
+            });
+          });
+          course.taList.forEach((ta) => {
+            ta.schedule.forEach((schedule) => {
+              let { weekday: taWeekDay, number: taNumber } = schedule;
+              slots.forEach((s) => {
+                let { weekday, number } = s;
+                if (weekday == taWeekDay && number == taNumber) {
+                  let item = JSON.stringify({ weekday, number });
+                  if (tempRes.indexOf(item) == -1) {
+                    tempRes.push(item);
+                  }
+                  // console.log(tempRes);
+                }
+              });
+            });
+          });
+          course.coordinatorID.schedule.forEach((schedule) => {
+            let { weekday: taWeekDay, number: taNumber } = schedule;
+            slots.forEach((s) => {
+              let { weekday, number } = s;
+              if (weekday == taWeekDay && number == taNumber) {
+                let item = JSON.stringify({ weekday, number });
+                if (tempRes.indexOf(item) == -1) {
+                  tempRes.push(item);
+                }
+                // console.log(tempRes);
+              }
+            });
+          });
+          let { courseCode, _id } = course;
+
+          result.push({
+            courseCode,
+            _id,
+            coverage: (tempRes.length / course.slots.length) * 100,
+          });
+        })
+      );
+
+      //  departmentDoc = departmentDoc.populate("coursesIDs");
+      //   .("coursesIDs.taList");
+      res.status(200).json({
+        result,
       });
 
       // make sure staff id is valid

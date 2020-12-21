@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
+const Slot = require("./Slot");
 const Schema = mongoose.Schema;
 const schema = new Schema({
   slot: {
-    type: Schema.Types.ObjectId,
-    ref: "Slot",
+    type: Slot,
     required: true,
   },
 });

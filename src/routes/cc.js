@@ -115,7 +115,7 @@ router.post(
           .json({ msg: "There is no request with the id given." });
 
       //get the objectId of the staff
-      const staffID = (await Staff.findOne({ staffID: user.staffID }))._id;
+      const staffID = user.objectID;
 
       //if the request entered is not slot-linking request
       if (!request.linkingSlot)
@@ -293,7 +293,7 @@ router.post(
       //if location id does not exist
       if (!(await Location.findOne({ _id: locationId })))
         return res
-          .status(400)
+          .status(404)
           .json({ msg: "There is no location with the id entered." });
 
       //check if the location is already reserved during the chosen time (search for a slot already in the table with the same location and time)
@@ -374,7 +374,7 @@ router.delete(
       const slot = await Slot.findOne({ _id: slotId });
       if (!slot)
         return res
-          .status(400)
+          .status(404)
           .json({ msg: "There is no slot with the id given." });
 
       //if the slot is not for the course assigned to the cc
@@ -420,7 +420,7 @@ router.delete(
       //C)delete linking slot requests attributed to that slot
 
       //gets array of objectIds of linking slot requests related to that slot
-      const LSid = await LinkingSlot.find({ slot: slotId }, {_id: 1});
+      const LSid = await LinkingSlot.find({ slot: { _id: slotId } }, {_id: 1});
 
       //if there are linking slot requests
       if(LSid > 0)
@@ -567,7 +567,7 @@ router.put(
       const slot = await Slot.findOne({ _id: slotId });
       if (!slot)
         return res
-          .status(400)
+          .status(404)
           .json({ msg: "There is no slot with the id given." });
 
       //weekday entered is of the wrong format
@@ -588,7 +588,7 @@ router.put(
       //if location id does not exist
       if (newLocationId && !(await Location.findOne({ _id: locationId })))
         return res
-          .status(400)
+          .status(404)
           .json({ msg: "There is no location with the id entered." });
 
       //if the slot is not for the course assigned to the cc
@@ -667,7 +667,7 @@ router.put(
       //C)delete linking slot requests attributed to that slot (as the slot has changed)
 
       //gets array of objectIds of linking slot requests related to that slot
-      const LSid = await LinkingSlot.find({ slot: slotId }, { _id: 1});
+      const LSid = await LinkingSlot.find({ slot: { _id: slotId }}, { _id: 1});
 
       //if there are linking slots
       if(LSid > 0)
@@ -706,19 +706,6 @@ router.put(
             { multi: true }
         );
       }
-
-      //D)update in course table
-
-      await Course.findOneAndUpdate(
-        { _id: slot.course, slots: { _id: slotId } },
-        {
-          $set: { "slots.$.weekday": weekday },
-          $set: { "slots.$.number": slotNum },
-          $set: { "slots.$.location": locationId },
-        }
-      );
-
-
 
 
       //E)delete replacement request associated with the deleted slot (as the slot was removed from the staff's schedule)

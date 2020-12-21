@@ -491,6 +491,13 @@ router.post('/slot-linking-request/send', authenticateAndAuthoriseAC, async (req
             return res.status(400).json( { msg: "The course of the slot requested is not within the courses assigned to the user." } );
 
 
+        //if the slot is already taken by another staff
+
+        const taken = await Staff.findOne( { role: { $ne: "HR"}, schedule: { slot: { _id: slotID } } } );
+
+        if(taken)
+            return res.status(500).json( { msg: "Anoter staff member was assigned to that slot." } );
+
 
         //if there are contradicting slots (either in schedule or sl request already sent)
 

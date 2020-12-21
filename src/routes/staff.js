@@ -18,6 +18,7 @@ const Replacement = require('../mongoose/dao/replacement.js');
 const faculty = require('../mongoose/dao/faculty');
 const department = require('../mongoose/dao/department');
 const Location = require('../mongoose/dao/location');
+const { request } = require('express');
 
 
 //=====================:-ROUTES-:======================
@@ -246,9 +247,6 @@ router.put('/signin', async function(req, res) {
     //get today's attendance from the array 
     const curAtt = await user.attendance.find(elem => +elem.date == +curDate);
 
-    console.log(curDate)
-    console.log(user.attendance)
-
     if(!curAtt){
         return res.status(HTTP_CODES.NOT_FOUND).json({msg: "attendance record not found"});
     }
@@ -287,7 +285,7 @@ router.put('/signout', async function(req, res) {
     var curDate =  new Date();
     curDate.setUTCHours(0,0,0,0);
 
-    //get the today's date attendance from the array
+    //get today's attendance from the array
     const curAtt = user.attendance.find(elem => +elem.date == +curDate);
 
 
@@ -310,7 +308,7 @@ router.put('/signout', async function(req, res) {
 });
 
 /**
- * return a user's attendance records
+ * return a user's attendance records this year
  * @param month is the number of the month we wish to filter by (1-12)
  */
 router.get('/attendance/:month?', async function(req, res) {
@@ -325,11 +323,12 @@ router.get('/attendance/:month?', async function(req, res) {
     
     //month filter is defined and is between 1 and 12
     var month = req.params.month - 1;
+    const year = new Date().getFullYear();
 
     month = month !== undefined? (month >= 0 && month <= 11? month : undefined) : undefined;
 
-    //get the today's date attendance from the array
-    var userAtt = user.attendance;
+    //get this year's attendance from the array
+    var userAtt = user.attendance.filter(elem => elem.date.getFullYear() == year);
 
     //filter by month
     if(month !== undefined)
@@ -359,5 +358,394 @@ router.get('/attendance/:month?', async function(req, res) {
 
     return res.status(HTTP_CODES.OK).send(signInOut);
 });
+
+/**
+ * return a user's missing days so far for this month (11th to today)
+ */
+router.get('/missingdays', async function(req, res) {
+
+    //get the user document
+    const curid = req.user.staffID;
+    var user = await Staff.findOne({'staffID': curid});
+
+    if(!user){
+        return res.status(HTTP_CODES.NOT_FOUND).json({msg: "user not found"});
+    }
+    
+    //user's day off
+    var dayOff;
+
+    switch(user.dayOff) {
+        case 'Sunday':
+            dayOff = 0;
+            break;
+        case 'Monday':
+            dayOff = 1;
+            break;
+        case 'Tuesday':
+            dayOff = 2;
+            break;
+        case 'Wednesday':
+            dayOff = 3;
+            break;
+        case 'Thursday':
+            dayOff = 4;
+            break;
+        case 'Saturday':
+            dayOff = 6;
+            break;
+        default:
+            dayOff = 5;
+    };
+
+    //today in utc
+    const curDate = new Date();
+    curDate.setUTCHours(0,0,0,0);
+
+    var startDate;
+
+    //start date in previous month
+    if(curDate.getDate() < 11){
+
+        var year = curDate.getFullYear();
+        var month = curDate.getMonth() - 1;
+
+        if(month < 0){
+            month = 11;
+            year--;
+        }
+
+        //11th of the previous month
+        startDate = new Date(Date.UTC(year, month, 11, 0, 0, 0, 0));
+    }
+    //start date in current month
+    else{
+
+        var year = curDate.getFullYear();
+        var month = curDate.getMonth() + 1;
+
+        if(month > 11){
+            month = 0;
+            year++;
+        }
+
+        //11th of the previous month
+        startDate = new Date(Date.UTC(curDate.getFullYear(), curDate.getMonth(), 11, 0, 0, 0, 0));
+    }
+
+
+    //filter the attendance to reduce the array as much as possible
+    var missingDaysP1 = user.attendance.filter(elem => 
+        elem.date >= startDate 
+        && elem.date <= curDate
+        && (elem.signIn.length == 0 || elem.signOut.length == 0)
+        && elem.date.getDay() != 5
+        && elem.date.getDay() != dayOff);
+
+    //extract the dates from the attendace object
+    missingDaysP1 = missingDaysP1.map(elem => elem.date);
+
+
+    //apply the expensive leave request filter on the reduced array
+    var missingDays = [];
+    for (const day of missingDaysP1){
+        const off = await acceptedLeaveOnDate(user._id, day);
+        if(!off){
+            missingDays.push(day);
+        }
+    }
+    
+    //return the missing days so far
+    return res.status(HTTP_CODES.OK).send({total: missingDays.length, dates: missingDays});
+});
+
+/**
+ * return a user's missing hours so far this month (11th to today)
+ */
+router.get('/missinghours', async function(req, res) {
+
+    //get the user document
+    const curid = req.user.staffID;
+    var user = await Staff.findOne({'staffID': curid});
+
+    if(!user){
+        return res.status(HTTP_CODES.NOT_FOUND).json({msg: "user not found"});
+    }
+    
+    //user's day off
+    var dayOff;
+
+    switch(user.dayOff) {
+        case 'Sunday':
+            dayOff = 0;
+            break;
+        case 'Monday':
+            dayOff = 1;
+            break;
+        case 'Tuesday':
+            dayOff = 2;
+            break;
+        case 'Wednesday':
+            dayOff = 3;
+            break;
+        case 'Thursday':
+            dayOff = 4;
+            break;
+        case 'Saturday':
+            dayOff = 6;
+            break;
+        default:
+            dayOff = 5;
+    };
+
+    //today in utc
+    const curDate = new Date();
+    curDate.setUTCHours(0,0,0,0);
+
+    var startDate;
+
+    //start date in previous month
+    if(curDate.getDate() < 11){
+
+        var year = curDate.getFullYear();
+        var month = curDate.getMonth() - 1;
+
+        if(month < 0){
+            month = 11;
+            year--;
+        }
+
+        //11th of the previous month
+        startDate = new Date(Date.UTC(year, month, 11, 0, 0, 0, 0));
+    }
+    //start date in current month
+    else{
+
+        var year = curDate.getFullYear();
+        var month = curDate.getMonth() + 1;
+
+        if(month > 11){
+            month = 0;
+            year++;
+        }
+
+        //11th of the previous month
+        startDate = new Date(Date.UTC(curDate.getFullYear(), curDate.getMonth(), 11, 0, 0, 0, 0));
+    }
+
+
+    //filter the attendance to reduce the array as much as possible
+    var attendedDaysP1 = user.attendance.filter(elem => 
+        elem.date >= startDate 
+        && elem.date <= curDate
+        && (elem.signIn.length != 0 && elem.signOut.length != 0)
+        && elem.date.getDay() != 5
+        && elem.date.getDay() != dayOff);
+
+
+    //apply the expensive leave request filter on the reduced array
+    var attendedDays = [];
+    for (const att of attendedDaysP1){
+        const off = await acceptedLeaveOnDate(user._id, att.date);
+        if(!off){
+            attendedDays.push(att);
+        }
+    }
+
+    var missingHourDays = [];
+    var totalMissingHours = 0;
+
+    attendedDays.forEach(attDay => {
+        var workedms = 0.0;
+
+
+        //at 07:00AM
+        var dayStart = new Date(Date.UTC(
+            attDay.date.getFullYear(), 
+            attDay.date.getMonth(), 
+            attDay.date.getDate(), 7, 0, 0, 0));
+                
+        //at 07:00PM
+        var dayEnd = new Date(Date.UTC(
+            attDay.date.getFullYear(), 
+            attDay.date.getMonth(), 
+            attDay.date.getDate(), 19, 0, 0, 0));
+
+        attDay.signIn.forEach((elem, indx) => {
+            //sign in without a sign out
+            if(indx >=  attDay.signOut.length)
+                return;
+
+            //calculate the amount of milliseconds worked from 7AM to 7PM
+            workedms += Math.min(dayEnd.getTime(), attDay.signOut[indx].getTime())
+            - Math.max(dayStart.getTime(), elem.getTime());
+        });
+
+        //calculate the missing hours that day (required hours - worked hours)
+        var missingHours = Math.max(8.4 - workedms / (1000 * 60  * 60), 0);
+        //accumulate missing hours
+        totalMissingHours += missingHours;
+
+        if(missingHours > 0){
+            //push the missing hours info 
+            missingHourDays.push({
+                date: attDay.date,
+                missingHours: missingHours
+            });
+        }
+    });
+
+    //return the missing hours so far
+    return res.status(HTTP_CODES.OK).send({total: totalMissingHours, dates: missingHourDays});
+});
+
+/**
+ * return a user's extra hours so far this month (11th to today)
+ */
+router.get('/extrahours', async function(req, res) {
+
+    //get the user document
+    const curid = req.user.staffID;
+    var user = await Staff.findOne({'staffID': curid});
+
+    if(!user){
+        return res.status(HTTP_CODES.NOT_FOUND).json({msg: "user not found"});
+    }
+    
+    //user's day off
+    var dayOff;
+
+    switch(user.dayOff) {
+        case 'Sunday':
+            dayOff = 0;
+            break;
+        case 'Monday':
+            dayOff = 1;
+            break;
+        case 'Tuesday':
+            dayOff = 2;
+            break;
+        case 'Wednesday':
+            dayOff = 3;
+            break;
+        case 'Thursday':
+            dayOff = 4;
+            break;
+        case 'Saturday':
+            dayOff = 6;
+            break;
+        default:
+            dayOff = 5;
+    };
+
+    //today in utc
+    const curDate = new Date();
+    curDate.setUTCHours(0,0,0,0);
+
+    var startDate;
+
+    //start date in previous month
+    if(curDate.getDate() < 11){
+
+        var year = curDate.getFullYear();
+        var month = curDate.getMonth() - 1;
+
+        if(month < 0){
+            month = 11;
+            year--;
+        }
+
+        //11th of the previous month
+        startDate = new Date(Date.UTC(year, month, 11, 0, 0, 0, 0));
+    }
+    //start date in current month
+    else{
+
+        var year = curDate.getFullYear();
+        var month = curDate.getMonth() + 1;
+
+        if(month > 11){
+            month = 0;
+            year++;
+        }
+
+        //11th of the previous month
+        startDate = new Date(Date.UTC(curDate.getFullYear(), curDate.getMonth(), 11, 0, 0, 0, 0));
+    }
+
+
+    //filter the attendance to reduce the array as much as possible
+    var extraDays = user.attendance.filter(elem => 
+        elem.date >= startDate 
+        && elem.date <= curDate
+        && (elem.signIn.length != 0 && elem.signOut.length != 0)
+        && (elem.date.getDay() == 5
+        || elem.date.getDay() == dayOff));
+
+
+    var extraHourDays = [];
+    var totalExtraHours = 0;
+    
+    extraDays.forEach(attDay => {
+        var workedms = 0.0;
+
+
+        //at 07:00AM
+        var dayStart = new Date(Date.UTC(
+            attDay.date.getFullYear(), 
+            attDay.date.getMonth(), 
+            attDay.date.getDate(), 7, 0, 0, 0));
+                
+        //at 07:00PM
+        var dayEnd = new Date(Date.UTC(
+            attDay.date.getFullYear(), 
+            attDay.date.getMonth(), 
+            attDay.date.getDate(), 19, 0, 0, 0));
+
+        attDay.signIn.forEach((elem, indx) => {
+            //sign in without a sign out
+            if(indx >=  attDay.signOut.length)
+                return;
+
+            //calculate the amount of milliseconds worked from 7AM to 7PM
+            workedms += Math.min(dayEnd.getTime(), attDay.signOut[indx].getTime())
+            - Math.max(dayStart.getTime(), elem.getTime());
+
+        });
+
+        //convert the worked milliseconds to hours
+        var extraHours = Math.max(workedms / (1000 * 60  * 60), 0);
+
+        //accumulate extra hours
+        totalExtraHours += extraHours;
+
+
+        if(extraHours > 0){
+            //push the extra hours' info 
+            extraHourDays.push({
+                date: attDay.date,
+                extraHours: extraHours
+            });
+        }
+    });
+
+    //return the extra hours so far
+    return res.status(HTTP_CODES.OK).send({total: totalExtraHours, dates: extraHourDays});
+});
+
+//=======================:-HELPER FUNCTIONS-:=============================
+async function acceptedLeaveOnDate(sender ,date){
+
+    //all accepted leave requests for the user that date lies within
+    var requests = await Request.find({
+        senderID: sender,
+        status: 'Accepted',
+        leave: {$exists: true},
+        'leave.startDate': {$lte: date},
+        'leave.endDate': {$gte: date}
+    });
+
+    return requests.length > 0;
+}
 
 module.exports = router;

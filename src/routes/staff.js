@@ -11,15 +11,8 @@ const isEmail = require("isemail");
 
 const Staff = require('../mongoose/dao/staff.js');
 const Request = require('../mongoose/dao/request.js');
-const LinkingSlot = require('../mongoose/dao/linkingSlot.js');
-const Leave = require('../mongoose/dao/leave.js');
-const DayOff = require('../mongoose/dao/dayOff.js');
-const Replacement = require('../mongoose/dao/replacement.js');
 const faculty = require('../mongoose/dao/faculty');
-const department = require('../mongoose/dao/department');
 const Location = require('../mongoose/dao/location');
-const { request } = require('express');
-
 
 //=====================:-ROUTES-:======================
 /**
@@ -373,30 +366,7 @@ router.get('/missingdays', async function(req, res) {
     }
     
     //user's day off
-    var dayOff;
-
-    switch(user.dayOff) {
-        case 'Sunday':
-            dayOff = 0;
-            break;
-        case 'Monday':
-            dayOff = 1;
-            break;
-        case 'Tuesday':
-            dayOff = 2;
-            break;
-        case 'Wednesday':
-            dayOff = 3;
-            break;
-        case 'Thursday':
-            dayOff = 4;
-            break;
-        case 'Saturday':
-            dayOff = 6;
-            break;
-        default:
-            dayOff = 5;
-    };
+    var dayOff = dayToInt(user.dayOff);
 
     //today in utc
     const curDate = new Date();
@@ -473,30 +443,7 @@ router.get('/missinghours', async function(req, res) {
     }
     
     //user's day off
-    var dayOff;
-
-    switch(user.dayOff) {
-        case 'Sunday':
-            dayOff = 0;
-            break;
-        case 'Monday':
-            dayOff = 1;
-            break;
-        case 'Tuesday':
-            dayOff = 2;
-            break;
-        case 'Wednesday':
-            dayOff = 3;
-            break;
-        case 'Thursday':
-            dayOff = 4;
-            break;
-        case 'Saturday':
-            dayOff = 6;
-            break;
-        default:
-            dayOff = 5;
-    };
+    var dayOff = dayToInt(user.dayOff);
 
     //today in utc
     const curDate = new Date();
@@ -613,30 +560,7 @@ router.get('/extrahours', async function(req, res) {
     }
     
     //user's day off
-    var dayOff;
-
-    switch(user.dayOff) {
-        case 'Sunday':
-            dayOff = 0;
-            break;
-        case 'Monday':
-            dayOff = 1;
-            break;
-        case 'Tuesday':
-            dayOff = 2;
-            break;
-        case 'Wednesday':
-            dayOff = 3;
-            break;
-        case 'Thursday':
-            dayOff = 4;
-            break;
-        case 'Saturday':
-            dayOff = 6;
-            break;
-        default:
-            dayOff = 5;
-    };
+    var dayOff = dayToInt(user.dayOff);
 
     //today in utc
     const curDate = new Date();
@@ -736,7 +660,7 @@ router.get('/extrahours', async function(req, res) {
 //=======================:-HELPER FUNCTIONS-:=============================
 async function acceptedLeaveOnDate(sender ,date){
 
-    //all accepted leave requests for the user that date lies within
+    //all accepted leave requests for the user that enclose the parameter date
     var requests = await Request.find({
         senderID: sender,
         status: 'Accepted',
@@ -746,6 +670,25 @@ async function acceptedLeaveOnDate(sender ,date){
     });
 
     return requests.length > 0;
+}
+
+function dayToInt(day){
+    switch(day) {
+        case 'Sunday':
+            return 0;
+        case 'Monday':
+            return 1;
+        case 'Tuesday':
+            return 2;
+        case 'Wednesday':
+            return 3;
+        case 'Thursday':
+            return 4;
+        case 'Saturday':
+            return 6;
+        default:
+            return 5;
+    };
 }
 
 module.exports = router;

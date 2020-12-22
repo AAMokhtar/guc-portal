@@ -128,4 +128,44 @@ router.get(
     }
   }
 );
+
+router.get(
+  "/viewStaff",
+  authenticateAndAuthorise("Course Instructor"),
+  async function (req, res) {
+    try {
+      // get uID
+      let { courseCode } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+      let { coursesIDs } = await department.findOne({ hodID: objectID });
+      let result;
+      if (courseCode) {
+        result = await course.find({ courseCode });
+        if (result.length == 0) throw Error("Wrong course code !");
+
+        if (!coursesIDs.includes(result[0].id))
+          throw Error("This course isnt in same department of HOD");
+      } else {
+        result = await course.find({ _id: { $in: coursesIDs } });
+      }
+      let temp = [];
+      result.forEach((element) => {
+        // staff ?
+        temp = _.union(temp, element.instructorIDs, element.taList);
+      });
+      // console.log(temp);
+
+      result = await staff.find({ _id: { $in: temp } });
+      res.status(200).json({
+        result,
+      });
+      // make sure staff id is valid
+    } catch (error) {
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
 module.exports = router;

@@ -115,6 +115,17 @@ schema.pre("save", async function (next) {
     user.password = await bcrypt.hash(user.password, 8);
   }
 
+  const { staffID, schedule } = user;
+  if (schedule) {
+    user.schedule = schedule.map((slot) => {
+      slot.staffID = staffID;
+      return slot;
+    });
+    user.markModified("staffID");
+  }
+  next();
+});
+schema.pre("save", async function (next) {
   next();
 });
 

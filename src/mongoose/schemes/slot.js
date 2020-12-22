@@ -14,5 +14,9 @@ const schema = new Schema({
   },
   location: { type: Schema.Types.ObjectId, ref: "Location" },
   course: { type: Schema.Types.ObjectId, ref: "Course" },
+  staffID: {
+    type: String,
+    default: null,
+  },
 });
 module.exports = schema;

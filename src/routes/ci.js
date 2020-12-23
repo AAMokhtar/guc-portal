@@ -74,8 +74,8 @@ router.get(
       });
       if (!slotDoc) throw Error("Slot not found!");
 
-      if (slot.staffID)
-        throw Error("Slot already assigned to an academic member!");
+      if (slot.staffID != null)
+        throw Error("Slot is already assigned to an academic member!");
 
       slotDoc.staffID = staffID;
       await slotDoc.save();

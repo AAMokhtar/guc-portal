@@ -11,6 +11,86 @@ var router = express.Router();
 const { authenticateAndAuthorise } = require("./auth.js");
 var _ = require("lodash");
 const { schedule } = require("node-cron");
+const location = require("../mongoose/dao/location");
+
+router.get(
+  "/AssignUnassignedSlot",
+  authenticateAndAuthorise("Course Instructor"),
+  async function (req, res) {
+    try {
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+
+      let { staffID, weekday, number, courseCode, location } = req.query;
+      if (!staffID)
+        throw Error(
+          "Please enter `{ staffID, weekday, number, courseCode, location }` param"
+        );
+
+      let instructorDoc = await staff
+        .findOne({ _id: objectID })
+        .populate("courseIDs");
+      let staffDoc = await staff.findOne({ staffID }).populate("courseIDs");
+
+      let f1 = false;
+      let f2 = false;
+      let courseID;
+      instructorDoc.courseIDs.forEach((course) => {
+        if (course.courseCode == courseCode) {
+          f1 = true;
+          courseID = course.id;
+        }
+      });
+
+      if (f1 === false)
+        throw Error(
+          "the authenticated instructor doesnt teach the courseCode you entered in the req"
+        );
+
+      staffDoc.courseIDs.forEach((course) => {
+        if (course.courseCode == courseCode) {
+          f2 = true;
+          courseID = course.id;
+        }
+      });
+
+      if (f2 === false)
+        throw Error(
+          "the academic member doesnt teach the courseCode you entered in the req"
+        );
+
+      let locationDoc = location.findOne({ name: location });
+      if (!locationDoc) throw Error("Location not found!");
+
+      let locationID = locationDoc.id;
+
+      let slotDoc = await slot.findOne({
+        weekday: weekday,
+        number,
+        location: locationID,
+        course: courseID,
+      });
+      if (!slotDoc) throw Error("Slot not found!");
+
+      slotDoc.staffID = staffID;
+      await slotDoc.save();
+      let result = slotDoc;
+
+      res.status(200).json({
+        result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
 
 router.get(
   "/viewSlots",

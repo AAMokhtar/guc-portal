@@ -4,8 +4,8 @@ const Schema = mongoose.Schema;
 const schema = new Schema({
   name: {
     type: String,
-    required: true,
-    unique: true,
+    required: [true, 'please enter the name of the location'],
+    unique: [true, 'this location already exists'],
   },
   capacity: {
     type: Number,
@@ -13,7 +13,7 @@ const schema = new Schema({
       validator: Number.isInteger,
       message: "{VALUE} is not an integer value",
     },
-    required: true,
+    required: [true, 'please enter the capacity'],
   },
   currentlyTakenSeats: {
     type: Number,
@@ -21,12 +21,16 @@ const schema = new Schema({
       validator: Number.isInteger,
       message: "{VALUE} is not an integer value",
     },
-    required: true,
+    default: 0
   },
   type: {
     type: String,
-    enum: ["Hall", "Lab", "Tutorial", "Office"],
-    required: true,
+    enum:{ 
+      values: ["Hall",'hall', "Lab",'lab', "Tutorial",'tutorial', 'Office','office'],
+      message: '{VALUE} is not a valid location type'
+
+  },
+    required: [true, 'please enter location type'],
   },
 });
 module.exports = schema;

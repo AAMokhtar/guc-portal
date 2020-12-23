@@ -29,6 +29,7 @@ var ciRouter = require("./src/routes/ci");
 
 var academicRouter = require("./src/routes/academic");
 const { authenticate } = require("./src/routes/auth");
+const { authenticateAndAuthorise } = require("./auth.js");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -43,7 +44,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 //routes
 app.use("/general", generalRouter);
-app.use("/hr", hrRouter);
+app.use("/hr", authenticateAndAuthorise("HR"), hrRouter);
+
 app.use(authenticate);
 app.use("/staff", staffRouter);
 app.use("/course-coordinator", ccRouter);

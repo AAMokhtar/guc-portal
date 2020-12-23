@@ -49,7 +49,7 @@ router.post(
               },
               { new: true }
             );
-          } else if (tempStaff.role == "TA") {
+          } /* else if (tempStaff.role == "TA") {
             output = await course.findOneAndUpdate(
               {
                 courseCode,
@@ -77,7 +77,7 @@ router.post(
               },
               { new: true }
             );
-          }
+          }*/
           let updateStaff = await staff.findByIdAndUpdate(
             { _id: objectID },
             { $addToSet: { courseIDs: output.id } },
@@ -138,7 +138,7 @@ router.delete(
               },
               { new: true }
             );
-          } else if (tempStaff.role == "TA") {
+          } /*else if (tempStaff.role == "TA") {
             output = await course.findOneAndUpdate(
               {
                 courseCode,
@@ -166,7 +166,7 @@ router.delete(
               },
               { new: true }
             );
-          }
+          }*/
           let updateStaff = await staff.findByIdAndUpdate(
             { _id: objectID },
             { $pull: { courseIDs: output.id } },
@@ -226,7 +226,7 @@ router.post(
               },
               { new: true }
             );
-          } else if (tempStaff.role == "TA") {
+          } /*else if (tempStaff.role == "TA") {
             output = await course.findOneAndUpdate(
               {
                 courseCode,
@@ -252,7 +252,7 @@ router.post(
               },
               { new: true }
             );
-          }
+          }*/
           res.status(200).json({
             result: output,
           });

@@ -16,5 +16,9 @@ const schema = new Schema({
   endDate: {
     type: Date,
   },
+  document: {
+    type: String,
+    default: null,
+  },
 });
 module.exports = schema;

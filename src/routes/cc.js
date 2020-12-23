@@ -165,6 +165,10 @@ router.post(
       requestSender.schedule.push(slot);
       await requestSender.save();
 
+      //add the staff ID to the slot
+      slot.staffID = requestSender.staffID;
+      await slot.save();
+
       //reject the other (_id !== requestID) linking slot requests associated with the slot
       await Request.update(
         { linkingSlot: { slot: { _id: slot._id } }, _id: { $ne: requestID } },

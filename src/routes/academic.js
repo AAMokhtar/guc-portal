@@ -21,11 +21,12 @@ const storage = multer.diskStorage({
     },
     //the name given to the file to save
     filename: function(req, file, callback){
-        callback(null, file.fieldname + '.zip');
+        const fileName = req.user.objectID + '-' + Date.now();
+        callback(null, fileName + '.zip');
     }
 });
 
-//validator fucntion for the files uploaded
+//validator function for the files uploaded
 //check that they are in the zip format
 function isZipFile(req, res, callback)
 {
@@ -77,6 +78,20 @@ function validateDate(date)
 }
 
 //----------------------------------END OF HELPERS-------------------------------------------------
+
+
+//------------------------------------ENUMS------------------------------------------------------
+
+const WEEKDAYS = [
+    "Saturday",
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+  ];
+
+//-----------------------------END OF ENUMS------------------------------------------------------
 
 //--------------------------------------MODELS----------------------------------------------------
 
@@ -625,13 +640,34 @@ router.post('/day-off-request/send', authenticateAndAuthoriseAC, async (req, res
         //and string denoting reason (optional) => to be added int the comment of request
         const { dayOff, reason } = req.body;
 
-        //if no day off enterd
+        //if no day off entered
+
+        if(!dayOff)
+            return res.status(400).json( { msg: "Please enter a weekday for the new day off." } );
+
+
         //should be of the right format entered
+
+        if (!WEEKDAYS.includes(dayOff))
+            return res.status(400).json({ msg: "Please enter new day off as one of the following formats: " + WEEKDAYS});
+
+
         //if same day off of staff
 
-        //TODO: check with group
-        //if slot assigned on day off
-        //LS req associated with requested day off
+        const sender = await Staff.findById( user.objectID );
+
+        if(dayOff === sender.dayOff)
+            return res.status(500).json( { msg: "New day off entered is the same as the what is currently assigned." } );
+
+       
+        //if slot assigned on day off => error message
+
+        sender.schedule.forEach( slot =>
+            {
+                if(slot.weekday === dayOff)
+                    return res.status(400).json( { msg: "There is/are slot(s) assigned during the requested day off." } );
+            });
+        //LS req associated with requested day off => if pending, delete
         
         return res.status(200).json( { msg: "Slot linking request sent." } );
         
@@ -644,18 +680,125 @@ router.post('/day-off-request/send', authenticateAndAuthoriseAC, async (req, res
 //sends an annual leave request
 router.post('/annual-leave-request/send', authenticateAndAuthoriseAC, async (req, res) => {
     try {
-        //gets the payload of the token
+       //gets the payload of the token
         //the payload is stored in req.user in the authentication method
         const user = req.user;
 
-        //gets the string denoting which weekday
-        const { dayOff, reason } = req.body;
+        //gets the start date for the accidental leave
+        //the end date for the leave
+        //and a string denoting the reason (optional)
+        const { startLeaveDate, endLeaveDate, reason } = req.body;
 
-        //check if start date is yet to come
-        //check if the number of working days missed can be subtracted from the leave balance
-        //send a message requesting replacment for an array of working days missed
+
+        if(!startLeaveDate)
+            return res.status(400).json( { msg: "Please enter start date for the accidental leave." } );
+        if(!endLeaveDate)
+            return res.status(400).json( { msg: "Please enter the end date for the accidental leave." } );
+
+
+
+        //validate the dates
+
+        const startDate = validateDate(startLeaveDate);
+
+        if(!startDate)
+            return res.status(400).json( { msg: "Please enter the accidental start leave date as a valid date string (yyyy-mm-dd)." } );
+
+        const endDate = validateDate(endLeaveDate);
+
+        if(!endDate)
+            return res.status(400).json( { msg: "Please enter the accidental end leave date as a valid date string (yyyy-mm-dd)." } );
+
+
+        //check that the end date is after the start date
+
+        if(endDate.getTime() - startDate.getTime() < 0)
+            return res.status(400).json( { msg: "End date should be after the start date." } )
+
         
-        return res.status(200).json( { msg: "Slot linking request sent." } );
+        //if the start leave date already passed
+
+        if(startDate < Date.now())
+            return res.status(400).json( { msg: "Annual leave start date already passed." } );
+
+
+
+        //check if the staff has enough annual leave balance
+
+        const sender = await Staff.findById( user.objectID );
+
+        let days = ( endDate.getTime() - startDate.getTime() ) / ( 1000*60*60*24 );
+        
+        if(days === 0)
+            days = 1;
+
+        if(floor(sender.leaveBalance) < days)
+            return res.status(500).json( { msg: "There is not enough annual leave balance for the requested accidental leave." } );
+          
+            
+
+        //produce a list of days for which there should be replacement
+
+        let dayOff;
+
+        switch(sender.dayOff)
+        {
+            case "Sunday": dayOff = 0; break;
+            case "Monday": dayOff = 1; break;
+            case "Tuesday": dayOff = 2; break;
+            case "Wednesday": dayOff = 3; break;
+            case "Thursday": dayOff = 4; break;
+            case "Friday": dayOff = 5; break;
+            case "Saturday": dayOff = 6; break;
+            default: throw Error( "Day Off input in the database does not follow valid format. ");
+        }
+
+        let workingDays = "";
+
+        for(let d = startDate; d <= endDate; d.setDate( d.getDate() + 1) )
+        {
+            let date = new Date(d);
+
+            if(date.getDay() !== 5 && date.getDay() !== dayOff )
+                workingDays = workingDays + date + '\n';
+        }
+
+
+        //send the annual leave request
+
+        const hodID = await Department.findById( sender.departmentID, { _id: 0, hodID: 1 });
+        
+        //A) create a accidental leave
+        await Leave.create( { leaveType: "Annual", reason: reason, startDate: startDate, endDate: endDate }, (err, lv) =>
+        {
+            if(err) throw err;
+
+            //B) create a req
+            await Request.create( { senderID: user.objectID, receiverID: hodID, status: "Pending",
+                                    leave: lv, sentDate: Date.now() }, (err, rq) =>
+                                    {
+                                        if(err) throw err;
+
+                                        //C) create notification and send to sender and receiver
+                                        await Notification.create( { message: rq, date: Date.now(), read: false }, (err, notif) =>
+                                        {
+                                            if(err) throw err;
+
+                                            //send notification to sender
+                                            sender.notifications.push(notif);
+                                            await sender.save();
+
+                                            //send notification to hod
+                                            await Staff.findByIdAndUpdate( hodID, {
+                                                $push: { notifications: notif }
+                                            });
+                                        });
+                                    });
+        });
+a
+        return res.status(200).json( { msg: "Annual leave request sent. Please send replacement requests for the following working days:" + '\n' +
+                                            workingDays } );
+    
         
     } catch (error) {
         res.status(500).json({ msg: error.message });
@@ -670,14 +813,97 @@ router.post('/accidental-leave-request/send', authenticateAndAuthoriseAC, async 
         //the payload is stored in req.user in the authentication method
         const user = req.user;
 
-        //gets the string denoting which weekday
-        const { dayOff, reason } = req.body;
+        //gets the start date for the accidental leave
+        //the end date for the leave
+        //and a string denoting the reason (optional)
+        const { startLeaveDate, endLeaveDate, reason } = req.body;
 
-        //check if start date is yet to come
-        //check if the number of working days missed can be subtracted from the leave balance
-        //send a message requesting replacment for an array of working days missed
+
+        if(!startLeaveDate)
+            return res.status(400).json( { msg: "Please enter start date for the accidental leave." } );
+        if(!endLeaveDate)
+            return res.status(400).json( { msg: "Please enter the end date for the accidental leave." } );
+
+
+
+        //validate the dates
+
+        const startDate = validateDate(startLeaveDate);
+
+        if(!startDate)
+            return res.status(400).json( { msg: "Please enter the accidental start leave date as a valid date string (yyyy-mm-dd)." } );
+
+        const endDate = validateDate(endLeaveDate);
+
+        if(!endDate)
+            return res.status(400).json( { msg: "Please enter the accidental end leave date as a valid date string (yyyy-mm-dd)." } );
+
+
+        //check that the end date is after the start date
+
+        if(endDate.getTime() - startDate.getTime() < 0)
+            return res.status(400).json( { msg: "End date should be after the start date." } )
+
         
-        return res.status(200).json( { msg: "Slot linking request sent." } );
+        //TODO: submitted after the targeted day??
+
+        //check if staff has enough accidental leaves
+
+        const sender = await Staff.findById( user.objectID );
+
+        let days = ( endDate.getTime() - startDate.getTime() ) / ( 1000*60*60*24 );
+
+        if(days === 0)
+            days = 1;
+        
+        if(sender.accidentDays < days)
+            return res.status(500).json( { msg: "There is not enough accidental leave days for the requested accidental leave." } );
+
+
+        //check if the staff has enough annual leave balance
+
+        if(floor(sender.leaveBalance) < days)
+            return res.status(500).json( { msg: "There is not enough annual leave balance for the requested accidental leave." } );
+            
+        
+
+
+        //send the accidental leave request
+        
+
+        const hodID = await Department.findById( sender.departmentID, { _id: 0, hodID: 1 });
+        
+        //A) create a accidental leave
+        await Leave.create( { leaveType: "Accidental", reason: reason, startDate: startDate, endDate: endDate }, (err, lv) =>
+        {
+            if(err) throw err;
+
+            //B) create a req
+            await Request.create( { senderID: user.objectID, receiverID: hodID, status: "Pending",
+                                    leave: lv, sentDate: Date.now() }, (err, rq) =>
+                                    {
+                                        if(err) throw err;
+
+                                        //C) create notification and send to sender and receiver
+                                        await Notification.create( { message: rq, date: Date.now(), read: false }, (err, notif) =>
+                                        {
+                                            if(err) throw err;
+
+                                            //send notification to sender
+                                            sender.notifications.push(notif);
+                                            await sender.save();
+
+                                            //send notification to hod
+                                            await Staff.findByIdAndUpdate( hodID, {
+                                                $push: { notifications: notif }
+                                            });
+                                        });
+                                    });
+        });
+
+        return res.status(200).json( { msg: "Accidental leave request sent." } );
+        
+        
         
     } catch (error) {
         res.status(500).json({ msg: error.message });
@@ -692,14 +918,96 @@ router.post('/sick-leave-request/send', authenticateAndAuthoriseAC, async (req, 
         //the payload is stored in req.user in the authentication method
         const user = req.user;
 
-        //gets the string denoting which weekday
-        const { dayOff, reason } = req.body;
+        //gets the start date for the sick leave
+        //the end date for the leave
+        //and a string denoting the reason (optional)
+        const { startLeaveDate, endLeaveDate, reason } = req.body;
 
-        //check if start date is yet to come
-        //check if the number of working days missed can be subtracted from the leave balance
-        //send a message requesting replacment for an array of working days missed
+
+        if(!startLeaveDate)
+            return res.status(400).json( { msg: "Please enter start date for the sick leave." } );
+        if(!endLeaveDate)
+            return res.status(400).json( { msg: "Please enter the end date for the sick leave." } );
+
+
+
+        //validate the dates
+
+        const startDate = validateDate(startLeaveDate);
+
+        if(!startDate)
+            return res.status(400).json( { msg: "Please enter the sick start leave date as a valid date string (yyyy-mm-dd)." } );
+
+        const endDate = validateDate(endLeaveDate);
+
+        if(!endDate)
+            return res.status(400).json( { msg: "Please enter the sick end leave date as a valid date string (yyyy-mm-dd)." } );
+
+
+        //check that the end date is after the start date
+
+        if(endDate.getTime() - startDate.getTime() < 0)
+            return res.status(400).json( { msg: "End date should be after the start date." } )
+
         
-        return res.status(200).json( { msg: "Slot linking request sent." } );
+        //check if the start date more than 3 days too late (cannot send sick leave after more than 3 days after the date)
+
+        if( ( Date.now() - startDate.getTime() ) / ( 60*60*24*1000 ) > 3 )
+            return res.status(400).json( { msg: "Sick leave start date is more than 3 days ago." } );
+
+
+
+        //check for the documents
+        const fileName;
+        upload(req, res, (err) =>
+        {
+           if(err) throw err;
+           
+           if(!req.file)
+                return res.status(400).json( { msg: "Please upload a zip file of documents." } );
+
+           fileName = req.file.filename;
+
+        });
+            
+        
+
+        //send the sick leave request
+        
+        const sender = await Staff.findById( user.objectID );
+
+        const hodID = await Department.findById( sender.departmentID, { _id: 0, hodID: 1 });
+        
+        //A) create a sick leave
+        await Leave.create( { leaveType: "Sick", reason: reason, startDate: startDate, endDate: endDate, document: "../../data/" + fileName }, (err, lv) =>
+        {
+            if(err) throw err;
+
+            //B) create a req
+            await Request.create( { senderID: user.objectID, receiverID: hodID, status: "Pending",
+                                    leave: lv, sentDate: Date.now() }, (err, rq) =>
+                                    {
+                                        if(err) throw err;
+
+                                        //C) create notification and send to sender and receiver
+                                        await Notification.create( { message: rq, date: Date.now(), read: false }, (err, notif) =>
+                                        {
+                                            if(err) throw err;
+
+                                            //send notification to sender
+                                            sender.notifications.push(notif);
+                                            await sender.save();
+
+                                            //send notification to hod
+                                            await Staff.findByIdAndUpdate( hodID, {
+                                                $push: { notifications: notif }
+                                            });
+                                        });
+                                    });
+        });
+
+        return res.status(200).json( { msg: "Sick leave request sent." } );
+        
         
     } catch (error) {
         res.status(500).json({ msg: error.message });
@@ -725,16 +1033,6 @@ router.post('/maternity-leave-request/send', authenticateAndAuthoriseAC, async (
             return res.status(400).json( { msg: "Please enter start date for the maternity leave." } );
         if(!endLeaveDate)
             return res.status(400).json( { msg: "Please enter the end date for the maternity leave." } );
-       
-        
-        //check for the documents
-        upload(req, res, (err) =>
-        {
-           if(err) throw err;
-           
-           if(!req.file)
-                return res.status(400).json( { msg: "Please upload a zip file of documents." } );
-        });
 
 
 
@@ -751,12 +1049,29 @@ router.post('/maternity-leave-request/send', authenticateAndAuthoriseAC, async (
             return res.status(400).json( { msg: "Please enter the maternity end leave date as a valid date string (yyyy-mm-dd)." } );
 
 
+
+            
+        //check that the end date is after the start date
+
+        if(endDate.getTime() - startDate.getTime() < 0)
+         return res.status(400).json( { msg: "End date should be after the start date." } )
+
+
+
         
-        ///check they are up to 3 months
+        //check if the sender is female
+
+        const sender = await Staff.findById( user.objectID );
+
+        if(sender.gender === "Male")
+            return res.status(400).json( { msg: "Only female staff can send maternity leaves." } );
+        
 
 
+        ///check they are up to 3 months (90 days)
 
-
+        if( (endDate.getTime() -startDate.getTime()) / (60*60*24*1000) > 90)
+            return res.status(400).json( { msg: "Duration of maternity leave is more than three months (90 days)." } );
 
 
         
@@ -767,79 +1082,27 @@ router.post('/maternity-leave-request/send', authenticateAndAuthoriseAC, async (
 
 
 
-
-
-
-
-
-            
-        //leave date is not a working day
-
-        switch (leaveDate.getDay()) {
-            case 0:
-                weekday = "Sunday";
-                break;
-            case 1:
-                weekday = "Monday";
-                break;
-            case 2:
-                weekday = "Tuesday";
-                break;
-            case 3:
-                weekday = "Wednesday";
-                break;
-            case 4:
-                weekday = "Thursday";
-                break;
-            case 5:
-                weekday = "Friday";
-                break;
-            case 6:
-                weekday = "Saturday";
-        };
-
-        const sender = await Staff.findById( user.objectID );
-
-        if(weekday === "Friday" || weekday === sender.dayOff)
-            return res.status(400).json( { msg: "Date requested for the leave is already a day off." } );
-
-
-
-        //comp Date should be in the same month as leave (their weird month that starts at 11 and ends at 10?)
-
-        const startDate, endDate;
-        if(leaveDate.getDate()>=11)
+        //check for the documents
+        const fileName;
+        upload(req, res, (err) =>
         {
-            const year = leaveDate.getFullYear();
-            const month = leaveDate.getMonth();
-            startDate = new Date(year, month, 11);
-            if(month===11)
-                endDate = new Date(year+1, 0, 10);
-            else
-                endDate = new Date(year, month+1, 10);
-            
-        }
-        else
-        {
-            const year = leaveDate.getFullYear();
-            const month = leaveDate.getMonth();
-            if(month===0)
-                startDate = new Date(year-1, 11, 11);
-            else
-                startDate = new Date(year, month-1, 11);
-            endDate = new Date(year, month, 10);
-        }
+           if(err) throw err;
+           
+           if(!req.file)
+                return res.status(400).json( { msg: "Please upload a zip file of documents." } );
 
-        if(compDate > endDate || compDate < startDate)
-            return res.status(400).json( {  msg: "Compensation date is not within the same month as the leave." } );
+           fileName = req.file.filename;
+
+        });
+            
         
 
-        //send the comp leave request
-
+        //send the maternity leave request
+        
         const hodID = await Department.findById( sender.departmentID, { _id: 0, hodID: 1 });
         
-        //A) create a compensation leave
-        await Leave.create( { leaveType: "Compensation", reason: reason, startDate: leaveDate, endDate: leaveDate }, (err, lv) =>
+        //A) create a maternity leave
+        await Leave.create( { leaveType: "Maternity", reason: reason, startDate: startDate, endDate: endDate, document: "../../data/" + fileName }, (err, lv) =>
         {
             if(err) throw err;
 
@@ -858,7 +1121,7 @@ router.post('/maternity-leave-request/send', authenticateAndAuthoriseAC, async (
                                             sender.notifications.push(notif);
                                             await sender.save();
 
-                                            //send notification to coordinator
+                                            //send notification to hod
                                             await Staff.findByIdAndUpdate( hodID, {
                                                 $push: { notifications: notif }
                                             });
@@ -866,7 +1129,7 @@ router.post('/maternity-leave-request/send', authenticateAndAuthoriseAC, async (
                                     });
         });
 
-        return res.status(200).json( { msg: "Compensation request sent." } );
+        return res.status(200).json( { msg: "Maternity leave request sent." } );
         
     } catch (error) {
         res.status(500).json({ msg: error.message });
@@ -1027,7 +1290,7 @@ router.post('/compensation-leave-request/send', authenticateAndAuthoriseAC, asyn
                                             sender.notifications.push(notif);
                                             await sender.save();
 
-                                            //send notification to coordinator
+                                            //send notification to hod
                                             await Staff.findByIdAndUpdate( hodID, {
                                                 $push: { notifications: notif }
                                             });
@@ -1035,7 +1298,7 @@ router.post('/compensation-leave-request/send', authenticateAndAuthoriseAC, asyn
                                     });
         });
 
-        return res.status(200).json( { msg: "Compensation request sent." } );
+        return res.status(200).json( { msg: "Compensation leave request sent." } );
         
     } catch (error) {
         res.status(500).json({ msg: error.message });

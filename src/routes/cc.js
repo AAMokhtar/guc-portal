@@ -66,12 +66,6 @@ router.get(
           }
       });
 
-      /*
-      const SLNotifs = notifs.filter((notif) => {
-        notif.message.linkingSlot;
-      });
-      */
-
       //if there are slot linking requests return them to the user
       if (SLReqs.length > 0)
         return res.status(200).json({ requests: SLReqs });
@@ -170,19 +164,70 @@ router.post(
       await slot.save();
 
       //reject the other (_id !== requestID) linking slot requests associated with the slot
-      await Request.update(
-        { linkingSlot: { slot: { _id: slot._id } }, _id: { $ne: requestID } },
+      //need to propagate to notifications and sender and receiver
+
+      const otherReqs = await Request.find( { linkingSlot: { slot: { _id: slot._id } }, _id: { $ne: requestID } } );
+
+      otherReqs.forEach( rq => {
+
+        await Request.findByIdAndUpdate( 
+        rq._id, 
         {
           status: "Rejected",
           responseDate: Date.now(),
-        }
-      );
+        },
+        {new: true},
+        (err, r) => 
+        {
+          if(err) throw err;
+
+          await Notification.findOneAndUpdate( {message: {_id: r._id}}, { $set: {message: r}}, {new: true}, (err, n) => 
+          {
+            if(err) throw err;
+
+            await Staff.findOneAndUpdate( {_id: r.senderID, "notifications._id": n._id}, {
+              $set: { "notifications.$" : n} 
+            });
+
+            await Staff.findOneAndUpdate( {_id: r.receiverID , "notifications._id": n._id}, {
+              $set: { "notifications.$" : n} 
+            });
+
+          });
+
+        });
+
+      });
 
       //set the response date and status of the request accepted
-      request.responseDate = Date.now();
-      request.status = "Accepted";
+      //propagate to notification and sender and receiver
 
-      await request.save();
+      await Request.findByIdAndUpdate( 
+        request._id, 
+        {
+          status: "Accepted",
+          responseDate: Date.now(),
+        },
+        {new: true},
+        (err, r) => 
+        {
+          if(err) throw err;
+
+          await Notification.findOneAndUpdate( {message: {_id: r._id}}, { $set: {message: r}}, {new: true}, (err, n) => 
+          {
+            if(err) throw err;
+
+            await Staff.findOneAndUpdate( {_id: requestSender._id, "notifications._id": n._id}, {
+              $set: { "notifications.$" : n} 
+            });
+
+            await Staff.findOneAndUpdate( {_id: r.receiverID , "notifications._id": n._id}, {
+              $set: { "notifications.$" : n} 
+            });
+
+          });
+
+        });
 
       return res.status(200).json({ msg: "Slot linking accepted." });
     } catch (error) {
@@ -246,11 +291,32 @@ router.post(
       //request is directed towards current course coordinator
       //request did not receive a reply yet
 
-      //set the response date and status
-      request.responseDate = Date.now();
-      request.status = "Rejected";
+      await Request.findByIdAndUpdate( 
+        request._id, 
+        {
+          status: "Rejected",
+          responseDate: Date.now(),
+        },
+        {new: true},
+        (err, r) => 
+        {
+          if(err) throw err;
 
-      await request.save();
+          await Notification.findOneAndUpdate( {message: {_id: r._id}}, { $set: {message: r}}, {new: true}, (err, n) => 
+          {
+            if(err) throw err;
+
+            await Staff.findOneAndUpdate( {_id: request.senderID, "notifications._id": n._id}, {
+              $set: { "notifications.$" : n} 
+            });
+
+            await Staff.findOneAndUpdate( {_id: r.receiverID , "notifications._id": n._id}, {
+              $set: { "notifications.$" : n} 
+            });
+
+          });
+
+        });
 
       return res.status(200).json({ msg: "Slot linking rejected." });
     } catch (error) {

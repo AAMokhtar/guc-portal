@@ -118,7 +118,12 @@ router.get('/schedule', authenticateAndAuthoriseAC, async (req, res) => {
         const schedule = (await Staff.findOne({ _id: user.objectID })).schedule;
 
         //arrays to store the slots
-        let sat, sun, mon, tue, wed, thu;
+        let sat = new Object();
+        let sun = new Object();
+        let mon = new Object();
+        let tue = new Object();
+        let wed = new Object();
+        let thu = new Object();
 
         //sort the schedule
         schedule.forEach((slot) => {
@@ -297,9 +302,8 @@ router.get('/schedule', authenticateAndAuthoriseAC, async (req, res) => {
 
         //add the days together into one object as the  whole schedule
         const sch = { sat: sat, sun: sun, mon: mon, tue: tue, wed: wed, thu: thu };
-
         //return the schedule
-        return res.send(200).json({ schedule: sch })
+        return res.status(200).json({ schedule: sch });
     }
     catch (error) {
         return res.status(500).json({ msg: error.message });
@@ -328,9 +332,11 @@ router.get('/replacement-request', authenticateAndAuthoriseAC, async (req, res) 
                 RepReqs.push(RepReq);
             }
         });
+
+        const result = RepReqs.map(a => a.$__parent);
         //if there are slot linking notifications return them to the user
-        if (RepReqs.length > 0)
-            return res.status(200).json({ requests: RepReqs });
+        if (result && result.length > 0)
+            return res.status(200).json({ requests: result });
         //otherwise return a message indicating ther is no notification to show
         else
             return res
@@ -401,9 +407,12 @@ router.post('/replacement-request/send', authenticateAndAuthoriseAC, async (req,
         const sender = await Staff.findOne({ _id: user.objectID });
         const schedule = sender.schedule;
 
-        const slt = schedule.filter(slot => {
-            slot.weekday === weekday;
-        });
+        let slt = [];
+        for(i=0; i<schedule.length; i++)
+        {
+            if(schedule[i].weekday===weekday)
+                slt.push(schedule[i]);
+        }
 
         //sort the slots
         let slots = [];
@@ -470,48 +479,37 @@ router.post('/replacement-request/send', authenticateAndAuthoriseAC, async (req,
         //send the request
 
         //A)create replacement requests
-        let repReqs = [];
 
         for (i = 0; i < slots.length; i++) {
 
-            await Replacement.create({ replacementDay: repDate, replacementSlot: slots[i] }, (err, rep) => {
+            await Replacement.create({ replacementDay: repDate, replacementSlot: slots[i] }, async (err, rep) => {
                 if (err) throw err;
 
-                repReqs.push(rep);
+                await Request.create({ senderID: user.objectID, receiverID: repStaff[i]._id, status: "Pending", replacement: rep, sentDate: Date.now() }, async (err, rq) => {
+                    if (err) throw err;
+
+                    console.log("here.");
+    
+                    await Notification.create({ message: rq, date: Date.now(), read: false }, async (err, notif) => {
+                        if (err) throw err;
+                        
+                        console.log("Here");
+                        
+                        //add notification to sender
+                        sender.notifications.push(notif);
+                        await sender.save();
+                        //add notification to receiver
+                        repStaff[i].notifications.push(notif);
+                        await repStaff[i].save();
+        
+        
+                    });
 
             });
-        }
+        });
+    }
 
-        //B)create requests for those replacement requests
-        let reqs = [];
-
-        for (i = 0; i < repReqs.length; i++) {
-            await Request.create({ senderID: user.objectID, receiverID: repStaff[i]._id, status: "Pending", replacement: repReqs[i], sentDate: Date.now() }, (err, rq) => {
-                if (err) throw err;
-
-                reqs.push(rq);
-
-            });
-        }
-
-
-        //C)create its notification and send to sender and receiver
-
-        for (i = 0; i < reqs.length; i++) {
-            await Notification.create({ message: reqs[i], date: Date.now(), read: false }, async (err, notif) => {
-                if (err) throw err;
-
-                //add notification to sender
-                sender.notifications.push(notif);
-                await sender.save();
-                //add notification to receiver
-                repStaff[i].notifications.push(notif);
-                await repStaff[i].save();
-
-
-            });
-        }
-
+        
         return res.status(200).json({ msg: "Replacement requests sent." });
 
     } catch (error) {
@@ -1367,7 +1365,7 @@ router.get('/notifications', authenticateAndAuthoriseAC, async (req, res) => {
         });
 
         //if there are notifications
-        if (subNotifs > 0) {
+        if (subNotifs.length > 0) {
 
             //assign them as read
             const subNotifsIds = subNotifs.map(a => a._id);
@@ -1486,7 +1484,7 @@ router.get('/requests', authenticateAndAuthoriseAC, async (req, res) => {
         let reqs = [];
         notifs.forEach(notif => {
             //if the notification sent by the user
-            if (notif.message.receiverID.equals(user.objectID)) {
+            if (notif.message.senderID.equals(user.objectID)) {
                 if (notif.message.leave) {
                     //remove the unnecessary attributes 
                     let { linkingSlot, dayOff, replacement, ...req } = notif.message;
@@ -1510,9 +1508,11 @@ router.get('/requests', authenticateAndAuthoriseAC, async (req, res) => {
             }
         });
 
+        const result = reqs.map(a => a.$__parent);
+
         //if there are requests return them to the user
-        if (reqs.length > 0)
-            return res.status(200).json({ requests: reqs });
+        if (result.length > 0)
+            return res.status(200).json({ requests: result });
         //otherwise return a message indicating ther is no notification to show
         else
             return res
@@ -1539,7 +1539,7 @@ router.get('/requests/accepted', authenticateAndAuthoriseAC, async (req, res) =>
         let reqs = [];
         notifs.forEach(notif => {
             //if the notification sent by the user and are accepted
-            if (notif.message.receiverID.equals(user.objectID) && notif.message.status === "Accepted") {
+            if (notif.message.senderID.equals(user.objectID) && notif.message.status === "Accepted") {
                 if (notif.message.leave) {
                     //remove the unnecessary attributes 
                     let { linkingSlot, dayOff, replacement, ...req } = notif.message;
@@ -1563,9 +1563,11 @@ router.get('/requests/accepted', authenticateAndAuthoriseAC, async (req, res) =>
             }
         });
 
+        const result = reqs.map(a => a.$__parent);
+
         //if there are requests return them to the user
-        if (reqs.length > 0)
-            return res.status(200).json({ requests: reqs });
+        if (result.length > 0)
+            return res.status(200).json({ requests: result });
         //otherwise return a message indicating ther is no notification to show
         else
             return res
@@ -1591,7 +1593,7 @@ router.get('/requests/rejected', authenticateAndAuthoriseAC, async (req, res) =>
         let reqs = [];
         notifs.forEach(notif => {
             //if the notification sent by the user and are rejected
-            if (notif.message.receiverID.equals(user.objectID) && notif.message.status === "Rejected") {
+            if (notif.message.senderID.equals(user.objectID) && notif.message.status === "Rejected") {
                 if (notif.message.leave) {
                     //remove the unnecessary attributes 
                     let { linkingSlot, dayOff, replacement, ...req } = notif.message;
@@ -1615,9 +1617,11 @@ router.get('/requests/rejected', authenticateAndAuthoriseAC, async (req, res) =>
             }
         });
 
+        const result = reqs.map(a => a.$__parent);
+
         //if there are requests return them to the user
-        if (reqs.length > 0)
-            return res.status(200).json({ requests: reqs });
+        if (result.length > 0)
+            return res.status(200).json({ requests: result });
         //otherwise return a message indicating ther is no notification to show
         else
             return res
@@ -1644,7 +1648,7 @@ router.get('/requests/pending', authenticateAndAuthoriseAC, async (req, res) => 
         let reqs = [];
         notifs.forEach(notif => {
             //if the notification sent by the user and are pending
-            if (notif.message.receiverID.equals(user.objectID) && notif.message.status === "Pending") {
+            if (notif.message.senderID.equals(user.objectID) && notif.message.status === "Pending") {
                 if (notif.message.leave) {
                     //remove the unnecessary attributes 
                     let { linkingSlot, dayOff, replacement, ...req } = notif.message;

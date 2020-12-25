@@ -462,6 +462,16 @@ router.delete(
             "Slot is assigned to a course coordinated by another coordinator.",
         });
 
+      //D)delete from course table
+
+      await Course.findOneAndUpdate(
+        { _id: slot.course },
+        {
+          $pull: { slots: { _id: slotId } },
+        }
+      );
+    
+
       //A)remove from slot table
       await Slot.deleteOne({ _id: slotId });
 
@@ -480,7 +490,7 @@ router.delete(
       //C)delete linking slot requests attributed to that slot
 
       //gets array of objectIds of linking slot requests related to that slot
-      const LSid = await LinkingSlot.find({ slot: { _id: slotId } }, {_id: 1});
+      const LSid = await LinkingSlot.find({ "slot._id": slotId }, {_id: 1});
 
       //if there are linking slot requests
       if(LSid > 0)
@@ -489,7 +499,7 @@ router.delete(
         await LinkingSlot.deleteMany({ _id: { $in: LSid } });
 
         //gets the array of objectIds of requests linked to the linking slot request of the deleted slot
-        const requests = await Request.find({ linkingSlot: { _id: { $in: LSid } } },
+        const requests = await Request.find({ "linkingSlot._id": { $in: LSid } },
                                                                   { senderID: 1, receiverID: 1 }
                                                                   );
 
@@ -507,7 +517,7 @@ router.delete(
         await Request.deleteMany({ _id: { $in: RQid } });
 
         //gets the array of objectIds of notifications linked to the linking slot request of the slot to be deleted
-        const NFid = await Notification.find({ message: { _id: { $in: RQid } } }, { _id: 1 });
+        const NFid = await Notification.find({ "message._id": { $in: RQid } }, { _id: 1 });
 
         //delete those notifications from the notifications table
         await Notification.deleteMany({ _id: { $in: NFid } });
@@ -522,15 +532,7 @@ router.delete(
         );
       }
 
-      //D)delete from course table
-
-      await Course.findOneAndUpdate(
-        { _id: slot.course },
-        {
-          $pull: { slots: { _id: slotId } },
-        }
-      );
-    
+      
 
       //E)delete replacement request associated with the deleted slot (as the slot was removed from the staff's schedule)
 
@@ -561,7 +563,7 @@ router.delete(
         //delete from the request table
 
         //gets the array of objectIds of requests linked to the replacement of the deleted slot
-        const requests = await Request.find({ replacement: { _id: { $in: RepReqs } } },
+        const requests = await Request.find({ "replacement._id": { $in: RepReqs } },
                                                                   { senderID: 1, receiverID: 1 }
                                                                  );
 
@@ -596,7 +598,7 @@ router.delete(
     }
 
 
-      return res.status(200).json({ msg: "Slot deleted", slot: slot });
+      return res.status(200).json({ msg: "Slot deleted"});
     } catch (error) {
       res.status(500).json({ msg: error.message });
     }

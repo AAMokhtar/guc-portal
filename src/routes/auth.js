@@ -1,11 +1,12 @@
 const jwt = require("jsonwebtoken");
 const properties = require("../../properties.js");
+const staff = require("../mongoose/dao/staff.js");
 
 //key used for jsonwebtoken
 const key = properties.JWT_KEY;
 
 //Authentication middeware
-function authenticate(req, res, next) {
+async function authenticate(req, res, next) {
   //get the user's token
   const token = req.header("auth-token");
   //if there is no token
@@ -18,6 +19,9 @@ function authenticate(req, res, next) {
   try {
     //verify that the signature is legitimate using the jwt key
     const verified = jwt.verify(token, key);
+    let validateToken = await staff.findOne({ _id: verified.objectID });
+    if (validateToken.tokens.includes(token)) throw Error("Invalid token");
+
     req.user = verified; //sends the payload to a request attribute named user
     next(); //call the next function
   } catch (
@@ -30,7 +34,7 @@ function authenticate(req, res, next) {
 //Authentication and authorisation middleware
 //Checks if user has a valid token and is course coordinator
 function authenticateAndAuthorise(role) {
-  return function (req, res, next) {
+  return async function (req, res, next) {
     //get user's token
     const token = req.header("auth-token");
 
@@ -44,7 +48,8 @@ function authenticateAndAuthorise(role) {
     try {
       //verify the signature of the token is legitimate using the key
       const verified = jwt.verify(token, key);
-
+      let validateToken = await staff.findOne({ _id: verified.objectID });
+      if (validateToken.tokens.includes(token)) throw Error("Invalid token");
       req.user = verified; //sends the payload to a request attribute named user
       // console.log(role, verified.role);
       //gets the user's role in the university
@@ -68,7 +73,7 @@ function authenticateAndAuthorise(role) {
 
 //Authentication and Authorisation middleware
 //checks if staff is academic
-function authenticateAndAuthoriseAC(req, res, next) {
+async function authenticateAndAuthoriseAC(req, res, next) {
   //get user's token
   const token = req.header("auth-token");
 
@@ -82,6 +87,8 @@ function authenticateAndAuthoriseAC(req, res, next) {
   try {
     //verify the signature of the token is legitimate using the key
     const verified = jwt.verify(token, key);
+    let validateToken = await staff.findOne({ _id: verified.objectID });
+    if (validateToken.tokens.includes(token)) throw Error("Invalid token");
 
     req.user = verified; //sends the payload to a request attribute named user
 

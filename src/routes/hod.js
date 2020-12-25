@@ -258,7 +258,11 @@ router.get(
       });
       // console.log(temp);
 
-      result = await staff.find({ _id: { $in: temp } });
+      result = await staff.find(
+        { _id: { $in: temp } },
+        { password: 0, tokens: 0 }
+      );
+
       res.status(200).json({
         result,
       });

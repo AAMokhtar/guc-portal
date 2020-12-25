@@ -279,8 +279,8 @@ router.post(
     }
   }
 );
-router.get(
-  "/AssignCordinator",
+router.post(
+  "/AssignCoordinator",
   authenticateAndAuthorise("Course Instructor"),
   async function (req, res) {
     try {
@@ -289,13 +289,16 @@ router.get(
       let { staffID: uID, objectID } = req.user;
       // let user = await staff.findOne({ staffID: uID });
 
-      let { staffID, courseCode } = req.query;
-      if (!staffID) throw Error("Please enter `staffID,courseCode` param");
+      let { staffID, courseCode } = req.body.data;
+      if (!staffID || !courseCode)
+        throw Error("Please enter `staffID,courseCode` param");
 
       let instructorDoc = await staff
         .findOne({ _id: objectID })
         .populate("courseIDs");
-      let staffDoc = await staff.findOne({ staffID }).populate("courseIDs");
+      let staffDoc = await staff
+        .findOne({ staffID }, { password: 0, tokens: 0 })
+        .populate("courseIDs");
 
       let f1 = false;
       let f2 = false;
@@ -319,16 +322,19 @@ router.get(
         }
       });
 
-      if (f2 === false)
+      /*  if (f2 === false)
         throw Error(
           "the academic member doesnt teach the courseCode you entered in the req"
-        );
+        ); */
 
-      let courseDOC = await course.find({ _id: courseID });
-      if (courseDOC.coordinatorID != null) {
+      let courseDOC = await course.findOne({ _id: courseID });
+
+      /*     if (courseDOC.coordinatorID != null) {
         throw Error("Course already has a course cordinator!");
-      }
+      } */
+
       courseDOC.coordinatorID = staffDoc.id;
+      staffDoc.courseIDs.push(courseDOC.id);
       let result = await staffDoc.save();
 
       res.status(200).json({
@@ -768,7 +774,7 @@ router.get(
   }
 );
 router.get(
-  "/viewAssignments",
+  "/viewStaffWithCourseAssignments",
   authenticateAndAuthorise("Course Instructor"),
   async function (req, res) {
     try {
@@ -814,9 +820,10 @@ router.get(
               if (courseID.equals(schedule.course)) slotsResults.push(schedule);
             });
             courseResult.push({
-              staffID: ta.staffID,
+              /*        staffID: ta.staffID,
               staffObjectID: ta.id,
-              role: ta.role,
+              role: ta.role, */
+              ...ta._doc,
               schedule: slotsResults,
             });
           });

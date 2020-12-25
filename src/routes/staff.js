@@ -80,7 +80,7 @@ router.put('/updateprofile', async function(req, res) {
         //=================FACULTY=================
         //if faculty name provided, find it and update the user
         if(updatedUser.facultyName){
-            const userFaculty = await faculty.findOne({name: updatedUser.facultyName});
+            const userFaculty = await faculty.findOne({name: updatedUser.facultyName.toUpperCase()});
 
             if(!userFaculty){
                 return res.status(HTTP_CODES.NOT_FOUND).json({msg: "no faculty exists with the name " + updatedUser.facultyName});
@@ -100,44 +100,32 @@ router.put('/updateprofile', async function(req, res) {
         if(updatedUser.departmentName){
             userFaculty = user.facultyID;
 
-            //populate and filter departments by the provided name
-            userFaculty.populate({
-                path: 'departments',
-                match: {
-                    name: updatedUser.departmentName
-                }
+            //department exists
+            var dep = await Department.findOne({name: updatedUser.departmentName.toUpperCase()});
+
+            //get id
+            if(dep)
+                dep = dep._id;
+
+            //exists under department
+            const depExists = userFaculty.departments.filter((item) => {
+                return item._id.equals(dep);
             });
 
-            const department = userFaculty.departments
-
             //no department exists with that name
-            if(department.length < 1){
+            if(depExists.length == 0){
                 return res.status(HTTP_CODES.NOT_FOUND)
                 .json({msg: "no department exists with the name" + updatedUser.departmentName +" under the faculty "+ userFaculty.name});
-            }
-            
+            }            
 
             //update the user's department
-            user.departmentID = department[0]._id;
-        }
-
-        //=================SALARY=================
-        //salary is provided
-        if(updatedUser.salary){
-
-            //salary should be non-negative
-            if(updatedUser.salary < 0){
-                return res
-                .status(HTTP_CODES.BAD_REQUEST)
-                .json({ msg: "salary should be a non-negative number"});
-            }
-            user.salary = updatedUser.salary;
+            user.departmentID = dep;
         }
     }
 
     //=================EMAIL=================
     //email is provided
-    if(updatedUser.officeLocation){
+    if(updatedUser.email){
         if (!isEmail.validate(updatedUser.email)) {
             return res
             .status(HTTP_CODES.BAD_REQUEST)
@@ -148,7 +136,7 @@ router.put('/updateprofile', async function(req, res) {
     //============OFFICE-LOCATION=============
     //user provided an office location
     if(updatedUser.officeLocation){
-        const office = await Location.findOne({name: updatedUser.officeLocation});
+        const office = await Location.findOne({name: updatedUser.officeLocation.toUpperCase()});
 
         //location does not exist
         if(!office){
@@ -158,7 +146,7 @@ router.put('/updateprofile', async function(req, res) {
         }
 
         //location is not an office
-        if(office.type != "Office"){
+        if(office.type != "OFFICE"){
             return res
             .status(HTTP_CODES.NOT_FOUND)
             .json({ msg: "the office location provided is not of type office"});
@@ -168,7 +156,6 @@ router.put('/updateprofile', async function(req, res) {
         user.officeLocationID = office._id;
     }
 
-    //============OFFICE-LOCATION=============
     if(updatedUser.others){
         user.others = updatedUser.others;
     }
@@ -238,7 +225,7 @@ router.put('/signin', async function(req, res) {
     curDate.setUTCHours(0,0,0,0);
 
     //get today's attendance from the array 
-    const curAtt = await user.attendance.find(elem => +elem.date == +curDate);
+    const curAtt = user.attendance.find(elem => +elem.date == +curDate);
 
     if(!curAtt){
         return res.status(HTTP_CODES.NOT_FOUND).json({msg: "attendance record not found"});

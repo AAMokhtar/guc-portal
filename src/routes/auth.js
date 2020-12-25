@@ -46,7 +46,7 @@ function authenticateAndAuthorise(role) {
       const verified = jwt.verify(token, key);
 
       req.user = verified; //sends the payload to a request attribute named user
-      console.log(role, verified.role);
+      // console.log(role, verified.role);
       //gets the user's role in the university
       if ((!role && verified.role) || role == verified.role) {
         //if current user is a course coordinator, continue executing the next function

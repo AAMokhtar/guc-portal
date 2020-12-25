@@ -52,23 +52,25 @@ router.get(
       const user = req.user;
 
       //get the notifications of the user
-      const notifs = (await Staff.findOne({ staffID: user.staffID })).notifications;
+      const notifs = (await Staff.findOne({ staffID: user.staffID }))
+        .notifications;
 
       //filters notifications to get only the slot linking ones and return the requests themselves
       let SLReqs;
-      notifs.forEach( notif  => {
-          //if the notification is linking slot and sent to the cc
-          if(notif.message.linkingSlot && notif.message.receiverID === user.objectID)
-          {
-            //remove the unnecessary attributes 
-            let {leave, dayOff, replacement, ...SLReq} = notif.message;
-            SLReqs.push(SLReq);
-          }
+      notifs.forEach((notif) => {
+        //if the notification is linking slot and sent to the cc
+        if (
+          notif.message.linkingSlot &&
+          notif.message.receiverID === user.objectID
+        ) {
+          //remove the unnecessary attributes
+          let { leave, dayOff, replacement, ...SLReq } = notif.message;
+          SLReqs.push(SLReq);
+        }
       });
 
       //if there are slot linking requests return them to the user
-      if (SLReqs.length > 0)
-        return res.status(200).json({ requests: SLReqs });
+      if (SLReqs.length > 0) return res.status(200).json({ requests: SLReqs });
       //otherwise return a message indicating ther is no notification to show
       else
         return res
@@ -166,68 +168,85 @@ router.post(
       //reject the other (_id !== requestID) linking slot requests associated with the slot
       //need to propagate to notifications and sender and receiver
 
-      const otherReqs = await Request.find( { linkingSlot: { slot: { _id: slot._id } }, _id: { $ne: requestID } } );
+      const otherReqs = await Request.find({
+        linkingSlot: { slot: { _id: slot._id } },
+        _id: { $ne: requestID },
+      });
 
-      otherReqs.forEach( rq => {
-
-        await Request.findByIdAndUpdate( 
-        rq._id, 
-        {
-          status: "Rejected",
-          responseDate: Date.now(),
-        },
-        {new: true},
-        (err, r) => 
-        {
-          if(err) throw err;
-
-          await Notification.findOneAndUpdate( {message: {_id: r._id}}, { $set: {message: r}}, {new: true}, (err, n) => 
+      otherReqs.forEach(async (rq) => {
+        await Request.findByIdAndUpdate(
+          rq._id,
           {
-            if(err) throw err;
+            status: "Rejected",
+            responseDate: Date.now(),
+          },
+          { new: true },
+          async (err, r) => {
+            if (err) throw err;
 
-            await Staff.findOneAndUpdate( {_id: r.senderID, "notifications._id": n._id}, {
-              $set: { "notifications.$" : n} 
-            });
+            await Notification.findOneAndUpdate(
+              { message: { _id: r._id } },
+              { $set: { message: r } },
+              { new: true },
+              async (err, n) => {
+                if (err) throw err;
 
-            await Staff.findOneAndUpdate( {_id: r.receiverID , "notifications._id": n._id}, {
-              $set: { "notifications.$" : n} 
-            });
+                await Staff.findOneAndUpdate(
+                  { _id: r.senderID, "notifications._id": n._id },
+                  {
+                    $set: { "notifications.$": n },
+                  }
+                );
 
-          });
-
-        });
-
+                await Staff.findOneAndUpdate(
+                  { _id: r.receiverID, "notifications._id": n._id },
+                  {
+                    $set: { "notifications.$": n },
+                  }
+                );
+              }
+            );
+          }
+        );
       });
 
       //set the response date and status of the request accepted
       //propagate to notification and sender and receiver
 
-      await Request.findByIdAndUpdate( 
-        request._id, 
+      await Request.findByIdAndUpdate(
+        request._id,
         {
           status: "Accepted",
           responseDate: Date.now(),
         },
-        {new: true},
-        (err, r) => 
-        {
-          if(err) throw err;
+        { new: true },
+        async (err, r) => {
+          if (err) throw err;
 
-          await Notification.findOneAndUpdate( {message: {_id: r._id}}, { $set: {message: r}}, {new: true}, (err, n) => 
-          {
-            if(err) throw err;
+          await Notification.findOneAndUpdate(
+            { message: { _id: r._id } },
+            { $set: { message: r } },
+            { new: true },
+            async (err, n) => {
+              if (err) throw err;
 
-            await Staff.findOneAndUpdate( {_id: requestSender._id, "notifications._id": n._id}, {
-              $set: { "notifications.$" : n} 
-            });
+              await Staff.findOneAndUpdate(
+                { _id: requestSender._id, "notifications._id": n._id },
+                {
+                  $set: { "notifications.$": n },
+                }
+              );
 
-            await Staff.findOneAndUpdate( {_id: r.receiverID , "notifications._id": n._id}, {
-              $set: { "notifications.$" : n} 
-            });
-
-          });
-
-        });
+              await Staff.findOneAndUpdate(
+                { _id: r.receiverID, "notifications._id": n._id },
+                {
+                  $set: { "notifications.$": n },
+                }
+              );
+            }
+          );
+        }
+      );
 
       return res.status(200).json({ msg: "Slot linking accepted." });
     } catch (error) {
@@ -291,32 +310,40 @@ router.post(
       //request is directed towards current course coordinator
       //request did not receive a reply yet
 
-      await Request.findByIdAndUpdate( 
-        request._id, 
+      await Request.findByIdAndUpdate(
+        request._id,
         {
           status: "Rejected",
           responseDate: Date.now(),
         },
-        {new: true},
-        (err, r) => 
-        {
-          if(err) throw err;
+        { new: true },
+        async (err, r) => {
+          if (err) throw err;
 
-          await Notification.findOneAndUpdate( {message: {_id: r._id}}, { $set: {message: r}}, {new: true}, (err, n) => 
-          {
-            if(err) throw err;
+          await Notification.findOneAndUpdate(
+            { message: { _id: r._id } },
+            { $set: { message: r } },
+            { new: true },
+            async (err, n) => {
+              if (err) throw err;
 
-            await Staff.findOneAndUpdate( {_id: request.senderID, "notifications._id": n._id}, {
-              $set: { "notifications.$" : n} 
-            });
+              await Staff.findOneAndUpdate(
+                { _id: request.senderID, "notifications._id": n._id },
+                {
+                  $set: { "notifications.$": n },
+                }
+              );
 
-            await Staff.findOneAndUpdate( {_id: r.receiverID , "notifications._id": n._id}, {
-              $set: { "notifications.$" : n} 
-            });
-
-          });
-
-        });
+              await Staff.findOneAndUpdate(
+                { _id: r.receiverID, "notifications._id": n._id },
+                {
+                  $set: { "notifications.$": n },
+                }
+              );
+            }
+          );
+        }
+      );
 
       return res.status(200).json({ msg: "Slot linking rejected." });
     } catch (error) {
@@ -475,58 +502,62 @@ router.delete(
       //A)remove from slot table
       await Slot.deleteOne({ _id: slotId });
 
-
       //B)if the slot is already taken by a staff => remove from schedule
 
       //get the staff that takes the course coordinated by cc and has the slot in the schedule
       //remove the slot from the schedule if it shares the same id as the slot to be removed
-      const acStaff = await Staff.findOneAndUpdate( { courseIDs: courseCoordinated._id, schedule: { _id: slotId } },
-                                                 {
-                                                    $pull: { schedule: { _id: slotId } },
-                                                 }
-                                                );
-      
+      const acStaff = await Staff.findOneAndUpdate(
+        { courseIDs: courseCoordinated._id, schedule: { _id: slotId } },
+        {
+          $pull: { schedule: { _id: slotId } },
+        }
+      );
 
       //C)delete linking slot requests attributed to that slot
 
       //gets array of objectIds of linking slot requests related to that slot
-      const LSid = await LinkingSlot.find({ slot: { _id: slotId } }, {_id: 1});
+      const LSid = await LinkingSlot.find(
+        { slot: { _id: slotId } },
+        { _id: 1 }
+      );
 
       //if there are linking slot requests
-      if(LSid > 0)
-      {
+      if (LSid > 0) {
         //delete these linking slot requests from the linking slot table
         await LinkingSlot.deleteMany({ _id: { $in: LSid } });
 
         //gets the array of objectIds of requests linked to the linking slot request of the deleted slot
-        const requests = await Request.find({ linkingSlot: { _id: { $in: LSid } } },
-                                                                  { senderID: 1, receiverID: 1 }
-                                                                  );
+        const requests = await Request.find(
+          { linkingSlot: { _id: { $in: LSid } } },
+          { senderID: 1, receiverID: 1 }
+        );
 
         let RQid, SenderID, ReceiverID;
-        requests.forEach( r => 
-        {
-            RQid.push(r._id);
-            SenderID.push(r.senderID);
-            ReceiverID.push(r.receiverID);
+        requests.forEach((r) => {
+          RQid.push(r._id);
+          SenderID.push(r.senderID);
+          ReceiverID.push(r.receiverID);
         });
 
         //delete these requests from the requests table
         await Request.deleteMany({ _id: { $in: RQid } });
 
         //gets the array of objectIds of notifications linked to the linking slot request of the slot to be deleted
-        const NFid = await Notification.find({ message: { _id: { $in: RQid } } }, { _id: 1 });
+        const NFid = await Notification.find(
+          { message: { _id: { $in: RQid } } },
+          { _id: 1 }
+        );
 
         //delete those notifications from the notifications table
         await Notification.deleteMany({ _id: { $in: NFid } });
 
         //delete those notifications from those who sent them and received them
         await Staff.update(
-            { $or: [{ _id: { $in: SenderID } }, { _id: { $in: ReceiverID } }] },
-            {
+          { $or: [{ _id: { $in: SenderID } }, { _id: { $in: ReceiverID } }] },
+          {
             $pull: { notifications: { _id: { $in: NFid } } },
-            },
-            { multi: true }
+          },
+          { multi: true }
         );
       }
 
@@ -538,7 +569,6 @@ router.delete(
           $pull: { slots: { _id: slotId } },
         }
       );
-    
 
       //E)delete replacement request associated with the deleted slot (as the slot was removed from the staff's schedule)
 
@@ -547,58 +577,62 @@ router.delete(
 
       //gets the objectIds of the replacement requests associated with the deleted slot
       let RepReqs;
-      acNotifs.forEach( notif  => {
-          //if the notification is replacement, has the deleted slot, sent by the slot holder, is pending and did not expire
-          if(notif.message.replacement && notif.message.replacement.replacmentSlot._id === slotId && notif.message.senderID === acStaff._id && notif.message.status === "Pending" && Date.now() > notif.message.replacement.replacmentDay)
-          {
-              RepReqs.push(notif.message.replacement._id);
-          }
+      acNotifs.forEach((notif) => {
+        //if the notification is replacement, has the deleted slot, sent by the slot holder, is pending and did not expire
+        if (
+          notif.message.replacement &&
+          notif.message.replacement.replacmentSlot._id === slotId &&
+          notif.message.senderID === acStaff._id &&
+          notif.message.status === "Pending" &&
+          Date.now() > notif.message.replacement.replacmentDay
+        ) {
+          RepReqs.push(notif.message.replacement._id);
+        }
       });
 
       //if there are replacement requests
-      if(RepReqs > 0)
-      {
+      if (RepReqs > 0) {
         //delete from the replacement, request, notification and sender and user table
 
         //delete from the replacement table
-        await Replacement.deleteMany( { _id: { $in: RepReqs } } );
-
+        await Replacement.deleteMany({ _id: { $in: RepReqs } });
 
         //delete from the request table
 
         //gets the array of objectIds of requests linked to the replacement of the deleted slot
-        const requests = await Request.find({ replacement: { _id: { $in: RepReqs } } },
-                                                                  { senderID: 1, receiverID: 1 }
-                                                                 );
+        const requests = await Request.find(
+          { replacement: { _id: { $in: RepReqs } } },
+          { senderID: 1, receiverID: 1 }
+        );
 
         let RQid, SenderID, ReceiverID;
-        requests.forEach( r => 
-        {
-            RQid.push(r._id);
-            SenderID.push(r.senderID);
-            ReceiverID.push(r.receiverID);
+        requests.forEach((r) => {
+          RQid.push(r._id);
+          SenderID.push(r.senderID);
+          ReceiverID.push(r.receiverID);
         });
 
         //delete these requests from the requests table
         await Request.deleteMany({ _id: { $in: RQid } });
 
         //gets the array of objectIds of notifications linked to the replacement request of the slot to be deleted
-        const NFid = await Notification.find({ message: { _id: { $in: RQid } } }, { _id: 1 });
+        const NFid = await Notification.find(
+          { message: { _id: { $in: RQid } } },
+          { _id: 1 }
+        );
 
         //delete those notifications from the notifications table
         await Notification.deleteMany({ _id: { $in: NFid } });
 
         //delete those notifications from those who sent them and received them
         await Staff.update(
-            { $or: [{ _id: { $in: SenderID } }, { _id: { $in: ReceiverID } }] },
-            {
+          { $or: [{ _id: { $in: SenderID } }, { _id: { $in: ReceiverID } }] },
+          {
             $pull: { notifications: { _id: { $in: NFid } } },
-            },
-            { multi: true }
+          },
+          { multi: true }
         );
       }
-
-
 
       return res.status(200).json({ msg: "Slot deleted", slot: slot });
     } catch (error) {
@@ -728,55 +762,60 @@ router.put(
 
       //get the staff that takes the course coordinated by cc and has the slot in the schedule
       //remove the slot from the schedule if it shares the same id as the slot to be removed
-      const acStaff = await Staff.findOneAndUpdate( { courseIDs: courseCoordinated._id, schedule: { _id: slotId } },
+      const acStaff = await Staff.findOneAndUpdate(
+        { courseIDs: courseCoordinated._id, schedule: { _id: slotId } },
         {
-           $pull: { schedule: { _id: slotId } },
+          $pull: { schedule: { _id: slotId } },
         }
-       );
+      );
 
       //C)delete linking slot requests attributed to that slot (as the slot has changed)
 
       //gets array of objectIds of linking slot requests related to that slot
-      const LSid = await LinkingSlot.find({ slot: { _id: slotId }}, { _id: 1});
+      const LSid = await LinkingSlot.find(
+        { slot: { _id: slotId } },
+        { _id: 1 }
+      );
 
       //if there are linking slots
-      if(LSid > 0)
-      {
+      if (LSid > 0) {
         //delete these linking slot requests from the linking slot table
         await LinkingSlot.deleteMany({ _id: { $in: LSid } });
 
         //gets the array of objectIds of requests linked to the linking slot request of the deleted slot
-        const requests = await Request.find({ linkingSlot: { _id: { $in: LSid } } },
-                                                                  { senderID: 1, receiverID: 1 }
-                                                                  );
+        const requests = await Request.find(
+          { linkingSlot: { _id: { $in: LSid } } },
+          { senderID: 1, receiverID: 1 }
+        );
 
         let RQid, SenderID, ReceiverID;
-        requests.forEach( r => 
-        {
-            RQid.push(r._id);
-            SenderID.push(r.senderID);
-            ReceiverID.push(r.receiverID);
+        requests.forEach((r) => {
+          RQid.push(r._id);
+          SenderID.push(r.senderID);
+          ReceiverID.push(r.receiverID);
         });
 
         //delete these requests from the requests table
         await Request.deleteMany({ _id: { $in: RQid } });
 
         //gets the array of objectIds of notifications linked to the linking slot request of the slot to be deleted
-        const NFid = await Notification.find({ message: { _id: { $in: RQid } } }, { _id: 1 });
+        const NFid = await Notification.find(
+          { message: { _id: { $in: RQid } } },
+          { _id: 1 }
+        );
 
         //delete those notifications from the notifications table
         await Notification.deleteMany({ _id: { $in: NFid } });
 
         //delete those notifications from those who sent them and received them
         await Staff.update(
-            { $or: [{ _id: { $in: SenderID } }, { _id: { $in: ReceiverID } }] },
-            {
+          { $or: [{ _id: { $in: SenderID } }, { _id: { $in: ReceiverID } }] },
+          {
             $pull: { notifications: { _id: { $in: NFid } } },
-            },
-            { multi: true }
+          },
+          { multi: true }
         );
       }
-
 
       //E)delete replacement request associated with the deleted slot (as the slot was removed from the staff's schedule)
 
@@ -785,56 +824,60 @@ router.put(
 
       //gets the objectIds of the replacement requests associated with the deleted slot
       let RepReqs;
-      acNotifs.forEach( notif  => {
-          //if the notification is replacement, has the deleted slot, sent by the slot holder, is pending and did not expire
-          if(notif.message.replacement && notif.message.replacement.replacmentSlot._id === slotId && notif.message.senderID === acStaff._id && notif.message.status === "Pending" && Date.now() > notif.message.replacement.replacmentDay)
-          {
-              RepReqs.push(notif.message.replacement._id);
-          }
+      acNotifs.forEach((notif) => {
+        //if the notification is replacement, has the deleted slot, sent by the slot holder, is pending and did not expire
+        if (
+          notif.message.replacement &&
+          notif.message.replacement.replacmentSlot._id === slotId &&
+          notif.message.senderID === acStaff._id &&
+          notif.message.status === "Pending" &&
+          Date.now() > notif.message.replacement.replacmentDay
+        ) {
+          RepReqs.push(notif.message.replacement._id);
+        }
       });
 
       //if there are replacement requests
-      if(RepReqs > 0)
-      {
-
+      if (RepReqs > 0) {
         //delete from the replacement table
-        await Replacement.deleteMany( { _id: { $in: RepReqs } } );
-
+        await Replacement.deleteMany({ _id: { $in: RepReqs } });
 
         //delete from the request table
 
         //gets the array of objectIds of requests linked to the replacement of the deleted slot
-        const requests = await Request.find({ replacement: { _id: { $in: RepReqs } } },
-                                                                  { senderID: 1, receiverID: 1 }
-                                                                 );
+        const requests = await Request.find(
+          { replacement: { _id: { $in: RepReqs } } },
+          { senderID: 1, receiverID: 1 }
+        );
 
         let RQid, SenderID, ReceiverID;
-        requests.forEach( r => 
-        {
-            RQid.push(r._id);
-            SenderID.push(r.senderID);
-            ReceiverID.push(r.receiverID);
+        requests.forEach((r) => {
+          RQid.push(r._id);
+          SenderID.push(r.senderID);
+          ReceiverID.push(r.receiverID);
         });
 
         //delete these requests from the requests table
         await Request.deleteMany({ _id: { $in: RQid } });
 
         //gets the array of objectIds of notifications linked to the replacement request of the slot to be deleted
-        const NFid = await Notification.find({ message: { _id: { $in: RQid } } }, { _id: 1 });
+        const NFid = await Notification.find(
+          { message: { _id: { $in: RQid } } },
+          { _id: 1 }
+        );
 
         //delete those notifications from the notifications table
         await Notification.deleteMany({ _id: { $in: NFid } });
 
         //delete those notifications from those who sent them and received them
         await Staff.update(
-            { $or: [{ _id: { $in: SenderID } }, { _id: { $in: ReceiverID } }] },
-            {
+          { $or: [{ _id: { $in: SenderID } }, { _id: { $in: ReceiverID } }] },
+          {
             $pull: { notifications: { _id: { $in: NFid } } },
-            },
-            { multi: true }
+          },
+          { multi: true }
         );
       }
-
 
       return res.status(200).json({ msg: "Slot updated", slot: slot });
     } catch (error) {

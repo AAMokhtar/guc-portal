@@ -3,6 +3,8 @@ const staff = require("../mongoose/dao/staff");
 const mongoose = require("mongoose");
 const department = require("../mongoose/dao/department");
 const request = require("../mongoose/dao/request");
+const Request = require("../mongoose/dao/request");
+
 const course = require("../mongoose/dao/course");
 const express = require("express");
 let slot = require("../mongoose/dao/slot");
@@ -401,69 +403,28 @@ router.get(
         .findOne({ hodID: objectID })
         .populate({
           path: "coursesIDs",
-          populate: {
-            path: "instructorIDs taList coordinatorID",
-          },
+          //    populate: {
+          //     path: "instructorIDs taList coordinatorID",}
         });
-      let usedSlots = 0;
       let result = [];
       //console.log(JSON.stringify(departmentDoc));
 
       await Promise.all(
         departmentDoc.coursesIDs.map(async (course) => {
           let slots = await slot.find({ course: course._id });
-          let tempRes = [];
-
-          course.instructorIDs.forEach((ta) => {
-            ta.schedule.forEach((schedule) => {
-              let { weekday: taWeekDay, number: taNumber } = schedule;
-              slots.forEach((s) => {
-                let { weekday, number } = s;
-                if (weekday == taWeekDay && number == taNumber) {
-                  let item = JSON.stringify({ weekday, number });
-                  if (tempRes.indexOf(item) == -1) {
-                    tempRes.push(item);
-                  }
-                  // console.log(tempRes);
-                }
-              });
-            });
-          });
-          course.taList.forEach((ta) => {
-            ta.schedule.forEach((schedule) => {
-              let { weekday: taWeekDay, number: taNumber } = schedule;
-              slots.forEach((s) => {
-                let { weekday, number } = s;
-                if (weekday == taWeekDay && number == taNumber) {
-                  let item = JSON.stringify({ weekday, number });
-                  if (tempRes.indexOf(item) == -1) {
-                    tempRes.push(item);
-                  }
-                  // console.log(tempRes);
-                }
-              });
-            });
-          });
-          course.coordinatorID.schedule.forEach((schedule) => {
-            let { weekday: taWeekDay, number: taNumber } = schedule;
-            slots.forEach((s) => {
-              let { weekday, number } = s;
-              if (weekday == taWeekDay && number == taNumber) {
-                let item = JSON.stringify({ weekday, number });
-                if (tempRes.indexOf(item) == -1) {
-                  tempRes.push(item);
-                }
-                // console.log(tempRes);
-              }
-            });
+          let unAssignedSlots = 0;
+          slots.forEach((s) => {
+            if (s.staffID == null) {
+              unAssignedSlots++;
+            }
           });
           let { courseCode, _id } = course;
-
           result.push({
             courseCode,
             _id,
-            coverage: (tempRes.length / course.slots.length) * 100,
+            coverage: ((slots.length - unAssignedSlots) / slots.length) * 100,
           });
+          // console.log(tempRes);
         })
       );
 
@@ -580,7 +541,7 @@ router.post(
         });
 
       //get the request to be accepted from the database
-      const request = await Request.findOne({ _id: requestID });
+      let request = await Request.findOne({ _id: requestID });
       if (!request.receiverID.equals(user.id)) {
         return res
           .status(404)
@@ -597,13 +558,15 @@ router.post(
         return res
           .status(400)
           .json({ msg: "Request entered is not a dayOff or leave request." });
+      let receiverDoc = await staff.findOne({ _id: request.senderID });
+
       if (request.dayOff) {
-        user.dayOff = request.dayOff.requestedDayOff;
+        receiverDoc.dayOff = request.dayOff.requestedDayOff;
         const date1 = new Date(request.startDate);
         const date2 = new Date(request.endDate);
         const diffTime = Math.abs(date2 - date1);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        currentBalance = user.leaveBalance - diffDays;
+        currentBalance = receiverDoc.leaveBalance - diffDays;
         if (currentBalance < 0) {
           request.status = "Rejected";
           let result = await request.save();
@@ -611,12 +574,15 @@ router.post(
             "staff leave balance is smaller than the requested number of days, therefore your request was rejected!"
           );
         }
-        user.leaveBalance = currentBalance;
+        receiverDoc.leaveBalance = currentBalance;
       }
+      request["responseDate"] = Date.now();
       request.status = "Accepted";
       let result = await request.save();
-
-      await user.save();
+      request = request.toObject();
+      delete request._id;
+      receiverDoc["notifications"].push({ message: request });
+      await receiverDoc.save();
       //console.log(JSON.stringify(departmentDoc));
 
       //  departmentDoc = departmentDoc.populate("coursesIDs");
@@ -671,9 +637,15 @@ router.post(
           .status(400)
           .json({ msg: "Request entered is not a dayOff or leave request." });
 
+      let receiverDoc = await staff.findOne({ _id: reqeust.senderID });
+
+      request["responseDate"] = Date.now();
       request.status = "Rejected";
       let result = await request.save();
-
+      request = request.toObject();
+      delete request._id;
+      receiverDoc["notifications"].push({ message: request });
+      await receiverDoc.save();
       //console.log(JSON.stringify(departmentDoc));
 
       //  departmentDoc = departmentDoc.populate("coursesIDs");

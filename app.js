@@ -29,7 +29,7 @@ var ciRouter = require("./src/routes/ci");
 
 var academicRouter = require("./src/routes/academic");
 const { authenticate } = require("./src/routes/auth");
-const { authenticateAndAuthorise } = require("./auth.js");
+const { authenticateAndAuthorise } = require("./src/routes/auth");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

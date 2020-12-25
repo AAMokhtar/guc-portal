@@ -331,8 +331,61 @@ router.get(
     }
   }
 );
+
 router.get(
   "/viewCoverage",
+  authenticateAndAuthorise("Course Instructor"),
+  async function (req, res) {
+    try {
+      //// NEEDS MODIFICATIONS !!!!!
+
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+      let requests;
+
+      let staffDoc = await staff.findOne({ _id: objectID }).populate({
+        path: "courseIDs",
+      });
+      let result = [];
+      //console.log(JSON.stringify(departmentDoc));
+
+      await Promise.all(
+        staffDoc.courseIDs.map(async (course) => {
+          let slots = await slot.find({ course: course._id });
+          let unAssignedSlots = 0;
+          slots.forEach((s) => {
+            if (s.staffID == null) {
+              unAssignedSlots++;
+            }
+          });
+          let { courseCode, _id } = course;
+          result.push({
+            courseCode,
+            _id,
+            coverage: ((slots.length - unAssignedSlots) / slots.length) * 100,
+          });
+          // console.log(tempRes);
+        })
+      );
+
+      //  departmentDoc = departmentDoc.populate("coursesIDs");
+      //   .("coursesIDs.taList");
+      res.status(200).json({
+        result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+router.get(
+  "/viewAssignments",
   authenticateAndAuthorise("Course Instructor"),
   async function (req, res) {
     try {

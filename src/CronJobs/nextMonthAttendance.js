@@ -1,4 +1,3 @@
-const { cyan } = require('chalk');
 const Staff = require('../mongoose/dao/staff');
 const chalk = require("chalk");
 

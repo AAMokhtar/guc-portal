@@ -55,6 +55,9 @@ app.use("/ci", ciRouter);
 
 //start monitoring cron jobs
 cronJobs.nxtAtt.start();
+cronJobs.lb.start();
+cronJobs.deduction.start();
+
 
 //DB + server connection
 require("./src/mongoose/util/connect&Initialize")(() => {

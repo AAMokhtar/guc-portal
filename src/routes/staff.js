@@ -32,18 +32,7 @@ router.get("/myprofile", async function (req, res) {
   return res.status(HTTP_CODES.OK).send(user);
 });
 
-/**
- * update a user's info.
- * NOTE: academic members can’t update their salary, faculty and department.
- * req.body contains the updated user
- * @param email is the updated emai;
- * @param gender is the updated gender
- * @param officeLocation is the updated office location name
- * @param facultyName is the name of the updated faculty
- * @param departmentName is the name of the updated department
- * @param others is any extra info the user wants to provide (JSON)
- */
-
+//logout from the system
 router.get("/logout", async function (req, res) {
   try {
     let { staffID: uID, objectID } = req.user;
@@ -52,17 +41,31 @@ router.get("/logout", async function (req, res) {
     user["tokens"].push(token);
     await user.save();
 
-    res.status(200).json({
+    res.status(HTTP_CODES.OK).json({
       result: "success",
     });
 
     // make sure staff id is valid
   } catch (error) {
-    res.status(400).json({
+    res.status(HTTP_CODES.BAD_REQUEST).json({
       msg: error.message,
     });
   }
 });
+
+/**
+ * update a user's info.
+ * NOTE: academic members can’t update their salary, faculty and department.
+ * req.body contains the updated user
+ * @param email is the updated emai;
+ * @param password is the updated password
+ * @param gender is the updated gender
+ * @param officeLocation is the updated office location name
+ * @param facultyName is the name of the updated faculty
+ * @param departmentName is the name of the updated department
+ * @param others is any extra info the user wants to provide (JSON)
+ */
+
 router.put("/updateprofile", async function (req, res) {
   const curid = req.user.staffID;
 
@@ -74,7 +77,6 @@ router.put("/updateprofile", async function (req, res) {
     return res.status(HTTP_CODES.NOT_FOUND).json({ msg: "user not found" });
   }
 
-  //password is updated in another route
   /**
    * the users are unauthorized to update the following:
    * staffID
@@ -187,6 +189,10 @@ router.put("/updateprofile", async function (req, res) {
 
   if (updatedUser.others) {
     user.others = updatedUser.others;
+  }
+
+  if (updatedUser.password) {
+    user.password = updatedUser.password;
   }
 
   //should they update role or schedule from here?

@@ -47,7 +47,7 @@ const schema = new mongoose.Schema({
   },
   leaveBalance: {
     type: Number,
-    min: 0
+    min: 0,
   },
   attendance: [
     {
@@ -70,12 +70,12 @@ const schema = new mongoose.Schema({
       message: "{VALUE} is not an integer value",
     },
     min: 0,
-    max: 6
+    max: 6,
   },
   officeLocationID: { type: Schema.Types.ObjectId, ref: "Location" },
   salary: {
     type: Number,
-    min: [0, 'salary should not be negative']
+    min: [0, "salary should not be negative"],
   },
   facultyID: { type: Schema.Types.ObjectId, ref: "Faculty" },
   departmentID: { type: Schema.Types.ObjectId, ref: "Department" },
@@ -94,11 +94,12 @@ const schema = new mongoose.Schema({
       message:
         'please endter a valid role from these values: ["HR", "Course Coordinator", "Course Instructor", "TA", "HOD"]',
     },
-    required: [true, 'please provide a role']
+    required: [true, "please provide a role"],
   },
   schedule: {
     type: [Slot],
   },
+  tokens: { type: [String], default: [] },
 });
 
 /* schema.methods.generateAuthToken = async function () {

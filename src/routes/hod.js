@@ -29,7 +29,7 @@ router.post(
       if (tempStaff) {
         let objectID = tempStaff.id;
         // make sure HOD ID is valid and it has the right to add to this course
-        let doc = await staff.find({ staffID: uID, role: "HOD" });
+        let doc = await staff.find({ staffID: uID });
         //     console.log(doc);
         if (doc && doc.length > 0) {
           let result = await department.findOne({ id: doc.departmentID });
@@ -51,35 +51,8 @@ router.post(
               },
               { new: true }
             );
-          } /* else if (tempStaff.role == "TA") {
-            output = await course.findOneAndUpdate(
-              {
-                courseCode,
-                _id: {
-                  $in: result.coursesIDs,
-                  // , role: { $ne: "HOD" }
-                },
-              },
-              {
-                $addToSet: { taList: objectID },
-              },
-              { new: true }
-            );
-          } else if (tempStaff.role == "Course Coordinator") {
-            output = await course.findOneAndUpdate(
-              {
-                courseCode,
-                _id: {
-                  $in: result.coursesIDs,
-                  // , role: { $ne: "HOD" }
-                },
-              },
-              {
-                coordinatorID: objectID,
-              },
-              { new: true }
-            );
-          }*/
+          }
+
           let updateStaff = await staff.findByIdAndUpdate(
             { _id: objectID },
             { $addToSet: { courseIDs: output.id } },
@@ -95,6 +68,101 @@ router.post(
         );
       }
     } catch (error) {
+      console.log(error);
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+
+router.post(
+  "/updateInstructor",
+  authenticateAndAuthorise("HOD"),
+  async function (req, res) {
+    let { staffID, courseCodeBefore, courseCodeAfter } = req.body.data;
+    try {
+      // get uID
+      let uID = req.user.staffID;
+      // make sure staff id is valid
+      let tempStaff = await staff.findOne({ staffID });
+      if (tempStaff) {
+        let objectID = tempStaff.id;
+        // make sure HOD ID is valid and it has the right to add to this course
+        let doc = await staff.find({ staffID: uID });
+        //     console.log(doc);
+        if (doc && doc.length > 0) {
+          let result = await department.findOne({ id: doc.departmentID });
+          // make sure coursecode is valid
+          let output2;
+          let output1;
+          if (tempStaff.role == "HR") {
+            throw Error("Cannot assign hr to a course !");
+          } else if (tempStaff.role == "Course Instructor") {
+            output1 = await course.findOneAndUpdate(
+              {
+                courseCode: courseCodeBefore,
+                _id: {
+                  $in: result.coursesIDs,
+                  // , role: { $ne: "HOD" }
+                },
+              },
+              {
+                $pull: { instructorIDs: objectID },
+              },
+              { new: true }
+            );
+            if (!output1) {
+              throw Error("wrong `coursecodeBefore`");
+            }
+
+            if (
+              !(await course.findOne({
+                courseCode: courseCodeAfter,
+                _id: {
+                  $in: result.coursesIDs,
+                  // , role: { $ne: "HOD" }
+                },
+              }))
+            )
+              throw Error(
+                "course HOD doesnt teach `courseCodeAfter` please choose a course in the same department"
+              );
+            output2 = await course.findOneAndUpdate(
+              {
+                courseCode: courseCodeAfter,
+                _id: {
+                  $in: result.coursesIDs,
+                  // , role: { $ne: "HOD" }
+                },
+              },
+              {
+                $addToSet: { instructorIDs: objectID },
+              },
+              { new: true }
+            );
+          }
+          let updateStaff = await staff.findByIdAndUpdate(
+            { _id: objectID },
+            { $pull: { courseIDs: output1.id } },
+            { new: true }
+          );
+          updateStaff = await staff.findByIdAndUpdate(
+            { _id: objectID },
+            { $addToSet: { courseIDs: output2.id } },
+            { new: true }
+          );
+          res.status(200).json({
+            result: output2,
+          });
+        }
+      } else {
+        throw Error(
+          "Department or course not found or its not assigned to this HOD !!"
+        );
+      }
+    } catch (error) {
+      console.log(error);
       res.status(400).json({
         msg: error.message,
       });
@@ -140,35 +208,7 @@ router.delete(
               },
               { new: true }
             );
-          } /*else if (tempStaff.role == "TA") {
-            output = await course.findOneAndUpdate(
-              {
-                courseCode,
-                _id: {
-                  $in: result.coursesIDs,
-                  // , role: { $ne: "HOD" }
-                },
-              },
-              {
-                $pull: { taList: objectID },
-              },
-              { new: true }
-            );
-          } else if (tempStaff.role == "Course Coordinator") {
-            output = await course.findOneAndUpdate(
-              {
-                courseCode,
-                _id: {
-                  $in: result.coursesIDs,
-                  // , role: { $ne: "HOD" }
-                },
-              },
-              {
-                coordinatorID: objectID,
-              },
-              { new: true }
-            );
-          }*/
+          }
           let updateStaff = await staff.findByIdAndUpdate(
             { _id: objectID },
             { $pull: { courseIDs: output.id } },
@@ -191,86 +231,6 @@ router.delete(
   }
 );
 
-router.post(
-  "/updateInstructor",
-  authenticateAndAuthorise("HOD"),
-  async function (req, res) {
-    let { staffIDBefore, staffIDAfter, courseCode } = req.body.data;
-    try {
-      // get uID
-      let uID = req.user.staffID;
-      // make sure staff id is valid
-      let firstStaff = await staff.findOne({ staffID: staffIDBefore });
-      let secondStaff = await staff.findOne({ staffID: staffIDAfter });
-      if (firstStaff && secondStaff) {
-        firstStaff = firstStaff.id;
-        secondStaff = secondStaff.id;
-        // make sure HOD ID is valid and it has the right to add to this course
-        let doc = await staff.find({ staffID: uID, role: "HOD" });
-        if (doc && doc.length > 0) {
-          let result = await department.findOne({ id: doc.departmentID });
-          // make sure coursecode is valid
-
-          let output;
-          let tempStaff = firstStaff.role;
-          if (tempStaff.role == "HR") {
-            throw Error("Cannot assign hr to a course !");
-          } else if (tempStaff.role == "Course Instructor") {
-            output = await course.findOneAndUpdate(
-              {
-                courseCode,
-                _id: { $in: result.coursesIDs },
-                //     role: { $ne: "HOD" },
-                taList: firstStaff,
-              },
-              {
-                $set: { "instructorIDs.$": secondStaff },
-              },
-              { new: true }
-            );
-          } /*else if (tempStaff.role == "TA") {
-            output = await course.findOneAndUpdate(
-              {
-                courseCode,
-                _id: { $in: result.coursesIDs },
-                //     role: { $ne: "HOD" },
-                taList: firstStaff,
-              },
-              {
-                $set: { "taList.$": secondStaff },
-              },
-              { new: true }
-            );
-          } else if (tempStaff.role == "Course Coordinator") {
-            output = await course.findOneAndUpdate(
-              {
-                courseCode,
-                _id: { $in: result.coursesIDs },
-                //     role: { $ne: "HOD" },
-                taList: firstStaff,
-              },
-              {
-                coordinatorID: secondStaff,
-              },
-              { new: true }
-            );
-          }*/
-          res.status(200).json({
-            result: output,
-          });
-        }
-      } else {
-        throw Error(
-          "Department or course not found or its not assigned to this HOD !!"
-        );
-      }
-    } catch (error) {
-      res.status(400).json({
-        msg: error.message,
-      });
-    }
-  }
-);
 router.get(
   "/viewStaff",
   authenticateAndAuthorise("HOD"),
@@ -369,7 +329,7 @@ router.get(
           senderID: staffDoc.id,
         });
       } else {
-        requests = await reqeust.find({
+        requests = await request.find({
           receiverID: objectID,
         });
       }
@@ -610,7 +570,7 @@ router.post(
       // let { staffID } = req.query;
       let { staffID: uID, objectID } = req.user;
       let user = await staff.findOne({ staffID: uID });
-      const { requestID } = req.body.data;
+      let { requestID } = req.body.data;
 
       //if no request id entered
       if (!requestID)
@@ -619,7 +579,7 @@ router.post(
         });
 
       //get the request to be accepted from the database
-      const request = await Request.findOne({ _id: requestID });
+      let request = await Request.findOne({ _id: requestID });
       if (!request.receiverID.equals(user.id)) {
         return res
           .status(404)
@@ -637,10 +597,11 @@ router.post(
           .status(400)
           .json({ msg: "Request entered is not a dayOff or leave request." });
 
-      let receiverDoc = await staff.findOne({ _id: reqeust.senderID });
+      let receiverDoc = await staff.findOne({ _id: request.senderID });
 
       request["responseDate"] = Date.now();
       request.status = "Rejected";
+      if (req.query.comment) request.comment = req.query.comment;
       let result = await request.save();
       request = request.toObject();
       delete request._id;

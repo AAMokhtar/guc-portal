@@ -101,7 +101,7 @@ router.post("/login", async (req, res) => {
     //create a token
     let token = jwt.sign(payload, key, {
       noTimestamp: true,
-      expiresIn: "2h",
+      expiresIn: "336h", //14 days
     });
     //give the token to the user by adding it to the header of the response
     res.header({ "auth-token": token });

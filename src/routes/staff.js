@@ -13,6 +13,28 @@ const faculty = require("../mongoose/dao/faculty");
 const Location = require("../mongoose/dao/location");
 
 //=====================:-ROUTES-:======================
+
+//logout from the system
+router.post("/logout", async function (req, res) {
+  try {
+    let { staffID: uID, objectID } = req.user;
+    let user = await Staff.findOne({ staffID: uID });
+    const token = req.header("auth-token");
+    user["tokens"].push(token);
+    await user.save();
+
+    res.status(HTTP_CODES.OK).json({
+      result: "success",
+    });
+
+    // make sure staff id is valid
+  } catch (error) {
+    res.status(HTTP_CODES.BAD_REQUEST).json({
+      msg: error.message,
+    });
+  }
+});
+
 /**
  * fetch current user from the database
  */
@@ -32,26 +54,6 @@ router.get("/myprofile", async function (req, res) {
   return res.status(HTTP_CODES.OK).send(user);
 });
 
-//logout from the system
-router.get("/logout", async function (req, res) {
-  try {
-    let { staffID: uID, objectID } = req.user;
-    let user = await Staff.findOne({ staffID: uID });
-    const token = req.header("auth-token");
-    user["tokens"].push(token);
-    await user.save();
-
-    res.status(HTTP_CODES.OK).json({
-      result: "success",
-    });
-
-    // make sure staff id is valid
-  } catch (error) {
-    res.status(HTTP_CODES.BAD_REQUEST).json({
-      msg: error.message,
-    });
-  }
-});
 
 /**
  * update a user's info.

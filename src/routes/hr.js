@@ -242,8 +242,7 @@ router.delete('/deletefaculty/:facultyName', async (req, res) => {
 
 /**
  * add a department under a faculty. create the department if it does not exist
- * @param facultyName is the name of the faculty we wish to add 
- * the new department under
+ * @param facultyName is the name of the faculty we wish to add the new department under
  * @param departmentName is the dperatment name we wish to add
  */
 router.post('/adddepartment/:facultyName/:departmentName', async (req, res) => {
@@ -1152,7 +1151,7 @@ router.get('/viewmissingusers', async function(req, res) {
 
 /**
  * update a staff member's salary
- * @param staffID is the id of the user we wish to delete
+ * @param staffID is the id of the user we wish to modify
  * @param newSalary is the updated salary
  */
 router.put('/updatesalary/:staffID/:newSalary', async function(req, res) {

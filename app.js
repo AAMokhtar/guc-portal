@@ -28,8 +28,7 @@ var ccRouter = require("./src/routes/cc");
 var ciRouter = require("./src/routes/ci");
 
 var academicRouter = require("./src/routes/academic");
-const { authenticate } = require("./src/routes/auth");
-const { authenticateAndAuthorise } = require("./src/routes/auth.js");
+const auth = require("./src/routes/auth");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -44,18 +43,21 @@ app.use(express.static(path.join(__dirname, "public")));
 
 //routes
 app.use("/general", generalRouter);
-app.use("/hr", authenticateAndAuthorise("HR"), hrRouter);
+app.use("/hr", auth.authenticateAndAuthorise("HR"), hrRouter);
 
-app.use(authenticate);
+app.use(auth.authenticate);
 app.use("/staff", staffRouter);
 app.use("/course-coordinator", ccRouter);
 app.use("/general", generalRouter);
 app.use("/hod", hodRouter);
-app.use("/academic", academicRouter);
+// app.use("/academic", academicRouter);
 app.use("/ci", ciRouter);
 
 //start monitoring cron jobs
 cronJobs.nxtAtt.start();
+cronJobs.lb.start();
+cronJobs.deduction.start();
+
 
 //DB + server connection
 require("./src/mongoose/util/connect&Initialize")(() => {

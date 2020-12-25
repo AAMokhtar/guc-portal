@@ -10,12 +10,12 @@ const schema = new mongoose.Schema({
   staffID: {
     type: String,
     unique: [true, "the provided staff id is not unique"],
-    required: [true, "please enter your staff id"],
+    required: [true, "please enter the staff id"],
   },
   email: {
     type: String,
     unique: [true, "the email entered is not unique"],
-    required: [true, "please provide your email"],
+    required: [true, "please provide an email"],
   },
   password: {
     type: String,
@@ -47,6 +47,7 @@ const schema = new mongoose.Schema({
   },
   leaveBalance: {
     type: Number,
+    min: 0,
   },
   attendance: [
     {
@@ -68,10 +69,13 @@ const schema = new mongoose.Schema({
       validator: Number.isInteger,
       message: "{VALUE} is not an integer value",
     },
+    min: 0,
+    max: 6,
   },
   officeLocationID: { type: Schema.Types.ObjectId, ref: "Location" },
   salary: {
     type: Number,
+    min: [0, "salary should not be negative"],
   },
   facultyID: { type: Schema.Types.ObjectId, ref: "Faculty" },
   departmentID: { type: Schema.Types.ObjectId, ref: "Department" },
@@ -90,11 +94,17 @@ const schema = new mongoose.Schema({
       message:
         'please endter a valid role from these values: ["HR", "Course Coordinator", "Course Instructor", "TA", "HOD"]',
     },
-    required: true,
+    required: [true, "please provide a role"],
   },
   schedule: {
     type: [Slot],
   },
+  salaryDeduction: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  tokens: { type: [String], default: [] }
 });
 
 /* schema.methods.generateAuthToken = async function () {

@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Department = require("./Department");
+
 const schema = new Schema({
   name: {
     type: String,
-    required: true,
-    unique: true,
+    required: [true, 'please provide the faculty name'],
+    unique: [true, 'the provided faculty already exists']
   },
-  departments: [{ type: Schema.Types.ObjectId, ref: "Department"}],
+  departments: [{ type: Schema.Types.ObjectId, ref: "Department"}]
 });
 module.exports = schema;

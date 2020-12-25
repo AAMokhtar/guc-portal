@@ -1,3 +1,302 @@
+# GUC Staff Members routes
+
+Functionality: Log in\
+Route: general/login\
+Request type: POST\
+Request Parameters: -\
+Route example: -\
+Request body: { “email”: “user@domain.com", “password: “123456”}\
+Response type and format: -\
+Response example: -
+
+Functionality: Log out\
+Route: staff/logout\
+Request type: POST\
+Request Parameters: -\
+Route example: -\
+Request body: -\
+Response type and format: -\
+Response example: -
+
+Functionality: view my profile\
+Route: staff/myprofile\
+Request type: GET\
+Request Parameters: -\
+Route example:  -\
+Request body: -\
+Response type and format: the user object without the password\
+Response example: {“staffID”: “hr-1”, “name”: pickle, …}
+
+Functionality: update my profile\
+Route: /updateprofile\
+Request type: PUT\
+Request Parameters: -\
+Route example:  -\
+Request body: the new user object {email, password, gender,\
+ officeLocation, facultyName, departmentName, others}\
+Response type and format: the updated user\
+Response example: {“staffID”:1, “name”: “some guy”, email:”user@domain.com”, …}
+
+Functionality: Reset my password\
+Route: /resetpassword\
+Request type: PUT\
+Request Parameters: -\
+Route example:  -\
+Request body: current and new password {“curPassword”: “1234”, “newPassword”: ”5678”}\
+Response type and format: the updated user object\
+Response example: {“staffID”:1, “name”: “ahmed, email:”user@domain.com”, …}
+
+Functionality: Sign in (attendance)\
+Route: /signin\
+Request type: PUT \
+Request Parameters: -\
+Route example:  -\
+Request body: -\
+Response type and format: -\
+Response example: -
+
+Functionality: Sign out (attendance)\
+Route: /signout/\
+Request type: PUT \
+Request Parameters: -\
+Route example:  -\
+Request body: -\
+Response type and format: -\
+Response example: -
+
+Functionality: view my attendance record\
+Route: /attendance/:month?\
+Request type: GET\
+Request Parameters: month is the month(1-12) number we filter by. Not providing month get all the records\
+Route example:  /attendace/6\
+Request body: -
+Response type and format: an array of sign in/out pairs {signIn: Date, signOut: Date}\
+Response example: [{signIn: “2020-12-19T11:30:00.000”, signOut: “2020-12-19T13:46:26.000”}, …]
+
+Functionality: return a user's missing days so far for this month (11th to today)\
+Route: /missingdays\
+Request type: GET\
+Request Parameters: -\
+Route example: -\
+Request body: -\
+Response type and format: total missed day with their dates { total: int, dates: array }\
+Response example: { total: 2, dates:  [“2020-12-19T00:00:00.000”, “2020-12-20T00:00:00.000”] }
+
+Functionality: return a user's missing hours so far for this month (11th to today)\
+Route: /missinghours\
+Request type: GET\
+Request Parameters: -\
+Route example: -\
+Request body: -\
+Response type and format: total missed hours with their dates and hours in each date { total: int, dates: array<{date: Date, missingHours: float}> }\
+Response example: { total: 3.5, dates: [{date: “2020-12-19T00:00:00.000”, missingHours: 2.3},…]}
+
+Functionality: return a user's extra hours so far this month (11th to today)\
+Route: /extrahours\
+Request type: GET\
+Request Parameters: -\
+Route example:  -\
+Request body: -\
+Response type and format: total extra hours with their dates and hours in each date { total: int, dates: array<{date: Date, extraHours: float}> }\
+Response example:{ total: 3.5, dates: [{date: “2020-12-22T00:00:00.000”, extraHours: 2.3},…]}
+
+
+
+# HR routes
+
+Functionality: add a location to the database\
+Route: /addlocation\
+Request type: POST\
+Request Parameters: -\
+Route example: -\
+Request body: {name, capacity, currentlyTakenSeats(optional), type}\
+Response type and format: the added location object\
+Response example: {“name”: “C2.302”, “capacity”: 25, “currentlyTakenSeats”: 4, “type”: “tutorial”}
+
+Functionality: update location\
+Route: /updatelocation/:locationName\
+Request type: PUT\
+Request Parameters: locationName is the name of the location we wish to update e.g(“C3.206”)\
+Route example:  /updatelocation/C3.203\
+Request body: updated location object {“name”: “C2.302”, “capacity”: 28, “currentlyTakenSeats”: 4, “type”: “tutorial”}\
+Response type and format: the updated location object\
+Response example: {“name”: “C2.302”, “capacity”: 28, “currentlyTakenSeats”: 4, “type”: “tutorial”}
+
+Functionality: delete a location from the database\
+Route: /deletelocation/:locationName\
+Request type: PUT\
+Request Parameters: locationName is the name of the location we wish to delete e.g(“C3.206”)\
+Route example:  /deletelocation/C3.203\
+Request body: -\
+Response type and format: -\
+Response example: -\
+
+
+Functionality: add a faculty to the database\
+Route: /addfaculty/:name/\
+Request type: POST
+Request Parameters: name is the name of the faculty we wish to add\
+Route example:  /addfaculty/engineering\
+Request body: -\
+Response type and format: the added faculty object\
+Response example: {“name”: “ENGINEERING”, “departments”: []}
+
+Functionality: update a faculty in the database\
+Route: /updatefaculty/:facultyName/\
+Request type: PUT
+Request Parameters: facultyName is the name of the faculty we wish to update\
+Route example:  /updatefaculty/engineering\
+Request body: the new faculty name {name: “law”}\
+Response type and format: the updated faculty object\
+Response example: {“name”: “LAW”, “departments”: []}
+
+Functionality: delete a faculty from the database\
+Route: /deletefaculty/:facultyName\
+Request type: PUT\
+Request Parameters: facultyName is the name of the faculty we wish to delete\
+Route example:  /deletefaculty/engineering\
+Request body: -\
+Response type and format: -\
+Response example: -
+
+Functionality: add a department under a faculty. create the department if it does not exist\
+Route: /adddepartment/:facultyName/:departmentName\
+Request type: POST\
+Request Parameters: facultyName is the name of the faculty we wish to add the department under. departmentName is the dperatment name we wish to add\
+Route example:  /adddepartment/engineering/batates\
+Request body: -\
+Response type and format: the added department object\
+Response example: {“name”: “BATATES”, “courseIDs”: [], hodID: Undefined}
+
+Functionality: update a department in the database\
+Route: /updatedepartment/:facultyName/:departmentName\
+Request type: PUT\
+Request Parameters: facultyName is the name of the faculty containing the department we wish to update. departmentName is the name of the department we wish to update\
+Route example:  /updatedepartment/engineering/batates\
+Request body: the new department name and hodID {name: “tamatem”, hodID: “ac-2”}\
+Response type and format: the updated department object\
+Response example: {“name”: “TAMATEM”, “courseIDs”: [], hodID: “ac-2”}
+
+Functionality: remove a department under a faculty (not deletion)\
+Route: removedepartment/:facultyName/:departmentName\
+Request type: PUT\
+Request Parameters: facultyName is the name of the faculty containing the department we wish to remove. departmentName is the name of the department we wish to remove\
+Route example:  /removedepartment/engineering/batates\
+Request body: -\
+Response type and format: the updated faculty document\
+Response example: {“name”: “ENGINEERING”, “departments”: [TAMATEM]}
+
+Functionality: delete a department from the database\
+Route: deletedepartment/:departmentName\
+Request type: PUT\
+Request Parameters: departmentName is the name of the department we wish to delete\
+Route example:  /deletedepartment/engineering/batates\
+Request body: -\
+Response type and format: -\
+Response example: -
+
+Functionality: add a course under a department. create the course if it does not exist\
+Route: /addcourse/:departmentName/:courseCode\
+Request type: POST\
+Request Parameters: departmentName is the name of the department we wish to add the course under. courseCode is the code of the course we wish to add \
+Route example:  /addcourse/batates/csen101\
+Request body: -\
+Response type and format: the added course object\
+Response example: {“courseCode”: “CSEN101”, “instructorIDs”: [], “coordinatorID”: [], “taList”: [], “slots”: []}
+
+
+Functionality: update a course in the database\
+Route: /updatecourse/:departmentName/:courseCode\
+Request type: PUT
+Request Parameters: departmentName is the department containing the course we wish to update. courseCode is the code of the course we wish to update \
+Route example:  /updatecourse/batates/csen101\
+Request body: the new course code {code: “csen202””}\
+Response type and format: the updated course object\
+Response example: {“courseCode”: “CSEN202”, “instructorIDs”: [], “coordinatorID”: [], “taList”: [], “slots”: []}
+
+Functionality: remove a course under a department (not deletion)\
+Route: /removecourse/:departmentName/:courseCode\
+Request type: PUT\
+Request Parameters: departmentName is the department containing the course we wish to remove. courseCode is the code of the course we wish to remove\ 
+Route example:  /removecourse/batates/csen101\
+Request body: -\
+Response type and format: the updated department document\
+Response example: {“name”: “TAMATEM”, “courseIDs”: [], hodID: “ac-2”}
+
+Functionality: delete a course from the database\
+Route: /deletecourse/:courseCode\
+Request type: PUT\
+Request Parameters: courseCode is the code of the course we wish to delete\
+Route example:  /deletefaculty/csen101\
+Request body: -\
+Response type and format: -\
+Response example: -
+
+
+Functionality: add a new staff member to the system\
+Route: /addstaff\
+Request type: POST\
+Request Parameters: -\
+Route example:  /addcourse/batates/csen101\
+Request body: the staff object {“staffID”:1, “name”: “ahmed, email:”user@domain.com”, …}\
+Response type and format: the added staff object\
+Response example: {“staffID”:1, “name”: “ahmed, email:”user@domain.com”, …}
+
+Functionality: update a user's info.\
+Route: /updatestaff\
+Request type: PUT\
+Request Parameters: -\
+Route example:  -\
+Request body: the staff object (must contain staffID) {“staffID”:hr-1, “name”: “ahmed, email:”user@domain.com”, …}\
+Response type and format: the updated staff object\
+Response example: {“staffID”:hr-1, “name”: “ahmed, email:”user@domain.com”, …}
+
+Functionality: delete a staff member from the system\
+Route: /deletestaff/:staffID\
+Request type: DELETE\
+Request Parameters: staffID is the id of the user we wish to delete\
+Route example:  /deletestaff/hr-1\
+Request body: -\
+Response type and format: -\
+Response example: -
+
+Functionality: add missing attendance for a user\
+Route: /addmissingattendance/:staffID\
+Request type: PUT\
+Request Parameters: staffID is the id of the user we wish to modify\
+Route example:  /addmissingattendance/hr-1\
+Request body: {attendanceDateTime, inOut}. attendanceDateTime is the date and time of the sign in/out. inOut is a sting indicating whether this is a sign in or a sign out. values: [IN,OUT] \
+Response type and format: updated attendance record\
+Response example: {date:”2020-12-19T00:00:00.000”, signIn: [], signOut: []}
+
+Functionality: view any user's attendance record\
+Route: /viewattendance/:staffID\
+Request type: GET\
+Request Parameters: staffID is the id of the user we wish to view\
+Route example:  /viewattendance/hr-1\
+Request body: all attendance records of a user \
+Response example: [{date:”2020-12-19T00:00:00.000”, signIn: [], signOut: []},…]
+
+Functionality: get users with missing days/hours this month so far\
+Route: /viewmissingusers\
+Request type: GET\
+Request Parameters: -\
+Request body: -\
+Response type and format: array of users with missed days/hours along with their total missed days/hours so far this month\
+Response example: [{staffID: hr-1, missingDays: 3, missingHours: 2.3},…]
+
+Functionality: update a staff member's salary\
+Route: /updatesalary/:staffID/:newSalary\
+Request type: PUT\
+Request Parameters: staffID is the id of the user we wish to modify. newSalary is the updated salary\
+Request body: -\
+Response type and format: the updated user object\
+Response example: {“staffID”:1, “name”: “ahmed, email:”user@domain.com”, “salary”: 10 …}
+
+
+
+
+
 # HOD
 
 ## End-point: Assign instructor to course

@@ -67,7 +67,7 @@ router.post("/HRregister", async (req, res) => {
 //login route
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body.data;
+    const { email, password } = req.body;
 
     //if user didn't enter email or password
     if (!email || !password) {

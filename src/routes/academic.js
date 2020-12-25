@@ -319,10 +319,10 @@ router.get('/replacement-request', authenticateAndAuthoriseAC, async (req, res) 
         const notifs = (await Staff.findOne({ staffID: user.staffID })).notifications;
 
         //filters notifications to get only the replacement ones and return the requests themselves
-        let RepReqs;
+        let RepReqs = [];
         notifs.forEach(notif => {
             //if the notification is replacement and sent to the academic member
-            if (notif.message.replacement && notif.message.receiverID === user.objectID) {
+            if (notif.message.replacement && notif.message.receiverID.equals(user.objectID)) {
                 //remove the unnecessary attributes 
                 let { leave, dayOff, linkingSlot, ...RepReq } = notif.message;
                 RepReqs.push(RepReq);
@@ -406,7 +406,7 @@ router.post('/replacement-request/send', authenticateAndAuthoriseAC, async (req,
         });
 
         //sort the slots
-        let slots;
+        let slots = [];
         let first, second, third, fourth, fifth;
 
         slt.forEach(s => {
@@ -451,7 +451,7 @@ router.post('/replacement-request/send', authenticateAndAuthoriseAC, async (req,
 
 
         //check if the courses of those slots could be covered by the staffIDs entered
-        let repStaff;
+        let repStaff = [];
 
         for (i = 0; i < slots.length; i++) {
             const staff = await Staff.findOne({ staffID: slotRep[i] });
@@ -470,7 +470,7 @@ router.post('/replacement-request/send', authenticateAndAuthoriseAC, async (req,
         //send the request
 
         //A)create replacement requests
-        let repReqs;
+        let repReqs = [];
 
         for (i = 0; i < slots.length; i++) {
 
@@ -483,7 +483,7 @@ router.post('/replacement-request/send', authenticateAndAuthoriseAC, async (req,
         }
 
         //B)create requests for those replacement requests
-        let reqs;
+        let reqs = [];
 
         for (i = 0; i < repReqs.length; i++) {
             await Request.create({ senderID: user.objectID, receiverID: repStaff[i]._id, status: "Pending", replacement: repReqs[i], sentDate: Date.now() }, (err, rq) => {
@@ -498,7 +498,7 @@ router.post('/replacement-request/send', authenticateAndAuthoriseAC, async (req,
         //C)create its notification and send to sender and receiver
 
         for (i = 0; i < reqs.length; i++) {
-            await Notification.create({ message: reqs[i], date: Date.now(), read: false }, (err, notif) => {
+            await Notification.create({ message: reqs[i], date: Date.now(), read: false }, async (err, notif) => {
                 if (err) throw err;
 
                 //add notification to sender
@@ -536,7 +536,7 @@ router.post('/slot-linking-request/send', authenticateAndAuthoriseAC, async (req
 
 
         //if there is no such slot
-        const slot = Slot.findById(slotID);
+        const slot = await Slot.findById(slotID);
 
         if (!slot)
             return res.status(404).json({ msg: "There is no slot with the id entered." });
@@ -544,6 +544,7 @@ router.post('/slot-linking-request/send', authenticateAndAuthoriseAC, async (req
 
         //if the slot is not within the courses taught by the sender
         const sender = await Staff.findById(user.objectID);
+    
 
         if (!sender.courseIDs.includes(slot.course))
             return res.status(400).json({ msg: "The course of the slot requested is not within the courses assigned to the user." });
@@ -555,13 +556,13 @@ router.post('/slot-linking-request/send', authenticateAndAuthoriseAC, async (req
         const taken = slot.staffID;
 
         if (taken)
-            return res.status(500).json({ msg: "Anoter staff member was assigned to that slot." });
+            return res.status(500).json({ msg: "Another staff member was assigned to that slot." });
 
 
         //if there are contradicting slots (either in schedule or sl request already sent)
 
         //in the schedule
-        sender.forEach(schSlot => {
+        sender.schedule.forEach(schSlot => {
             if (schSlot.weekday === slot.weekday && schSlot.number === slot.number)
                 return res.status(400).json({ msg: "There is already a slot assigned during the requested slot's time." });
         });
@@ -569,7 +570,7 @@ router.post('/slot-linking-request/send', authenticateAndAuthoriseAC, async (req
 
         //in the sl requests sent
         sender.notifications.forEach(notif => {
-            if (notif.message.senderID === user.objectID && notif.message.linkingSlot &&
+            if (notif.message.senderID.equals(user.objectID) && notif.message.linkingSlot && notif.message.status !== "Rejected" &&
                 notif.message.linkingSlot.slot.weekday === slot.weekday && notif.message.linkingSlot.slot.number === slot.number)
                 return res.status(400).json({ msg: "There is a slot linking request sent for a slot during the requested slot's time." });
         });
@@ -579,21 +580,21 @@ router.post('/slot-linking-request/send', authenticateAndAuthoriseAC, async (req
         //send the request
 
 
-        const coordinatorID = await Course.findById(slot.course, { _id: 0, coordinatorID: 1 });
+        const {coordinatorID}= await Course.findById(slot.course, { _id: 0, coordinatorID: 1 });
 
         //A) create an LS
-        await LinkingSlot.create({ slot: slot }, (err, ls) => {
+        await LinkingSlot.create({ slot: slot }, async (err, ls) => {
             if (err) throw err;
 
             //B) create a req
             await Request.create({
                 senderID: user.objectID, receiverID: coordinatorID, status: "Pending",
                 linkingSlot: ls, sentDate: Date.now()
-            }, (err, rq) => {
+            }, async (err, rq) => {
                 if (err) throw err;
 
                 //C) create notification and send to sender and receiver
-                await Notification.create({ message: rq, date: Date.now(), read: false }, (err, notif) => {
+                await Notification.create({ message: rq, date: Date.now(), read: false }, async (err, notif) => {
                     if (err) throw err;
 
                     //send notification to sender
@@ -658,14 +659,14 @@ router.post('/day-off-request/send', authenticateAndAuthoriseAC, async (req, res
 
         //LS req associated with requested day off => if pending, delete
 
-        const hodID = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
+        const {hodID} = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
 
-        sender.notifications.forEach(notif => {
+        sender.notifications.forEach(async notif => {
             if (notif.message.linkingSlot && notif.message.linkingSlot.slot.weekday === dayOff && notif.message.status === "Pending") {
-                await LinkingSlot.findByIdAndDelete(notif.message.linkingSlot._id, (err, ls) => {
+                await LinkingSlot.findByIdAndDelete(notif.message.linkingSlot._id, async (err, ls) => {
                     if (err) throw err;
 
-                    await Request.findByIdAndDelete(notif.message._id, (err, rq) => {
+                    await Request.findByIdAndDelete(notif.message._id, async (err, rq) => {
                         if (err) throw err;
 
                         //delete from notifications
@@ -693,18 +694,18 @@ router.post('/day-off-request/send', authenticateAndAuthoriseAC, async (req, res
         //send the request
 
         //A) create a DayOff
-        await DayOff.create({ requestedDayOff: dayOff }, (err, dOff) => {
+        await DayOff.create({ requestedDayOff: dayOff }, async (err, dOff) => {
             if (err) throw err;
 
             //B) create a req
             await Request.create({
                 senderID: user.objectID, receiverID: hodID, status: "Pending",
                 dayOff: dOff, comment: reason, sentDate: Date.now()
-            }, (err, rq) => {
+            }, async (err, rq) => {
                 if (err) throw err;
 
                 //C) create notification and send to sender and receiver
-                await Notification.create({ message: rq, date: Date.now(), read: false }, (err, notif) => {
+                await Notification.create({ message: rq, date: Date.now(), read: false }, async (err, notif) => {
                     if (err) throw err;
 
                     //send notification to sender
@@ -815,21 +816,21 @@ router.post('/annual-leave-request/send', authenticateAndAuthoriseAC, async (req
 
         //send the annual leave request
 
-        const hodID = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
+        const {hodID} = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
 
         //A) create a accidental leave
-        await Leave.create({ leaveType: "Annual", reason: reason, startDate: startDate, endDate: endDate }, (err, lv) => {
+        await Leave.create({ leaveType: "Annual", reason: reason, startDate: startDate, endDate: endDate }, async (err, lv) => {
             if (err) throw err;
 
             //B) create a req
             await Request.create({
                 senderID: user.objectID, receiverID: hodID, status: "Pending",
                 leave: lv, sentDate: Date.now()
-            }, (err, rq) => {
+            }, async (err, rq) => {
                 if (err) throw err;
 
                 //C) create notification and send to sender and receiver
-                await Notification.create({ message: rq, date: Date.now(), read: false }, (err, notif) => {
+                await Notification.create({ message: rq, date: Date.now(), read: false }, async (err, notif) => {
                     if (err) throw err;
 
                     //send notification to sender
@@ -921,21 +922,21 @@ router.post('/accidental-leave-request/send', authenticateAndAuthoriseAC, async 
         //send the accidental leave request
 
 
-        const hodID = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
+        const {hodID} = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
 
         //A) create a accidental leave
-        await Leave.create({ leaveType: "Accidental", reason: reason, startDate: startDate, endDate: endDate }, (err, lv) => {
+        await Leave.create({ leaveType: "Accidental", reason: reason, startDate: startDate, endDate: endDate }, async (err, lv) => {
             if (err) throw err;
 
             //B) create a req
             await Request.create({
                 senderID: user.objectID, receiverID: hodID, status: "Pending",
                 leave: lv, sentDate: Date.now()
-            }, (err, rq) => {
+            }, async (err, rq) => {
                 if (err) throw err;
 
                 //C) create notification and send to sender and receiver
-                await Notification.create({ message: rq, date: Date.now(), read: false }, (err, notif) => {
+                await Notification.create({ message: rq, date: Date.now(), read: false }, async (err, notif) => {
                     if (err) throw err;
 
                     //send notification to sender
@@ -1007,7 +1008,7 @@ router.post('/sick-leave-request/send', authenticateAndAuthoriseAC, async (req, 
 
 
         //check for the documents
-        const fileName;
+        let fileName;
         upload(req, res, (err) => {
             if (err) throw err;
 
@@ -1024,21 +1025,21 @@ router.post('/sick-leave-request/send', authenticateAndAuthoriseAC, async (req, 
 
         const sender = await Staff.findById(user.objectID);
 
-        const hodID = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
+        const {hodID} = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
 
         //A) create a sick leave
-        await Leave.create({ leaveType: "Sick", reason: reason, startDate: startDate, endDate: endDate, document: "../../data/" + fileName }, (err, lv) => {
+        await Leave.create({ leaveType: "Sick", reason: reason, startDate: startDate, endDate: endDate, document: "../../data/" + fileName }, async (err, lv) => {
             if (err) throw err;
 
             //B) create a req
             await Request.create({
                 senderID: user.objectID, receiverID: hodID, status: "Pending",
                 leave: lv, sentDate: Date.now()
-            }, (err, rq) => {
+            }, async (err, rq) => {
                 if (err) throw err;
 
                 //C) create notification and send to sender and receiver
-                await Notification.create({ message: rq, date: Date.now(), read: false }, (err, notif) => {
+                await Notification.create({ message: rq, date: Date.now(), read: false }, async (err, notif) => {
                     if (err) throw err;
 
                     //send notification to sender
@@ -1130,7 +1131,7 @@ router.post('/maternity-leave-request/send', authenticateAndAuthoriseAC, async (
 
 
         //check for the documents
-        const fileName;
+        let fileName;
         upload(req, res, (err) => {
             if (err) throw err;
 
@@ -1145,21 +1146,21 @@ router.post('/maternity-leave-request/send', authenticateAndAuthoriseAC, async (
 
         //send the maternity leave request
 
-        const hodID = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
+        const {hodID} = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
 
         //A) create a maternity leave
-        await Leave.create({ leaveType: "Maternity", reason: reason, startDate: startDate, endDate: endDate, document: "../../data/" + fileName }, (err, lv) => {
+        await Leave.create({ leaveType: "Maternity", reason: reason, startDate: startDate, endDate: endDate, document: "../../data/" + fileName }, async (err, lv) => {
             if (err) throw err;
 
             //B) create a req
             await Request.create({
                 senderID: user.objectID, receiverID: hodID, status: "Pending",
                 leave: lv, sentDate: Date.now()
-            }, (err, rq) => {
+            }, async (err, rq) => {
                 if (err) throw err;
 
                 //C) create notification and send to sender and receiver
-                await Notification.create({ message: rq, date: Date.now(), read: false }, (err, notif) => {
+                await Notification.create({ message: rq, date: Date.now(), read: false }, async (err, notif) => {
                     if (err) throw err;
 
                     //send notification to sender
@@ -1281,7 +1282,7 @@ router.post('/compensation-leave-request/send', authenticateAndAuthoriseAC, asyn
 
         //comp Date should be in the same month as leave (their weird month that starts at 11 and ends at 10?)
 
-        const startDate, endDate;
+        let startDate, endDate;
         if (leaveDate.getDate() >= 11) {
             const year = leaveDate.getFullYear();
             const month = leaveDate.getMonth();
@@ -1310,21 +1311,21 @@ router.post('/compensation-leave-request/send', authenticateAndAuthoriseAC, asyn
 
         //send the comp leave request
 
-        const hodID = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
+        const {hodID} = await Department.findById(sender.departmentID, { _id: 0, hodID: 1 });
 
         //A) create a compensation leave
-        await Leave.create({ leaveType: "Compensation", reason: reason, startDate: leaveDate, endDate: leaveDate }, (err, lv) => {
+        await Leave.create({ leaveType: "Compensation", reason: reason, startDate: leaveDate, endDate: leaveDate }, async (err, lv) => {
             if (err) throw err;
 
             //B) create a req
             await Request.create({
                 senderID: user.objectID, receiverID: hodID, status: "Pending",
                 leave: lv, sentDate: Date.now()
-            }, (err, rq) => {
+            }, async (err, rq) => {
                 if (err) throw err;
 
                 //C) create notification and send to sender and receiver
-                await Notification.create({ message: rq, date: Date.now(), read: false }, (err, notif) => {
+                await Notification.create({ message: rq, date: Date.now(), read: false }, async (err, notif) => {
                     if (err) throw err;
 
                     //send notification to sender
@@ -1361,7 +1362,7 @@ router.get('/notifications', authenticateAndAuthoriseAC, async (req, res) => {
         let subNotifs = [];
 
         sender.notifications.forEach(n => {
-            if (n.message.senderID === user.objectID)
+            if (n.message.senderID.equals(user.objectID))
                 subNotifs.push(n);
         });
 
@@ -1402,7 +1403,7 @@ router.get('/notifications/accepted', authenticateAndAuthoriseAC, async (req, re
         let accNotifs = [];
 
         sender.notifications.forEach(n => {
-            if (n.message.senderID === user.objectID && n.message.status === "Accepted")
+            if (n.message.senderID.equals(user.objectID) && n.message.status === "Accepted")
                 accNotifs.push(n);
         });
 
@@ -1442,7 +1443,7 @@ router.get('/notifications/rejected', authenticateAndAuthoriseAC, async (req, re
         let rejNotifs = [];
 
         sender.notifications.forEach(n => {
-            if (n.message.senderID === user.objectID && n.message.status === "Rejected")
+            if (n.message.senderID.equals(user.objectID) && n.message.status === "Rejected")
                 rejNotifs.push(n);
         });
 
@@ -1482,10 +1483,10 @@ router.get('/requests', authenticateAndAuthoriseAC, async (req, res) => {
         const notifs = (await Staff.findOne({ staffID: user.staffID })).notifications;
 
         //filters notifications to get only the requests themselves
-        let reqs;
+        let reqs = [];
         notifs.forEach(notif => {
             //if the notification sent by the user
-            if (notif.message.receiverID === user.objectID) {
+            if (notif.message.receiverID.equals(user.objectID)) {
                 if (notif.message.leave) {
                     //remove the unnecessary attributes 
                     let { linkingSlot, dayOff, replacement, ...req } = notif.message;
@@ -1535,10 +1536,10 @@ router.get('/requests/accepted', authenticateAndAuthoriseAC, async (req, res) =>
         const notifs = (await Staff.findOne({ staffID: user.staffID })).notifications;
 
         //filters notifications to get only the requests themselves
-        let reqs;
+        let reqs = [];
         notifs.forEach(notif => {
             //if the notification sent by the user and are accepted
-            if (notif.message.receiverID === user.objectID && notif.message.status === "Accepted") {
+            if (notif.message.receiverID.equals(user.objectID) && notif.message.status === "Accepted") {
                 if (notif.message.leave) {
                     //remove the unnecessary attributes 
                     let { linkingSlot, dayOff, replacement, ...req } = notif.message;
@@ -1587,10 +1588,10 @@ router.get('/requests/rejected', authenticateAndAuthoriseAC, async (req, res) =>
         const notifs = (await Staff.findOne({ staffID: user.staffID })).notifications;
 
         //filters notifications to get only the requests themselves
-        let reqs;
+        let reqs = [];
         notifs.forEach(notif => {
             //if the notification sent by the user and are rejected
-            if (notif.message.receiverID === user.objectID && notif.message.status === "Rejected") {
+            if (notif.message.receiverID.equals(user.objectID) && notif.message.status === "Rejected") {
                 if (notif.message.leave) {
                     //remove the unnecessary attributes 
                     let { linkingSlot, dayOff, replacement, ...req } = notif.message;
@@ -1640,10 +1641,10 @@ router.get('/requests/pending', authenticateAndAuthoriseAC, async (req, res) => 
         const notifs = (await Staff.findOne({ staffID: user.staffID })).notifications;
 
         //filters notifications to get only the requests themselves
-        let reqs;
+        let reqs = [];
         notifs.forEach(notif => {
             //if the notification sent by the user and are pending
-            if (notif.message.receiverID === user.objectID && notif.message.status === "Pending") {
+            if (notif.message.receiverID.equals(user.objectID) && notif.message.status === "Pending") {
                 if (notif.message.leave) {
                     //remove the unnecessary attributes 
                     let { linkingSlot, dayOff, replacement, ...req } = notif.message;
@@ -1706,7 +1707,7 @@ router.delete('/requests/cancel', authenticateAndAuthoriseAC, async (req, res) =
 
         //if the request is not sent by the user
 
-        if (request.senderID !== user.objectID)
+        if (!request.senderID.equals(user.objectID))
             return res.status(400).json({ msg: "Request is sent by a different staff member." });
 
 
@@ -1738,24 +1739,24 @@ router.delete('/requests/cancel', authenticateAndAuthoriseAC, async (req, res) =
         //LS
         if (request.linkingSlot) {
             //A) delete the LS
-            await LinkingSlot.findByIdAndDelete( request.linkingSlot._id , (err, ls) => {
+            await LinkingSlot.findByIdAndDelete( request.linkingSlot._id , async (err, ls) => {
                 if (err) throw err;
 
                 //B) delete the req
-                await Request.findByIdAndDelete( request._id, (err, rq) => {
+                await Request.findByIdAndDelete( request._id, async (err, rq) => {
                     if (err) throw err;
 
                     //C) delete notification and delete from sender and receiver
-                    await Notification.findOneAndDelete({ message: { _id: request._id } }, (err, notif) => {
+                    await Notification.findOneAndDelete({ "message._id": rq._id }, async (err, notif) => {
                         if (err) throw err;
 
                         //delete notification from sender
-                        await Staff.findByIdAndUpdate( user.objectID, {
+                        await Staff.findByIdAndUpdate( rq.senderID, {
                             $pull: {notifications: { _id: notif._id }}
                         });
 
                         //delete notification from receiver
-                        await Staff.findByIdAndUpdate( request.receiverID , {
+                        await Staff.findByIdAndUpdate( rq.receiverID , {
                             $pull: {notifications: { _id: notif._id }}
                         });
                     });
@@ -1766,24 +1767,24 @@ router.delete('/requests/cancel', authenticateAndAuthoriseAC, async (req, res) =
         else if (request.replacement) 
         {
             //A) delete the RP
-            await Replacement.findByIdAndDelete( request.replacementDate._id , (err, rp) => {
+            await Replacement.findByIdAndDelete( request.replacementDate._id , async (err, rp) => {
                 if (err) throw err;
 
                 //B) delete the req
-                await Request.findByIdAndDelete( request._id, (err, rq) => {
+                await Request.findByIdAndDelete( request._id, async (err, rq) => {
                     if (err) throw err;
 
                     //C) delete notification and delete from sender and receiver
-                    await Notification.findOneAndDelete({ message: { _id: request._id } }, (err, notif) => {
+                    await Notification.findOneAndDelete({  "message._id": rq._id }, async (err, notif) => {
                         if (err) throw err;
 
                         //delete notification from sender
-                        await Staff.findByIdAndUpdate( user.objectID, {
+                        await Staff.findByIdAndUpdate( rq.senderID, {
                             $pull: {notifications: { _id: notif._id }}
                         });
 
                         //delete notification from receiver
-                        await Staff.findByIdAndUpdate( request.receiverID , {
+                        await Staff.findByIdAndUpdate( rq.receiverID , {
                             $pull: {notifications: { _id: notif._id }}
                         });
                     });
@@ -1794,24 +1795,24 @@ router.delete('/requests/cancel', authenticateAndAuthoriseAC, async (req, res) =
         //DO
         else if (request.dayOff) {
             //A) delete the DO
-            await DayOff.findByIdAndDelete( request.dayOff._id , (err, off) => {
+            await DayOff.findByIdAndDelete( request.dayOff._id , async (err, off) => {
                 if (err) throw err;
 
                 //B) delete the req
-                await Request.findByIdAndDelete( request._id, (err, rq) => {
+                await Request.findByIdAndDelete( request._id, async (err, rq) => {
                     if (err) throw err;
 
                     //C) delete notification and delete from sender and receiver
-                    await Notification.findOneAndDelete({ message: { _id: request._id } }, (err, notif) => {
+                    await Notification.findOneAndDelete({ "message._id": rq._id}, async (err, notif) => {
                         if (err) throw err;
 
                         //delete notification from sender
-                        await Staff.findByIdAndUpdate( user.objectID, {
+                        await Staff.findByIdAndUpdate( rq.senderID, {
                             $pull: {notifications: { _id: notif._id }}
                         });
 
                         //delete notification from receiver
-                        await Staff.findByIdAndUpdate( request.receiverID , {
+                        await Staff.findByIdAndUpdate( rq.receiverID , {
                             $pull: {notifications: { _id: notif._id }}
                         });
                     });
@@ -1822,24 +1823,24 @@ router.delete('/requests/cancel', authenticateAndAuthoriseAC, async (req, res) =
         //LEAVE
         else if (request.leave) {
             //A) delete the leave
-            await Leave.findByIdAndDelete( request.leave._id , (err, lv) => {
+            await Leave.findByIdAndDelete( request.leave._id , async (err, lv) => {
                 if (err) throw err;
 
                 //B) delete the req
-                await Request.findByIdAndDelete( request._id, (err, rq) => {
+                await Request.findByIdAndDelete( request._id, async (err, rq) => {
                     if (err) throw err;
 
                     //C) delete notification and delete from sender and receiver
-                    await Notification.findOneAndDelete({ message: { _id: request._id } }, (err, notif) => {
+                    await Notification.findOneAndDelete({ "message._id": rq._id }, async (err, notif) => {
                         if (err) throw err;
 
                         //delete notification from sender
-                        await Staff.findByIdAndUpdate( user.objectID, {
+                        await Staff.findByIdAndUpdate( rq.senderID, {
                             $pull: {notifications: { _id: notif._id }}
                         });
 
                         //delete notification from receiver
-                        await Staff.findByIdAndUpdate( request.receiverID , {
+                        await Staff.findByIdAndUpdate( rq.receiverID , {
                             $pull: {notifications: { _id: notif._id }}
                         });
                     });

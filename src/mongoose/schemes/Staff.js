@@ -99,6 +99,11 @@ const schema = new mongoose.Schema({
   schedule: {
     type: [Slot],
   },
+  salaryDeduction: {
+    type: Number,
+    default: 0,
+    min: 0
+  }
 });
 
 /* schema.methods.generateAuthToken = async function () {

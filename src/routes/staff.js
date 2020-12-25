@@ -92,7 +92,14 @@ router.put('/updateprofile', async function(req, res) {
 
         //faculty name is not provided, populate the users's current faculty
         else{
-            user.populate('facultyID');
+            const userFaculty = await faculty.findById(user.facultyID);
+
+            if(!userFaculty){
+                return res.status(HTTP_CODES.NOT_FOUND).json({msg: "no faculty exists with the name " + updatedUser.facultyName});
+            }
+
+            //manually populating + updating faculty
+            user.facultyID = userFaculty;
         }
 
         //=================DEPARTMENT=================

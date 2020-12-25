@@ -53,3 +53,17 @@ const cron = require('node-cron');
  */
 const nextMonthAttendance = require('./nextMonthAttendance');
 module.exports.nxtAtt =  cron.schedule('0 0 11 * *', nextMonthAttendance);
+
+/**
+ * Add next month's leave balance on 
+ * the 11th of each month at 12:00AM 
+ */
+const leaveBalance = require('./leaveBalance');
+module.exports.lb =  cron.schedule('0 0 11 * *', leaveBalance);
+
+/**
+ * calculate the salary deduction for all users on
+ * the 10th of each month at 7:05PM 
+ */
+const deduction = require('./salaryDeduction');
+module.exports.deduction =  cron.schedule('5 19 11 * *', deduction);

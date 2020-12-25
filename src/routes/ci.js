@@ -10,8 +10,73 @@ const { json } = require("express");
 var router = express.Router();
 const { authenticateAndAuthorise } = require("./auth.js");
 var _ = require("lodash");
-const { schedule } = require("node-cron");
-const location = require("../mongoose/dao/location");
+const Location = require("../mongoose/dao/location");
+
+router.get(
+  "/AssignCordinator",
+  authenticateAndAuthorise("Course Instructor"),
+  async function (req, res) {
+    try {
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+
+      let { staffID, courseCode } = req.query;
+      if (!staffID) throw Error("Please enter `staffID,courseCode` param");
+
+      let instructorDoc = await staff
+        .findOne({ _id: objectID })
+        .populate("courseIDs");
+      let staffDoc = await staff.findOne({ staffID }).populate("courseIDs");
+
+      let f1 = false;
+      let f2 = false;
+      let courseID;
+      instructorDoc.courseIDs.forEach((course) => {
+        if (course.courseCode == courseCode) {
+          f1 = true;
+          courseID = course.id;
+        }
+      });
+
+      if (f1 === false)
+        throw Error(
+          "the authenticated instructor doesnt teach the courseCode you entered in the req"
+        );
+
+      staffDoc.courseIDs.forEach((course) => {
+        if (course.courseCode == courseCode) {
+          f2 = true;
+          courseID = course.id;
+        }
+      });
+
+      if (f2 === false)
+        throw Error(
+          "the academic member doesnt teach the courseCode you entered in the req"
+        );
+
+      let courseDOC = await course.find({ _id: courseID });
+      if (courseDOC.coordinatorID != null) {
+        throw Error("Course already has a course cordinator!");
+      }
+      courseDOC.coordinatorID = staffDoc.id;
+      let result = await staffDoc.save();
+
+      res.status(200).json({
+        result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
 
 router.get(
   "/AssignUnassignedSlot",
@@ -80,6 +145,138 @@ router.get(
       slotDoc.staffID = staffID;
       await slotDoc.save();
       let result = slotDoc;
+
+      let temp = result.toObject();
+      delete temp._id;
+      let tempDoc = await staff.findOne({
+        staffID,
+      });
+      tempDoc.schedule.push(temp);
+      temp.markModified("schedule");
+      await tempDoc.save();
+
+      res.status(200).json({
+        result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+router.get(
+  "/AssignUnassignedSlot",
+  authenticateAndAuthorise("Course Instructor"),
+  async function (req, res) {
+    try {
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      // let user = await staff.findOne({ staffID: uID });
+      let {
+        staffID,
+        courseCode,
+        weekdayBefore,
+        numberBefore,
+        locationBefore,
+        weekdayAfter,
+        numberAfter,
+        locationAfter,
+      } = req.query;
+
+      if (!staffID || !weekday || !number || !courseCode || !location)
+        throw Error(
+          "Please enter `{ staffID, weekday, number, courseCode, location }` param"
+        );
+
+      let instructorDoc = await staff
+        .findOne({ _id: objectID })
+        .populate("courseIDs");
+      let staffDoc = await staff.findOne({ staffID }).populate("courseIDs");
+
+      let f1 = false;
+      let f2 = false;
+      let courseID;
+      instructorDoc.courseIDs.forEach((course) => {
+        if (course.courseCode == courseCode) {
+          f1 = true;
+          courseID = course.id;
+        }
+      });
+
+      if (f1 === false)
+        throw Error(
+          "the authenticated instructor doesnt teach the courseCode you entered in the req"
+        );
+
+      staffDoc.courseIDs.forEach((course) => {
+        if (course.courseCode == courseCode) {
+          f2 = true;
+          courseID = course.id;
+        }
+      });
+
+      if (f2 === false)
+        throw Error(
+          "the academic member doesnt teach the courseCode you entered in the req"
+        );
+
+      let locationDocAfter = Location.findOne({ name: locationAfter });
+      if (!locationDocAfter) throw Error("`After Location` not found!");
+      let locationDocBefore = Location.findOne({ name: locationBefore });
+      if (!locationDocBefore) throw Error("`Before Location` not found!");
+
+      let locationIdBefore = locationDocBefore.id;
+      let locationIdAfter = locationDocAfter.id;
+      let slotDocBefore = await slot.findOne({
+        weekday: weekdayBefore,
+        number: numberBefore,
+        location: locationIdBefore,
+        course: courseID,
+      });
+      if (!slotDocBefore) throw Error("before Slot not found!");
+
+      let slotDocAfter = await slot.findOne({
+        weekday: weekdayAfter,
+        number: numberAfter,
+        location: locationIdAfter,
+        course: courseID,
+      });
+      if (!slotDocAfter) throw Error("after Slot not found!");
+
+      if (slotDocAfter.staffID != null)
+        throw Error("Slot `after` is already assigned to an academic member!");
+
+      slotDocBefore.staffID = null;
+      await slotDocBefore.save();
+
+      slotDocAfter.staffID = staffID;
+      let result = await slotDocAfter.save();
+
+      let temp = result.toObject();
+      delete temp._id;
+      let tempDoc = await staff.findOne({
+        staffID,
+      });
+      tempDoc.schedule = temp.schedule
+        .map((slot) => {
+          if (
+            slot.courseCode == courseCode &&
+            slot.number == numberBefore &&
+            slot.weekday == weekdayBefore &&
+            slot.location == locationIdBefore
+          )
+            return null;
+          return slot;
+        })
+        .filter((n) => n);
+      tempDoc.schedule.push(temp);
+      temp.markModified("schedule");
+      await tempDoc.save();
 
       res.status(200).json({
         result,

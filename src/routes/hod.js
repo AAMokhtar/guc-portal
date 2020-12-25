@@ -561,4 +561,134 @@ router.get(
     }
   }
 );
+
+router.post(
+  "/AcceptRequest",
+  authenticateAndAuthorise("HOD"),
+  async function (req, res) {
+    try {
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      let user = await staff.findOne({ staffID: uID });
+      const { requestID } = req.body.data;
+
+      //if no request id entered
+      if (!requestID)
+        return res.status(400).json({
+          msg: "Please enter the request id of the request you want to accept.",
+        });
+
+      //get the request to be accepted from the database
+      const request = await Request.findOne({ _id: requestID });
+      if (!request.receiverID.equals(user.id)) {
+        return res
+          .status(404)
+          .json({ msg: "There request wasnt sent to this authenticated HOD." });
+      }
+
+      //if there is no such request
+      if (!request)
+        return res
+          .status(404)
+          .json({ msg: "There is no request with the id given." });
+
+      if (!request.dayOff && !request.leave)
+        return res
+          .status(400)
+          .json({ msg: "Request entered is not a dayOff or leave request." });
+      if (request.dayOff) {
+        user.dayOff = request.dayOff.requestedDayOff;
+        const date1 = new Date(request.startDate);
+        const date2 = new Date(request.endDate);
+        const diffTime = Math.abs(date2 - date1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        currentBalance = user.leaveBalance - diffDays;
+        if (currentBalance < 0) {
+          request.status = "Rejected";
+          let result = await request.save();
+          throw Error(
+            "staff leave balance is smaller than the requested number of days, therefore your request was rejected!"
+          );
+        }
+        user.leaveBalance = currentBalance;
+      }
+      request.status = "Accepted";
+      let result = await request.save();
+
+      await user.save();
+      //console.log(JSON.stringify(departmentDoc));
+
+      //  departmentDoc = departmentDoc.populate("coursesIDs");
+      //   .("coursesIDs.taList");
+      res.status(200).json({
+        result: result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+
+router.post(
+  "/RejectRequest",
+  authenticateAndAuthorise("HOD"),
+  async function (req, res) {
+    try {
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      let user = await staff.findOne({ staffID: uID });
+      const { requestID } = req.body.data;
+
+      //if no request id entered
+      if (!requestID)
+        return res.status(400).json({
+          msg: "Please enter the request id of the request you want to accept.",
+        });
+
+      //get the request to be accepted from the database
+      const request = await Request.findOne({ _id: requestID });
+      if (!request.receiverID.equals(user.id)) {
+        return res
+          .status(404)
+          .json({ msg: "There request wasnt sent to this authenticated HOD." });
+      }
+
+      //if there is no such request
+      if (!request)
+        return res
+          .status(404)
+          .json({ msg: "There is no request with the id given." });
+
+      if (!request.dayOff && !request.leave)
+        return res
+          .status(400)
+          .json({ msg: "Request entered is not a dayOff or leave request." });
+
+      request.status = "Rejected";
+      let result = await request.save();
+
+      //console.log(JSON.stringify(departmentDoc));
+
+      //  departmentDoc = departmentDoc.populate("coursesIDs");
+      //   .("coursesIDs.taList");
+      res.status(200).json({
+        result: result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
 module.exports = router;

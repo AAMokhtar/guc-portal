@@ -321,7 +321,7 @@ router.get('/replacement-request', authenticateAndAuthoriseAC, async (req, res) 
         const notifs = (await Staff.findOne({ staffID: user.staffID })).notifications;
 
         //filters notifications to get only the replacement ones and return the requests themselves
-        let RepReqs;
+        let RepReqs=[];
         notifs.forEach(notif => {
             //if the notification is replacement and sent to the academic member
             if (notif.message.replacement && notif.message.receiverID === user.objectID) {

@@ -471,33 +471,7 @@ Method: GET
 |---|---|
 |staffID|ac-4|
 
-Response Ex:
-```
-{
-    "result": [
-        {
-            "_id": "5fdd1b91f4df1c53ac0b9661",
-            "staffID": "ac-4"
-        },
-        {
-            "_id": "5fdfdfba2de69a30d40b0ff0",
-            "staffID": "ac-6"
-        },
-        {
-            "_id": "5fdfe690902d9b2a58444945",
-            "staffID": "ac-7"
-        },
-        {
-            "_id": "5fe5d6049eb70954207dca83",
-            "staffID": "ac-8"
-        },
-        {
-            "_id": "5fe5e20fffcc464320be69d5",
-            "staffID": "ac-10"
-        }
-    ]
-}
-```
+
 
 ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
 

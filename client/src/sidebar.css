@@ -1,0 +1,50 @@
+#sidebar {
+    background-color: cornflowerblue;
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100vh;
+}
+
+#sidebar a {
+    color: white;
+    background-color: cornflowerblue;
+}
+
+#sidebar a:hover {
+    color: cornflowerblue;
+    background-color: white;
+}
+
+#sidebar a.active {
+    color: cornflowerblue;
+    background-color: white;
+    border-bottom: 0;
+}
+
+.side-header {
+    font-size: large;
+    font-weight: 500;
+}
+
+#sidebar div a {
+    background-color: rgb(51, 120, 248);
+}
+
+#sidebar div div a {
+    background-color: rgb(48, 114, 236);
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+.card-body:hover {
+    color: cornflowerblue;
+    background-color: white;
+    border: cornflowerblue;
+}
+

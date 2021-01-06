@@ -14,7 +14,7 @@ const cardImg = {
 function MainComponent()
 {
     return (
-        <div className="mt-4" style={styleMain} id="main">
+        <div className="mt-4" style={styleMain} id="home">
             <div>
             <h1>GUC Portal</h1>
             <h2>The key to your neverending nightmares</h2>

@@ -1,19 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-//import './index.css';
-//import App from './App';
-import Sidebar from './sidebar';
-import Main from './main';
-import Nav from './navbar';
 import reportWebVitals from './reportWebVitals';
-/*
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
-*/
+import {Router, Route} from 'react-router';
+import createHistory from 'history/createBrowserHistory';
+
+//import your components
+import Sidebar from './components/sidebar/sidebar';
+import Home from './components/home/home';
+import Nav from './components/navbar/navbar';
+
+const browserHistory = createHistory();
+
 const wrapper = {
   className : "d-flex",
   "width": "100%",
@@ -26,7 +23,12 @@ ReactDOM.render(
       <Sidebar />
       <div className="container-fluid">
         <Nav />
-        <Main />
+        
+        {/* ADD YOUR ROUTES BELOW */}
+        <Router history={browserHistory}>
+          <Route exact path="/" component={Home}/>
+        </Router>
+
       </div>
     </div>
   </React.StrictMode>,

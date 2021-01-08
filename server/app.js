@@ -1,5 +1,7 @@
 var express = require("express");
 var app = express();
+var cors = require('cors');
+
 const bodyParser = require("body-parser");
 
 var createError = require("http-errors");
@@ -40,6 +42,7 @@ app.use(bodyParser.json());
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(cors());
 
 //routes
 app.use("/general", generalRouter);
@@ -66,7 +69,7 @@ require("./src/mongoose/util/connect&Initialize")(() => {
       console.log(
         red("app failed to start " + "(PORT: " + properties.PORT + ")")
       );
-    console.log(green("app is listening to port " + properties.PORT));
+    console.log(green("CORS-enabled web server is listening to port " + properties.PORT));
   });
 });
 

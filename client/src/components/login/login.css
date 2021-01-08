@@ -1,0 +1,36 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  .background {
+    min-height: 100vh;
+    display: flex;
+    font-weight: 400;
+    font-family: sans-serif;
+    background: -webkit-linear-gradient(162deg, rgba(241,60,32,1) 0%, rgba(64,86,161,1) 50%, rgba(197,203,227,1) 100%);  /* Chrome 10-25, Safari 5.1-6 */
+    background: rgb(241,60,32);
+    background: linear-gradient(162deg, rgba(241,60,32,1) 0%, rgba(64,86,161,1) 50%, rgba(197,203,227,1) 100%);
+    width: 100%;
+    height: 100%;
+  }
+
+  .login-container{
+    margin: auto;
+    background-color: #f7f7f3;
+    padding: 2.5%;
+    border-radius: 10px;
+    margin-top: 100px;
+    width: 400px;
+  }
+
+  .royal-blue{
+    background-color: #4056A1;
+  }
+    .royal-blue:hover{
+        background-color: #32437c;
+    }
+
+    .royal-blue:focus{
+        background-color: #283663;
+    }
+   

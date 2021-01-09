@@ -6,6 +6,8 @@ var isEmail = require("isemail");
 //to encrypt and decrypt passwords
 //required to store information about current user
 const jwt = require("jsonwebtoken");
+const jwt_decode = require("jwt-decode");
+
 const properties = require("../../properties.js");
 
 //key used for jsonwebtoken
@@ -101,7 +103,7 @@ router.post("/login", async (req, res) => {
     //create a token
     let token = jwt.sign(payload, key, {
       noTimestamp: true,
-      expiresIn: "336h", //14 days
+      expiresIn: 900, //14 days
     });
     //give the token to the user by adding it to the header of the response
     res.header({ "auth-token": token });
@@ -111,6 +113,32 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     res.status(400).json({ msg: error.message });
   }
+});
+
+
+router.post("/refresh-token", async (req, res) => {
+  const oldToken = req.body.jwt;
+
+  if(!oldToken)
+    return res.status(401).json({ msg: "no token was provided" });
+
+  var decoded = jwt_decode(oldToken);
+
+  decoded = {
+    staffID: decoded.staffID,
+    role: decoded.role,
+    objectID: decoded.objectID
+  }
+
+  //new token
+  let token = jwt.sign(decoded, key, {
+    noTimestamp: true,
+    expiresIn: 900, //14 days
+  });
+
+  res.header({ "auth-token": token });
+
+  return res.json({ msg: "token refreshed" });
 });
 
 //------------------------------------------END OF ROUTES-----------------------------------------------------

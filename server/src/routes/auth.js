@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const properties = require("../../properties.js");
 const staff = require("../mongoose/dao/staff.js");
+const HTTP_CODES = require("./r_util/httpCodes");
 
 //key used for jsonwebtoken
 const key = properties.JWT_KEY;
@@ -12,7 +13,7 @@ async function authenticate(req, res, next) {
   //if there is no token
   if (!token) {
     return res
-      .status(403)
+      .status(HTTP_CODES.UNAUTHORIZED)
       .json({ msg: "You need to login first to access this page." });
   }
 
@@ -27,7 +28,7 @@ async function authenticate(req, res, next) {
   } catch (
     error //catches an error should the token fail the verification
   ) {
-    return res.status(500).json({ msg: error.message });
+    return res.status(HTTP_CODES.UNAUTHORIZED).json({ msg: error.message });
   }
 }
 
@@ -41,7 +42,7 @@ function authenticateAndAuthorise(role) {
     //if there is no token
     if (!token) {
       return res
-        .status(403)
+        .status(HTTP_CODES.UNAUTHORIZED)
         .json({ msg: "You need to login to access this page" });
     }
 
@@ -58,7 +59,7 @@ function authenticateAndAuthorise(role) {
         next();
       } else {
         return res
-          .status(401)
+          .status(HTTP_CODES.FORBIDDEN)
           .json({ msg: "Unauthorized to access this page." });
       }
     } catch (
@@ -66,7 +67,7 @@ function authenticateAndAuthorise(role) {
     ) {
       console.log(error);
 
-      return res.status(500).json({ msg: error.message });
+      return res.status(HTTP_CODES.UNAUTHORIZED).json({ msg: error.message });
     }
   };
 }
@@ -80,7 +81,7 @@ async function authenticateAndAuthoriseAC(req, res, next) {
   //if there is no token
   if (!token) {
     return res
-      .status(403)
+      .status(HTTP_CODES.UNAUTHORIZED)
       .json({ msg: "You need to login to access this page" });
   }
 
@@ -96,14 +97,14 @@ async function authenticateAndAuthoriseAC(req, res, next) {
     if (verified.role !== "HR") {
       next();
     } else {
-      return res.status(401).json({ msg: "Unauthorized to access this page." });
+      return res.status(HTTP_CODES.FORBIDDEN).json({ msg: "Unauthorized to access this page." });
     }
   } catch (
     error //catches error thrown should token fail verification
   ) {
     console.log(error);
 
-    return res.status(500).json({ msg: error.message });
+    return res.status(HTTP_CODES.UNAUTHORIZED).json({ msg: error.message });
   }
 }
 

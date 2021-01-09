@@ -42,7 +42,12 @@ app.use(bodyParser.json());
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cors());
+
+const corsOptions = {
+  exposedHeaders: 'auth-token'
+};
+
+app.use(cors(corsOptions));
 
 //routes
 app.use("/general", generalRouter);
@@ -53,7 +58,7 @@ app.use("/staff", staffRouter);
 app.use("/course-coordinator", ccRouter);
 app.use("/general", generalRouter);
 app.use("/hod", hodRouter);
-// app.use("/academic", academicRouter);
+app.use("/academic", academicRouter);
 app.use("/ci", ciRouter);
 
 //start monitoring cron jobs

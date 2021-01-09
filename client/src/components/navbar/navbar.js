@@ -1,4 +1,5 @@
 import React from 'react';
+import * as authService from '../login/authenticationService';
 
 const styleLogOut = {
     "margin-left":"auto",
@@ -22,6 +23,19 @@ const btn = {
     onClick : handleClick
 }
 
+function handleLogout(event){
+    event.preventDefault();
+
+    authService.onLogout()
+    .then(res =>{
+        localStorage.removeItem('token');
+        window.location.reload();
+    })
+    .catch(error => {
+        console.log(error.response.data.msg);
+    })
+}
+
 function NavComponent()
 {
     return (
@@ -38,7 +52,8 @@ function NavComponent()
                 </li>
             </ul>
             </div>
-            <div className="d-lg-inline-flex flex-row" style={{"width":"20%"}}><button className="btn btn-danger" style={styleLogOut}>Log Out</button></div>
+            <div className="d-lg-inline-flex flex-row" style={{"width":"20%"}}><button className="btn btn-danger" style={styleLogOut}
+            onClick={handleLogout}>Log Out</button></div>
         </nav>
     )
 }

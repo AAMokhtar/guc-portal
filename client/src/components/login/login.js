@@ -35,8 +35,8 @@ export default class Login extends Component {
         };
 
         authService.onLogin(payload)
-        .then(res =>{
-            localStorage.setItem('token', res);
+        .then(token =>{
+            localStorage.setItem('token', token);
             window.location.reload();
         })
         .catch(error => {

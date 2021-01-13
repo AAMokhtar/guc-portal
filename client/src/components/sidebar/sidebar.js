@@ -10,13 +10,6 @@ const notifDropDown = {
     "aria-expanded" : "false",
     "aria-controls": "academicSubmenu" 
 }
-const academicDD = {
-    href: "#academicSubmenu",
-    className: "list-group-item dropdown-toggle side-header",
-    "data-toggle" : "collapse",
-    "aria-expanded" : "false",
-    "aria-controls": "academicSubmenu" 
-}
 
 const editProfile = {
     to: "/editProfile",

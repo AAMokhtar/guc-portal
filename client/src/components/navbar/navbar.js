@@ -1,15 +1,21 @@
-import React, { Component, useEffect } from 'react';
+import React, { Component, } from 'react';
 import * as authService from '../login/authenticationService';
-import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
+import { Navbar, Nav, Breadcrumb, Button, OverlayTrigger, Tooltip, Card, Popover } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
+import SideNav, { MenuIcon } from 'react-simple-sidenav';
+import { Link } from 'react-router-dom';
 const axios = require('axios');
 axios.defaults.headers.common['auth-token'] = localStorage.getItem('token');
 console.log("token is ", localStorage.getItem('token'));
 
 class NavComponent extends Component {
 
-  
 
+
+  state = {
+    showNav: false,
+    currentPage: ''
+  }
 
   handleLogout = (event) => {
     event.preventDefault();
@@ -24,6 +30,7 @@ class NavComponent extends Component {
       })
   }
 
+    //TODO: Success and fail toast if there's time!
   handleSignOut = (event) => {
     axios.put('http://localhost:4000/staff/signout')
       .then(function (response) {
@@ -39,10 +46,12 @@ class NavComponent extends Component {
       });
   }
 
+
+  //TODO: Success and fail toast if there's time!
   handleSignIn = (event) => {
 
     axios.put('http://localhost:4000/staff/signin'
-      )
+    )
       .then(function (response) {
         // handle success
         console.log("sign in works");
@@ -60,52 +69,224 @@ class NavComponent extends Component {
 
   render() {
 
-    const styleLogOut = {
-      "margin-left": "auto",
-      "margin-right": "2vw"
-    }
+    const navItems = [
 
-    const styleLI = {
-      "margin-right": "1vw"
-    }
+
+      <div>
+        <h1 className='text-muted'>My Info</h1>
+        <ul class="list-unstyled">
+          <li>
+            <Link
+              onClick={() => {
+                this.setState({ currentPage: 'My Attendance' })
+              }}
+              to="/viewAttendance">
+              My Attendance
+        </Link>
+          </li>
+          <li>
+            <Link
+              onClick={() => {
+                this.setState({ currentPage: 'My Schedule' })
+              }}
+              to="/schedule">
+              My Schedule
+        </Link>
+          </li>
+          <li>
+            <Link
+              onClick={() => {
+                this.setState({ currentPage: 'View Profile' })
+              }}
+
+              to="/viewProfile">
+              My Profile
+        </Link>
+          </li>
+        </ul>
+
+
+
+      </div>
+      ,
+      <div>
+        <h1 className='text-muted'>Staff Management</h1>
+        <Link
+          onClick={() => {
+            this.setState({ currentPage: 'New Staff' })
+          }}
+
+          to="/newStaff">
+          New Staff
+      </Link>
+        <br></br>
+        <Link
+          onClick={() => {
+            this.setState({ currentPage: 'View Staff' })
+          }}
+
+          to="/viewStaff">
+          Existing Staff
+      </Link>
+        <br></br>
+        <Link
+
+          onClick={() => {
+            this.setState({ currentPage: 'ATT' })
+          }}
+
+          to="/att">
+          Staff Attendance
+      </Link>
+      </div>
+      ,
+      <div>
+        <h1 className='text-muted'>Faculty & Facility Management</h1>
+        <Link
+
+          onClick={() => {
+            this.setState({ currentPage: 'Locations' })
+          }}
+
+
+          to="/locations">
+          Locations
+    </Link>
+        <br></br>
+        <Link
+
+          onClick={() => {
+            this.setState({ currentPage: 'Faculties' })
+          }}
+
+          to="/faculties">
+          Faculties
+    </Link>
+      </div>
+      ,
+
+
+
+
+
+    ];
+
+
+
     const handleClick = () => {
       const elem = document.getElementById('sidebar');
       elem.classList.toggle('collapse');
     }
-    const btn = {
-      className: "btn btn-outline-info",
-      style: {
-        "margin-left": "2vw",
-        "margin-right": "2vw"
-      },
-      onClick: handleClick
-    }
+
+
+    const renderTooltip = (props) => (
+      <Tooltip id="button-tooltip" {...props}>
+        Simple tooltip
+      </Tooltip>
+    );
+//TODO: placeholder - replace with role of logged in user
+    const popover = (
+      <Popover id="popover-basic">
+        <Popover.Title as="h3">Basant Mounir</Popover.Title>
+        <Popover.Content>
+          43- GUC MET - Student and Aspiring Data Scientist &lt;3 ❤
+        </Popover.Content>
+      </Popover>
+    );
+
     return (
-      <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
-        <Navbar.Brand href="#home"><Image src="https://lh6.ggpht.com/gNy40q6S_519oQZ_AE9sGypZ-Z94zDy2Xpm5Tg5mYf8yVOSLAxAhEatKLn0vJDyFErE=w300" width="40" height="40" /></Navbar.Brand>
-        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-        <Navbar.Collapse id="responsive-navbar-nav">
-          <Nav className="mr-auto">
-            <Nav.Link href="/">My Dashboard</Nav.Link>
-            <Nav.Link href="/editProfile">Edit Profile</Nav.Link>
-            <Nav.Link href="/viewProfile">View Profile</Nav.Link>
-            {/*<NavDropdown title="Dropdown" id="collasible-nav-dropdown">
+      <React.Fragment>
+        <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+          <Navbar.Brand onClick={
+            () => {
+              this.setState({
+                showNav: true
+              })
+            }
+          }><Image src="https://lh6.ggpht.com/gNy40q6S_519oQZ_AE9sGypZ-Z94zDy2Xpm5Tg5mYf8yVOSLAxAhEatKLn0vJDyFErE=w300" width="40" height="40" /></Navbar.Brand>
+          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+          <Navbar.Collapse id="responsive-navbar-nav">
+            <Nav className="mr-auto">
+              <Nav.Link onClick={() => {
+                this.setState({ currentPage: 'Home' })
+              }} href="#">
+
+                <Link to='/' style={{color:'#fff'}}>
+                  Dashboard
+                </Link>
+              </Nav.Link>
+              <Nav.Link onClick={() => {
+                this.setState({ currentPage: 'Edit Profile' })
+              }} href="#">
+                 <Link to='/editProfile' style={{color:'#fff'}}>
+                  Edit Profile
+      </Link>
+      </Nav.Link>
+              <Nav.Link
+                onClick={() => {
+                  this.setState({ currentPage: 'View Profile' })
+                }}
+                href="#"> 
+                <Link to='/viewProfile' style={{color:'#fff'}}>
+                  View Profile
+          </Link>
+          </Nav.Link>
+              {/*<NavDropdown title="Dropdown" id="collasible-nav-dropdown">
             <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
             <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
             <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
             <NavDropdown.Divider />
             <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
           </NavDropdown>*/}
-          </Nav>
-          <Nav>
-            <Nav.Link onClick={this.handleSignIn}>Sign In</Nav.Link>
+            </Nav>
+            <Nav>
+              <Nav.Link onClick={this.handleSignIn}>Sign In</Nav.Link>
 
-            {/* display successfully signed out toast */}
-            <Nav.Link onClick={this.handleSignOut}>Sign Out</Nav.Link>
-            <Nav.Link onClick={this.handleLogout}>Log Out</Nav.Link>
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
+              {/* display successfully signed out toast */}
+              <Nav.Link onClick={this.handleSignOut}>Sign Out</Nav.Link>
+              <Nav.Link onClick={this.handleLogout}>Log Out</Nav.Link>
+              
+              <Nav.Link >
+
+  {/*todo: this is a placeholder. Put name of the current user!*/}
+                <OverlayTrigger placement="bottom" overlay={popover}>
+                  <Button variant="dark">Basant Mounir</Button>
+                </OverlayTrigger>
+
+
+              </Nav.Link>
+
+              <div class="avatar avatar-xl">
+                <img src="https://lh3.googleusercontent.com/a-/AOh14Gj43WnACEauUzP5IxS3ZyPaNO5CsVmPIZThR-ZKfAg=s288-c-rg-br100" style={{ maxHeight: 50, maxWidth: 50 }} alt="..." class="avatar-img rounded-circle" />
+              </div>
+            </Nav>
+
+
+          </Navbar.Collapse>
+        </Navbar>
+        <Breadcrumb>
+          <Breadcrumb.Item href="#"><Link to='/' style={{color:'#000'}}>GUC Portal</Link></Breadcrumb.Item>
+          <Breadcrumb.Item active>{this.state.currentPage}</Breadcrumb.Item>
+        </Breadcrumb>
+
+
+        <div>
+          <MenuIcon onClick={() => {
+            this.setState({
+              showNav: true
+            })
+          }} />
+          <SideNav
+            title='MENU'
+            items={navItems}
+
+            showNav={this.state.showNav} onHideNav={() => {
+              this.setState({
+                showNav: false
+              })
+            }} />
+        </div>
+      </React.Fragment>
 
     );
   }

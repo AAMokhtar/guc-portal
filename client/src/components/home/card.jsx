@@ -1,22 +1,27 @@
 import React from 'react';
 import './card-styling.css';
+import {Card} from 'react-bootstrap';
+import {Link} from 'react-router-dom';
 
-const Card = (props) => {
+const CardUi = (props) => {
     return ( 
-        <a href="/editProfile" className="card text-center shadow">
-            <div className="overflow">
-                <img src="https://www.11kbw.com/content/uploads/Banner01.jpg" alt="" className='card-img-top'/>
-            </div>
-            <div className="card-body text-dark">
-                <h4 className="card-title">
-                    <p className="card-text text-secondary">
-                        Edit Profile
-                    </p>
-                </h4>
-            </div>
-        </a>
+        <Link to={props.link}>
+
+        <Card border="light" style={{ width: '18rem' ,color:'#000' }}>
+        <Card.Header>{props.title}</Card.Header>
+        <Card.Body>
+          <Card.Title>Light Card Title</Card.Title>
+          <Card.Text>
+            Some quick example text to build on the card title and make up the bulk
+            of the card's content.
+          </Card.Text>
+        </Card.Body>
+      </Card>
+            
+
+        </Link>
      );
 }
 
  
-export default Card;
+export default CardUi;

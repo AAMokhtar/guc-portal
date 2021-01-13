@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 const styleMain = {
     "margin-left":"2vw"
 }
@@ -12,13 +13,14 @@ const cardImg = {
     }
 }
 function MainComponent()
-{
+{ //dashboard work here
     return (
         <div className="mt-4" style={styleMain} id="home">
             <div>
             <h1>Welcome, username!</h1>
             </div>
             <div className="d-flex">
+               {/*
                 <a href="#getsmart" style={{"text-decoration":"none"}}>
                     <div className="card text-white bg-info" style={{"max-width":"18rem", "margin":"2rem"}}>
                         <div className="card-body">
@@ -35,6 +37,7 @@ function MainComponent()
                         </div>
                     </div>
                 </a>
+               */}
             </div>
         </div>
     )

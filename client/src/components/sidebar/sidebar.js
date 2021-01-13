@@ -1,5 +1,7 @@
 import React from 'react';
 import './sidebar.css';
+import {Link} from 'react-router-dom';
+
 
 const notifDropDown = {
     href: "#notificationSubmenu",
@@ -16,11 +18,26 @@ const academicDD = {
     "aria-controls": "academicSubmenu" 
 }
 
+const editProfile = {
+    to: "/editProfile",
+    className: "list-group-item dropdown-toggle side-header",
+    "data-toggle" : "collapse",
+    "aria-expanded" : "false",
+}
+
+
 function SidebarComponent() {
     return (
         <div className="collapse list-group list-group-flush" id="sidebar">
-            <a href="#" className="list-group-item active">Home/Hell</a>
-            <a {...academicDD}>Academic</a>
+            {/*<a href="#" className="list-group-item active">Home</a>
+            <a {...academicDD}>Academic</a>*/}
+            {/* <Link {...dashboard}>
+                Dashboard
+            </Link> */}
+            
+            <Link {...editProfile}>
+                Edit Profile
+            </Link>
             <div className="collapse" id="academicSubmenu">
                 <a href="#" className="list-group-item">Schedule</a>
                 <a {...notifDropDown}>Notifications<span className="badge rounded-pill bg-info" style={{marginLeft: "35%"}}>9</span></a>

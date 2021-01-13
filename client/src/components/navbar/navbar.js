@@ -1,5 +1,7 @@
 import React from 'react';
 import * as authService from '../login/authenticationService';
+import {Navbar, Nav, NavDropdown} from 'react-bootstrap';
+import Image from 'react-bootstrap/Image';
 
 const styleLogOut = {
     "margin-left":"auto",
@@ -39,22 +41,30 @@ function handleLogout(event){
 function NavComponent()
 {
     return (
-        <nav className="navbar navbar-expand-lg sticky-top">
-            <button {...btn}>&#9776;</button>
-            <div className="d-lg-inline-flex flex-row" style={{"width":"60%"}}><h2 className="mx-auto">Welcome to hell reincarnate</h2></div>
-            <div className="d-lg-inline-flex flex-row" style={{"width":"25%"}}>
-            <ul className="navbar-nav mx-auto">
-                <li className="nav-item" style={styleLI}>
-                    <a className="nav-link" href="#">Schedule</a>
-                </li>
-                <li className="nav-item" style={styleLI}>
-                    <a className="nav-link" href="#">Report Uni</a>
-                </li>
-            </ul>
-            </div>
-            <div className="d-lg-inline-flex flex-row" style={{"width":"20%"}}><button className="btn btn-danger" style={styleLogOut}
-            onClick={handleLogout}>Log Out</button></div>
-        </nav>
+
+        <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+  <Navbar.Brand href="#home"><Image src="https://lh6.ggpht.com/gNy40q6S_519oQZ_AE9sGypZ-Z94zDy2Xpm5Tg5mYf8yVOSLAxAhEatKLn0vJDyFErE=w300" width ="40" height ="40"/></Navbar.Brand>
+  <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+  <Navbar.Collapse id="responsive-navbar-nav">
+    <Nav className="mr-auto">
+      <Nav.Link href="/">Dashboard</Nav.Link>
+      <Nav.Link href="/editProfile">Edit Profile</Nav.Link>
+      {/*<NavDropdown title="Dropdown" id="collasible-nav-dropdown">
+        <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
+        <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
+        <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
+        <NavDropdown.Divider />
+        <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
+      </NavDropdown>*/}
+    </Nav>
+    <Nav>
+      <Nav.Link onClick={}>Sign In</Nav.Link>
+      <Nav.Link onClick={}>Sign Out</Nav.Link>
+      <Nav.Link onClick={handleLogout}>Log Out</Nav.Link>
+    </Nav>
+  </Navbar.Collapse>
+</Navbar>
+
     )
 }
 

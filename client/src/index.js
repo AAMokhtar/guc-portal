@@ -13,6 +13,7 @@ import Sidebar from './components/sidebar/sidebar';
 import Home from './components/home/home';
 import Nav from './components/navbar/navbar';
 import Login from './components/login/login';
+import StaffProfile from "./views/staffProfile";
 
 //for routing
 const createHistory = require("history").createBrowserHistory;
@@ -81,19 +82,25 @@ ReactDOM.render(
 
       {localStorage.getItem('token')?
       <>
-      <Sidebar />
-
-      <div className="container-fluid">
-        <Nav />
+      
+      
+      
+      {/*<Nav />*/}
 
         {/* ADD YOUR ROUTES BELOW */}
         <Router history={browserHistory}>
+        <Sidebar />
 
+        <div className="container-fluid">
+          <Nav/>
+          
         <Route exact path="/" component={Home}/>
+        <Route path="/editProfile" component={StaffProfile}></Route>
+        </div>
+       
 
         </Router>
 
-      </div>
       </>
       :
       <Login />

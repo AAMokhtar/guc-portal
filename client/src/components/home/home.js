@@ -16,6 +16,7 @@ class MainComponent extends Component {
     render() {
         let infoArr = [
             {
+                
                 src: "https://picsum.photos/id/1/500/325",
                 title: "My Attendance",
                 text: 'View My Attendance record',
@@ -97,7 +98,7 @@ class MainComponent extends Component {
                                 <Cards
                                                                     className='h-100'
 
-                                    key={index}
+                                    key={item.link}
                                     src={item.src}
                                     title={item.title}
                                     text={item.text}
@@ -115,7 +116,7 @@ class MainComponent extends Component {
                                 <Col className='d-flex justify-content-center'>
                                 <Cards
                                     className='h-100'
-                                    key={index}
+                                    key={item.link}
                                     src={item.src}
                                     title={item.title}
                                     text={item.text}
@@ -134,7 +135,7 @@ class MainComponent extends Component {
                                 <Cards
                                                                     className='h-100'
 
-                                    key={index}
+                                    key={item.link}
                                     src={item.src}
                                     title={item.title}
                                     text={item.text}

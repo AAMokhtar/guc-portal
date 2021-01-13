@@ -1,12 +1,19 @@
+
+
+
 import React, { Component, } from 'react';
 import * as authService from '../login/authenticationService';
 import { Navbar, Nav, Breadcrumb, Button, OverlayTrigger, Tooltip, Card, Popover } from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
 import SideNav, { MenuIcon } from 'react-simple-sidenav';
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+  import 'react-toastify/dist/ReactToastify.css'
+
+
 const axios = require('axios');
 axios.defaults.headers.common['auth-token'] = localStorage.getItem('token');
-console.log("token is ", localStorage.getItem('token'));
+
 
 class NavComponent extends Component {
 
@@ -34,11 +41,14 @@ class NavComponent extends Component {
   handleSignOut = (event) => {
     axios.put('http://localhost:4000/staff/signout')
       .then(function (response) {
+        toast.success('Signed Out Successfully')
 
         console.log("sign out works");
       })
       .catch(function (error) {
         // handle error
+        toast.error('Sign out Failed ',error)
+
         console.log(error);
       })
       .then(function () {
@@ -46,6 +56,7 @@ class NavComponent extends Component {
       });
   }
 
+ 
 
   //TODO: Success and fail toast if there's time!
   handleSignIn = (event) => {
@@ -54,10 +65,13 @@ class NavComponent extends Component {
     )
       .then(function (response) {
         // handle success
+        toast.success('Signed In Successfully')
         console.log("sign in works");
       })
       .catch(function (error) {
         // handle error
+        toast.error('Sign In Failed ')
+
         console.log(error);
       })
       .then(function () {
@@ -74,7 +88,7 @@ class NavComponent extends Component {
 
       <div>
         <h1 className='text-muted'>My Info</h1>
-        <ul class="list-unstyled">
+        <ul className="list-unstyled">
           <li>
             <Link
               onClick={() => {
@@ -171,7 +185,7 @@ class NavComponent extends Component {
 
     ];
 
-
+ 
 
     const handleClick = () => {
       const elem = document.getElementById('sidebar');
@@ -207,30 +221,22 @@ class NavComponent extends Component {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="mr-auto">
-              <Nav.Link onClick={() => {
+            <Link onClick={() => {
                 this.setState({ currentPage: 'Home' })
-              }} href="#">
-
-                <Link to='/' style={{color:'#fff'}}>
+              }} className="nav-link" to='/' style={{color:'#fff'}}>
                   Dashboard
                 </Link>
-              </Nav.Link>
-              <Nav.Link onClick={() => {
+                 <Link className="nav-link" onClick={() => {
                 this.setState({ currentPage: 'Edit Profile' })
-              }} href="#">
-                 <Link to='/editProfile' style={{color:'#fff'}}>
+              }}  to='/editProfile' style={{color:'#fff'}}>
                   Edit Profile
       </Link>
-      </Nav.Link>
-              <Nav.Link
-                onClick={() => {
+                
+                <Link className="nav-link" onClick={() => {
                   this.setState({ currentPage: 'View Profile' })
-                }}
-                href="#"> 
-                <Link to='/viewProfile' style={{color:'#fff'}}>
+                }} to='/viewProfile' style={{color:'#fff'}}>
                   View Profile
           </Link>
-          </Nav.Link>
               {/*<NavDropdown title="Dropdown" id="collasible-nav-dropdown">
             <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
             <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
@@ -239,6 +245,7 @@ class NavComponent extends Component {
             <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
           </NavDropdown>*/}
             </Nav>
+
             <Nav>
               <Nav.Link onClick={this.handleSignIn}>Sign In</Nav.Link>
 
@@ -248,7 +255,7 @@ class NavComponent extends Component {
               
               <Nav.Link >
 
-  {/*todo: this is a placeholder. Put name of the current user!*/}
+              {/*todo: this is a placeholder. Put name of the current user!*/}
                 <OverlayTrigger placement="bottom" overlay={popover}>
                   <Button variant="dark">Basant Mounir</Button>
                 </OverlayTrigger>
@@ -256,16 +263,17 @@ class NavComponent extends Component {
 
               </Nav.Link>
 
-              <div class="avatar avatar-xl">
-                <img src="https://lh3.googleusercontent.com/a-/AOh14Gj43WnACEauUzP5IxS3ZyPaNO5CsVmPIZThR-ZKfAg=s288-c-rg-br100" style={{ maxHeight: 50, maxWidth: 50 }} alt="..." class="avatar-img rounded-circle" />
+              <div className="avatar avatar-xl">
+                <img src="https://lh3.googleusercontent.com/a-/AOh14Gj43WnACEauUzP5IxS3ZyPaNO5CsVmPIZThR-ZKfAg=s288-c-rg-br100" style={{ maxHeight: 50, maxWidth: 50 }} alt="..." className="avatar-img rounded-circle" />
               </div>
             </Nav>
 
 
           </Navbar.Collapse>
         </Navbar>
+        <ToastContainer />
         <Breadcrumb>
-          <Breadcrumb.Item href="#"><Link to='/' style={{color:'#000'}}>GUC Portal</Link></Breadcrumb.Item>
+        <Link to='/' style={{color:'#000'}}>GUC Portal / </Link>
           <Breadcrumb.Item active>{this.state.currentPage}</Breadcrumb.Item>
         </Breadcrumb>
 

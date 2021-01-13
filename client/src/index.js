@@ -18,6 +18,9 @@ import ViewProfile from "./views/viewProfile";
 
 //styles
 import "./page-basics.css"
+import Schedule from './views/schedule';
+import Attendance from './views/Attendance';
+import ViewStaffRequests from './views/viewStaffRequests';
 
 //for routing
 const createHistory = require("history").createBrowserHistory;
@@ -82,7 +85,7 @@ const wrapper = {
 
 
 ReactDOM.render(
-  <React.StrictMode>
+  <React.Fragment>
     <div {...wrapper}>
 
       {localStorage.getItem('token')?
@@ -102,6 +105,9 @@ ReactDOM.render(
         <Route exact path="/" component={Home}/>
         <Route path="/editProfile" component={EditProfile}></Route>
         <Route path="/viewProfile" component={ViewProfile}></Route>
+        <Route path="/schedule" component={Schedule}></Route>
+        <Route path="/viewAttendance" component={Attendance}></Route>
+        <Route path="/viewStaffRequests" component={ViewStaffRequests}></Route>
         </div>
        
 
@@ -112,7 +118,7 @@ ReactDOM.render(
       <Login />
       }
     </div>
-  </React.StrictMode>,
+  </React.Fragment>,
   document.getElementById('root')
 );
 

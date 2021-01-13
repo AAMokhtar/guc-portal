@@ -11,6 +11,7 @@ let role;
 let staffID;
 let email;
 
+let resData;
 
 //department?
 //faculty?
@@ -20,7 +21,7 @@ let email;
 class ViewProfile extends Component {
 
     
-handleViewProfile = (event) => {
+handleViewProfile(event){
 
     axios.get('http://localhost:4000/staff/myprofile'
       )
@@ -28,16 +29,13 @@ handleViewProfile = (event) => {
         // handle success
         console.log("view profile works");
         console.log(response.data);
-        role = response.data.role;
-        name = response.data.name;
-        staffID = response.data.staffID;
-        email = response.data.email;
-        let responseItems;
-
-        switch(role){
-            case "HR": responseItems = [role,name,staffID,email]; break;
-        }
+        resData = response.data;
+        // switch(role){
+        //     case "HR": responseItems = [role,name,staffID,email]; break;
+        //     case default: responseItems = [role,name,staffID,email]; break;
+        // }
       })
+
       .catch(function (error) {
         // handle error
         console.log(error);
@@ -49,7 +47,8 @@ handleViewProfile = (event) => {
 
     state = {  }
     render() { 
-        let doView = this.handleViewProfile;
+        this.handleViewProfile();
+
         return ( <div>
             <Carousel>
   <Carousel.Item>
@@ -69,13 +68,12 @@ handleViewProfile = (event) => {
                 </Col>
                 <Col>
                 <Image src = "https://lh3.googleusercontent.com/a-/AOh14Gj43WnACEauUzP5IxS3ZyPaNO5CsVmPIZThR-ZKfAg=s288-c-rg-br100" height = "250vh" width = "250vh"></Image>
-
                 </Col>
                 <Col>
                 <Row></Row>
                 <Row></Row>
-                <Row><Button variant="secondary"> {name}</Button></Row>
-                {/*<Row><Button variant="secondary" href="/editProfile"><MdEdit size = {40} className = "color-white"></MdEdit></Button></Row>*/}
+                <Row><Button variant="secondary"> Name: {resData}</Button></Row>
+                <Row><Button variant="secondary" href="/editProfile"><MdEdit size = {40} className = "color-white"></MdEdit></Button></Row>
 
 </Col>
             </Row>

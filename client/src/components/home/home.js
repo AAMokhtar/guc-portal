@@ -16,8 +16,7 @@ function MainComponent()
     return (
         <div className="mt-4" style={styleMain} id="home">
             <div>
-            <h1>GUC Portal</h1>
-            <h2>The key to your neverending nightmares</h2>
+            <h1>Welcome, username!</h1>
             </div>
             <div className="d-flex">
                 <a href="#getsmart" style={{"text-decoration":"none"}}>

@@ -2,7 +2,7 @@ import React from 'react';
 import Card from './card';
 import './section.css';
 import {Row,Col,Container, Jumbotron} from 'react-bootstrap';
-import {FcBusinessman} from 'react-icons/fc'
+import {FcButtingIn} from 'react-icons/fc'
 
 
 
@@ -16,7 +16,7 @@ function MainComponent()
         <Container>
       <Row>
           <Col  md="auto">
-          <FcBusinessman size = {80}></FcBusinessman></Col>
+          <FcButtingIn size = {80}></FcButtingIn></Col>
           <Col>
           <h1>Welcome, username!</h1>
  </Col>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Form, Col, Button} from 'react-bootstrap';
-class StaffProfile extends Component {
+
+class EditProfile extends Component {
     state = {  }
     render() { 
         return ( 
@@ -72,4 +73,4 @@ class StaffProfile extends Component {
     }
 }
  
-export default StaffProfile;
+export default EditProfile;

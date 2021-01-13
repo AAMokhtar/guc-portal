@@ -13,7 +13,8 @@ import Sidebar from './components/sidebar/sidebar';
 import Home from './components/home/home';
 import Nav from './components/navbar/navbar';
 import Login from './components/login/login';
-import StaffProfile from "./views/staffProfile";
+import EditProfile from "./views/editProfile";
+import ViewProfile from "./views/viewProfile";
 
 //styles
 import "./page-basics.css"
@@ -99,7 +100,8 @@ ReactDOM.render(
           <Nav/>
           
         <Route exact path="/" component={Home}/>
-        <Route path="/editProfile" component={StaffProfile}></Route>
+        <Route path="/editProfile" component={EditProfile}></Route>
+        <Route path="/viewProfile" component={ViewProfile}></Route>
         </div>
        
 

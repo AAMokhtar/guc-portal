@@ -2,6 +2,7 @@ import React from 'react';
 import * as authService from '../login/authenticationService';
 import {Navbar, Nav, NavDropdown} from 'react-bootstrap';
 import Image from 'react-bootstrap/Image';
+const axios = require('axios');
 
 const styleLogOut = {
     "margin-left":"auto",
@@ -38,6 +39,37 @@ function handleLogout(event){
     })
 }
 
+function handleSignOut(event){
+    axios.post('http://localhost:4000/signout')
+    .then(function (response) {
+      
+      console.log("sign out works");
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error);
+    })
+    .then(function () {
+      // always executed
+    });
+}
+
+function handleSignIn(event){
+    axios.post('http://localhost:4000/signin')
+  .then(function (response) {
+    // handle success
+    console.log("sign in works");
+  })
+  .catch(function (error) {
+    // handle error
+    console.log(error);
+  })
+  .then(function () {
+    // always executed
+  });
+}
+
+
 function NavComponent()
 {
     return (
@@ -47,7 +79,7 @@ function NavComponent()
   <Navbar.Toggle aria-controls="responsive-navbar-nav" />
   <Navbar.Collapse id="responsive-navbar-nav">
     <Nav className="mr-auto">
-      <Nav.Link href="/">Dashboard</Nav.Link>
+      <Nav.Link href="/">My Dashboard</Nav.Link>
       <Nav.Link href="/editProfile">Edit Profile</Nav.Link>
       {/*<NavDropdown title="Dropdown" id="collasible-nav-dropdown">
         <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
@@ -58,8 +90,10 @@ function NavComponent()
       </NavDropdown>*/}
     </Nav>
     <Nav>
-      <Nav.Link onClick={}>Sign In</Nav.Link>
-      <Nav.Link onClick={}>Sign Out</Nav.Link>
+      <Nav.Link onClick={handleSignIn}>Sign In</Nav.Link>
+
+      {/* display successfully signed out toast */}
+      <Nav.Link onClick={handleSignOut}>Sign Out</Nav.Link> 
       <Nav.Link onClick={handleLogout}>Log Out</Nav.Link>
     </Nav>
   </Navbar.Collapse>

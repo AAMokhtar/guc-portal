@@ -39,36 +39,37 @@ function handleLogout(event){
     })
 }
 
-function handleSignOut(event){
-    axios.post('http://localhost:4000/signout')
-    .then(function (response) {
-      
-      console.log("sign out works");
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    })
-    .then(function () {
-      // always executed
-    });
-}
+handleSignOut = (event) => {
+    axios.put('http://localhost:4000/staff/signout')
+      .then(function (response) {
 
-function handleSignIn(event){
-    axios.post('http://localhost:4000/signin')
-  .then(function (response) {
-    // handle success
-    console.log("sign in works");
-  })
-  .catch(function (error) {
-    // handle error
-    console.log(error);
-  })
-  .then(function () {
-    // always executed
-  });
-}
+        console.log("sign out works");
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+      .then(function () {
+        // always executed
+      });
+  }
 
+  handleSignIn = (event) => {
+
+    axios.put('http://localhost:4000/staff/signin'
+      )
+      .then(function (response) {
+        // handle success
+        console.log("sign in works");
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+      .then(function () {
+        // always executed
+      });
+  }
 
 function NavComponent()
 {

@@ -1,43 +1,64 @@
 import React from 'react';
+import Card from './card';
+import './section.css';
+import {Row,Col,Container, Jumbotron} from 'react-bootstrap';
+import {FcBusinessman} from 'react-icons/fc'
 
 
-const styleMain = {
-    "margin-left":"2vw"
-}
-const cardImg = {
-    width: "200",
-    height: "200",
-    style: {
-        "display":"block",
-        "margin":"auto"
-    }
-}
+
 function MainComponent()
 { //dashboard work here
     return (
-        <div className="mt-4" style={styleMain} id="home">
-            <div>
-            <h1>Welcome, username!</h1>
+        <div  id="home" >
+            <div className="mt-4 padding" >
+
+        <Jumbotron fluid>
+        <Container>
+      <Row>
+          <Col  md="auto">
+          <FcBusinessman size = {80}></FcBusinessman></Col>
+          <Col>
+          <h1>Welcome, username!</h1>
+ </Col>
+      </Row>
+  
+  </Container>
+</Jumbotron>
+            
             </div>
+       
+        
+            <Container className = "container-shape">My Information</Container>
+            <Container className = "some-space"></Container>
+            <Container>
+                <Row>
+                    <Col>
+                    <Card />
+                    </Col>
+                    <Col>
+                    <Card />
+                    </Col>
+                    <Col>
+                    <Card />
+                    </Col>
+                </Row>
+            </Container>
+            <Container className = "some-space"></Container>
+            <Container>
+                <Row>
+                    <Col>
+                    <Card />
+                    </Col>
+                    <Col>
+                    <Card />
+                    </Col>
+                    <Col>
+                    <Card />
+                    </Col>
+                </Row>
+            </Container>
+            
             <div className="d-flex">
-               {/*
-                <a href="#getsmart" style={{"text-decoration":"none"}}>
-                    <div className="card text-white bg-info" style={{"max-width":"18rem", "margin":"2rem"}}>
-                        <div className="card-body">
-                            <h5 className="card-title" style={{"text-align":"center"}}>Smarties</h5>
-                            <img src="https://www.svgrepo.com/show/140572/smarties.svg" alt="It's smarties you dumbass" {...cardImg}></img>
-                        </div>
-                    </div>
-                </a>
-                <a href="#Eminem" style={{"text-decoration":"none"}}>
-                    <div className="card text-white bg-info" style={{"max-width":"18rem","margin":"2rem"}}>
-                        <div className="card-body">
-                            <h5 className="card-title" style={{"text-align":"center"}}>M&amp;Ms</h5>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/6/62/M%26M%27s_logo.svg" alt="It's m&amp;ms you dumbass" {...cardImg}></img>
-                        </div>
-                    </div>
-                </a>
-               */}
             </div>
         </div>
     )

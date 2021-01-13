@@ -1,0 +1,25 @@
+.container-shape{
+    background-color: #83989e;
+    height: 6vh;
+    max-width: 400vh !important;
+    color: #FFFFFF;
+    font-size: 3.5vh;
+}
+
+.no-padding{
+    padding-left: 0px !important;
+    padding-right: 0px !important
+}
+
+.padding{
+    padding-left: 4vh;
+    padding-right: 4vh;
+}
+
+.welcome-msg{
+    max-width: 230vh !important
+}
+
+.some-space{
+    height: 3vh;
+}

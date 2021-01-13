@@ -15,6 +15,9 @@ import Nav from './components/navbar/navbar';
 import Login from './components/login/login';
 import StaffProfile from "./views/staffProfile";
 
+//styles
+import "./page-basics.css"
+
 //for routing
 const createHistory = require("history").createBrowserHistory;
 const browserHistory = createHistory();
@@ -76,6 +79,7 @@ const wrapper = {
   "align-items" : "stretch"
 }
 
+
 ReactDOM.render(
   <React.StrictMode>
     <div {...wrapper}>
@@ -91,7 +95,7 @@ ReactDOM.render(
         <Router history={browserHistory}>
         <Sidebar />
 
-        <div className="container-fluid">
+        <div className="container-fluid no-padding">
           <Nav/>
           
         <Route exact path="/" component={Home}/>

@@ -23,6 +23,9 @@ import ViewStaffRequests from "./views/viewStaffRequests";
 import Locations from "./views/locations";
 import AddLocation from "./views/addLocation";
 import UpdateLocation from "./views/updateLocation";
+import Faculties from "./views/faculties";
+import AddFaculty from "./views/addFaculty";
+import UpdateFaculty from "./views/updateFaculties";
 
 
 //for routing
@@ -112,6 +115,9 @@ ReactDOM.render(
               <Route path="/Locations" component={Locations}></Route>
               <Route path="/addLocation" component={AddLocation}></Route>
               <Route path="/updateLocation" component={UpdateLocation}></Route>
+              <Route path="/faculties" component={Faculties}></Route>
+              <Route path="/addFaculty" component={AddFaculty}></Route>
+              <Route path="/updateFaculty" component={UpdateFaculty}></Route>
 
               <Route
                 path="/viewStaffRequests"

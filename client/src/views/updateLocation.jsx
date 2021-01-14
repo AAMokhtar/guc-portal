@@ -73,7 +73,7 @@ class UpdateLocation extends Component {
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group >
-            <Form.Group as={Col} controlId="Location" md="4">
+            <Form.Group as={Col} controlId="New location" md="4">
             <Form.Label>New location</Form.Label>
             <Form.Control
                 required

@@ -1,22 +1,22 @@
 import React, { Component } from "react";
 import { Container, Jumbotron , Table} from "react-bootstrap";
-import * as locationsService from "../components/locations/locationsService"
+import * as facultyService from "../components/faculties/facultyService"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import getHistory from "../index"
 
-class Locations extends Component {
+class Faculties extends Component {
   state = {};
 
   constructor(props) {
     super(props);
     this.state = {
-        locList: [],
+        fList: [],
         user: JSON.parse(localStorage.getItem("user")),
         isHR: false
     };
 
-    this.onDeleteLocation = this.onDeleteLocation.bind(this);
+    this.onDeleteFaculty = this.onDeleteFaculty.bind(this);
     this.onModify = this.onModify.bind(this);
 
   }
@@ -27,17 +27,17 @@ class Locations extends Component {
     this.setState({
         isHR: this.state.user.role == "HR"
     })
-    //get all locations
-    locationsService.getLocations().then((res) => {
-      this.setState({ locList: res });
+    //get all Faculties
+    facultyService.getFaculties().then((res) => {
+      this.setState({ fList: res });
     })
     .catch(err => {
-        toast.error("failed to load locations");
+        toast.error("failed to load Faculties");
     });
   }
 
-  onDeleteLocation(location, index){
-    locationsService.deleteLocation(location)
+  onDeleteFaculty(faculty, index){
+    facultyService.deleteFaculty(faculty)
     .then(res => {
         var elem = document.getElementById("row" + index);
         elem.parentNode.removeChild(elem);
@@ -49,10 +49,10 @@ class Locations extends Component {
     });
   };
 
-  onModify(location){
+  onModify(faculty){
     getHistory().push({
-        pathname: "/updateLocation",
-        state: { oldname: location }
+        pathname: "/updateFaculty",
+        state: { oldname: faculty }
     })
   }
 
@@ -62,9 +62,9 @@ class Locations extends Component {
       <Container>
         <Jumbotron>
           <Container>
-            <h1>Locations</h1>
+            <h1>Faculties</h1>
             <p>
-              On this page, you can view all the available locations on campus.
+              On this page, you can view all the available Faculties.
             </p>
           </Container>
         </Jumbotron>
@@ -72,30 +72,24 @@ class Locations extends Component {
   <thead>
     <tr>
       <th>#</th>
-      <th>Location</th>
-      <th>Type</th>
-      <th>Capacity</th>
-      <th>Taken seats</th>
+      <th>Faculty name</th>
       {this.state.isHR && <th>Actions</th>}
     </tr>
   </thead>
   <tbody>
-    {this.state.locList.map((location, index) => {
+    {this.state.fList.map((faculty, index) => {
         return (<tr id={"row" + index}>
         <td className="text-center">{index}</td>
-        <td className="text-center">{location.name}</td>
-        <td className="text-center">{location.type.toUpperCase()}</td>
-        <td className="text-center">{location.capacity}</td>
-        <td className="text-center">{location.currentlyTakenSeats}</td>
+        <td className="text-center">{faculty.name}</td>
         {this.state.isHR && 
         
         <th>
             <center>
-            <a className="btn btn-primary m-3" onClick={() => {this.onModify(location.name)}} role="button">
+            <a className="btn btn-primary m-3" onClick={() => {this.onModify(faculty.name)}} role="button">
             Modify
             </a>
 
-            <a className="btn btn-primary btn-danger" role="button" onClick={() => {this.onDeleteLocation(location.name, index)}}>
+            <a className="btn btn-primary btn-danger" role="button" onClick={() => {this.onDeleteFaculty(faculty.name, index)}}>
             Delete
             </a>
             </center>
@@ -107,12 +101,12 @@ class Locations extends Component {
     
   </tbody>
 </Table>
-<a className="btn btn-primary btn-success" href="/addLocation" role="button">
-            Add location
+<a className="btn btn-primary btn-success" href="/addfaculty" role="button">
+            Add faculty
 </a>
       </Container>
     );
   }
 }
 
-export default Locations;
+export default Faculties;

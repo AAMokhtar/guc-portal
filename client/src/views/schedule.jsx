@@ -2,17 +2,53 @@ import React, { Component } from "react";
 
 import "./schedule.css";
 class Schedule extends Component {
+  state = {
+    arr: [
+      {
+        day: "mon",
+        active: false,
+      },
+      {
+        day: "tue",
+        active: false,
+      },
+      {
+        day: "wed",
+        active: false,
+      },
+      {
+        day: "thu",
+        active: false,
+      },
+      {
+        day: "fri",
+        active: false,
+      },
+      {
+        day: "sat",
+        active: false,
+      },
+      {
+        day: "sun",
+        active: false,
+      },
+    ],
+    schedule: [],
+  };
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
   }
-  state = { schedule: [] };
   handleClick(day) {
     if (day) {
       console.log(this.props);
-
+      let tmp = [...this.state.arr];
+      tmp[day].active = true;
+      this.setState({
+        arr: tmp,
+      });
       let schedule = this.props.schedule.schedule;
-      let cur = schedule[day.toLowerCase()];
+      let cur = schedule[this.state.arr[day].day.toLowerCase()];
       if (cur) {
         let data = [];
         Object.keys(cur).map((currentSlot) => {
@@ -59,27 +95,45 @@ class Schedule extends Component {
             <div className="timetable">
               <nav className="nav nav-tabs">
                 <a
-                  className="nav-link active"
-                  onClick={() => this.handleClick("mon")}
+                  className={"nav-link " + this.state.arr[0].active}
+                  onClick={() => this.handleClick(0)}
                 >
                   Mon
                 </a>
-                <a className="nav-link" onClick={() => this.handleClick("tue")}>
+                <a
+                  className={"nav-link " + this.state.arr[0].active}
+                  onClick={() => this.handleClick(1)}
+                >
                   Tue
                 </a>
-                <a className="nav-link" onClick={() => this.handleClick("wed")}>
+                <a
+                  className={"nav-link " + this.state.arr[0].active}
+                  onClick={() => this.handleClick(2)}
+                >
                   Wed
                 </a>
-                <a className="nav-link" onClick={() => this.handleClick("thu")}>
+                <a
+                  className={"nav-link " + this.state.arr[0].active}
+                  onClick={() => this.handleClick(3)}
+                >
                   Thu
                 </a>
-                <a className="nav-link" onClick={() => this.handleClick("fri")}>
+                <a
+                  className={"nav-link " + this.state.arr[0].active}
+                  onClick={() => this.handleClick(4)}
+                >
                   Fri
                 </a>
-                <a className="nav-link" onClick={() => this.handleClick("sat")}>
+                <a
+                  className={"nav-link " + this.state.arr[0].active}
+                  onClick={() => this.handleClick(5)}
+                >
                   Sat
                 </a>
-                <a className="nav-link" onClick={() => this.handleClick("sun")}>
+                <a
+                  className={"nav-link " + this.state.arr[0].active}
+                  onClick={() => this.handleClick(6)}
+                >
                   Sun
                 </a>
               </nav>

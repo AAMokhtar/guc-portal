@@ -3,7 +3,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
-import { Router, Route } from "react-router-dom";
+import { Router, Route, useHistory } from "react-router-dom";
 import axios from "axios";
 import { onTokenExpire } from "./components/login/authenticationService";
 
@@ -20,6 +20,10 @@ import "./page-basics.css";
 import Schedule from "./views/schedule";
 import Attendance from "./views/Attendance";
 import ViewStaffRequests from "./views/viewStaffRequests";
+import Locations from "./views/locations";
+import AddLocation from "./views/addLocation";
+import UpdateLocation from "./views/updateLocation";
+
 
 //for routing
 const createHistory = require("history").createBrowserHistory;
@@ -105,6 +109,10 @@ ReactDOM.render(
               <Route path="/viewProfile" component={ViewProfile}></Route>
               <Route path="/schedule" component={Schedule}></Route>
               <Route path="/viewAttendance" component={Attendance}></Route>
+              <Route path="/Locations" component={Locations}></Route>
+              <Route path="/addLocation" component={AddLocation}></Route>
+              <Route path="/updateLocation" component={UpdateLocation}></Route>
+
               <Route
                 path="/viewStaffRequests"
                 component={ViewStaffRequests}
@@ -124,3 +132,8 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+// export react-router history
+export default function getHistory() {    
+  return browserHistory;
+}

@@ -16,6 +16,21 @@ export const onLogin = payload => {
     });
 };
 
+//login
+export const fetchUser = () => {
+  const URL = 'http://localhost:4000/staff/myprofile';
+  return axios(URL, {
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json', // whatever you want
+    },
+  })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
 export const onLogout = payload => {
   const URL = 'http://localhost:4000/staff/logout';
   return axios(URL, {

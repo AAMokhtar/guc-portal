@@ -30,6 +30,7 @@ class NavComponent extends Component {
     authService.onLogout()
       .then(res => {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.reload();
       })
       .catch(error => {

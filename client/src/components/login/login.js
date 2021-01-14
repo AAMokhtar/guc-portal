@@ -3,7 +3,6 @@ import * as authService from './authenticationService';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import "./login.css"
 
-
 export default class Login extends Component {
     constructor(props) {
         super(props);
@@ -37,7 +36,19 @@ export default class Login extends Component {
         authService.onLogin(payload)
         .then(token =>{
             localStorage.setItem('token', token);
-            window.location.reload();
+
+            //get user info
+            authService.fetchUser()
+            .then(function (response) {
+                console.log(response);
+                localStorage.setItem('user', JSON.stringify(response));
+                window.location.reload();
+
+            })
+            .catch(function (error) {
+                console.log(error);
+              })
+
         })
         .catch(error => {
             this.setState({serverErr: error.response.data.msg});

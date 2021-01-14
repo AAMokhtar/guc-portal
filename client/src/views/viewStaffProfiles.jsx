@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useRef } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import {
   Form,
@@ -9,13 +9,16 @@ import {
 } from "react-bootstrap";
 
 export class ViewProfiles extends Component {
-  state = {};
+  constructor(props) {
+    super(props);
+    this.state = { radio: "" };
+    this.Please = React.createRef();
+  }
   onChange(value, index) {
     //  console.log(value, index);
   }
   setValue(event) {
     this.setState({ radio: event.target.value });
-    console.log(this.state);
   }
 
   render() {
@@ -110,7 +113,6 @@ export class ViewProfiles extends Component {
       }, */
     ];
     let data = [];
-    console.log(this.props.staff.staff);
 
     this.props.staff.staff.map((el) => {
       console.log(el);

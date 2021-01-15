@@ -1,6 +1,6 @@
 var express = require("express");
 var app = express();
-var cors = require('cors');
+var cors = require("cors");
 
 const bodyParser = require("body-parser");
 
@@ -44,7 +44,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 const corsOptions = {
-  exposedHeaders: 'auth-token'
+  exposedHeaders: "auth-token",
 };
 
 app.use(cors(corsOptions));
@@ -66,7 +66,6 @@ cronJobs.nxtAtt.start();
 cronJobs.lb.start();
 cronJobs.deduction.start();
 
-
 //DB + server connection
 require("./src/mongoose/util/connect&Initialize")(() => {
   app.listen(properties.PORT, (err) => {
@@ -74,7 +73,9 @@ require("./src/mongoose/util/connect&Initialize")(() => {
       console.log(
         red("app failed to start " + "(PORT: " + properties.PORT + ")")
       );
-    console.log(green("CORS-enabled web server is listening to port " + properties.PORT));
+    console.log(
+      green("CORS-enabled web server is listening to port " + properties.PORT)
+    );
   });
 });
 
@@ -93,5 +94,8 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
+// Serve static files from the React frontend app
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 module.exports = app;

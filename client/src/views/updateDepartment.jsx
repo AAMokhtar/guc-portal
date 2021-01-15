@@ -1,11 +1,11 @@
 import React, { Component, useState} from 'react';
 import {Form, Col, Button, InputGroup, Container} from 'react-bootstrap';
-import * as facultyService from "../components/faculties/facultyService"
+import * as departmentService from "../components/departments/departmentService"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import getHistory from "../index"
 
-class UpdateFaculty extends Component {
+class updateDepartment extends Component {
     state = {};
 
   constructor(props) {
@@ -13,6 +13,8 @@ class UpdateFaculty extends Component {
     this.state = {
         validated: false,
         oldname: this.props.location.state.oldname,
+        faculty: this.props.location.state.faculty,
+        HODID: ""
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -31,17 +33,21 @@ class UpdateFaculty extends Component {
             validated: true
         });
 
-        const newFaculty = {
+        const newDepartment = {
             name: this.state.name,
+            HODID: this.state.HODID
         };
 
-        facultyService.updateFaculty(this.state.oldname, newFaculty)
+        departmentService.updateDepartment(this.state.faculty, this.state.oldname, newDepartment)
         .then((res) => {
-            toast.success("Faculty " + this.state.oldname + " was updated successfully");
-            getHistory().push('/faculties');
+            toast.success("Department " + this.state.oldname + " was updated successfully");
+            getHistory().push('/departments');
         })
         .catch(err => {
-            toast.error(err.response.data.msg);
+            if(err.response.data.msg)
+                toast.error(err.response.data.msg);
+            else
+                toast.error(err.response.data);
         })
     }
 
@@ -56,20 +62,38 @@ class UpdateFaculty extends Component {
             <Form.Group as={Col} controlId="Faculty" md="4">
             <Form.Label>Faculty name</Form.Label>
             <Form.Control
-                required
+                
+                type="text"
+                placeholder= {this.state.faculty}
+                readOnly
+            />
+            <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+            </Form.Group >
+            <Form.Group as={Col} controlId="Department" md="4">
+            <Form.Label>Department name</Form.Label>
+            <Form.Control
+                
                 type="text"
                 placeholder= {this.state.oldname}
                 readOnly
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group >
-            <Form.Group as={Col} controlId="New faculty" md="4">
-            <Form.Label>New faculty name</Form.Label>
+            <Form.Group as={Col} controlId="New Department" md="4">
+            <Form.Label>New Department name</Form.Label>
             <Form.Control
-                required
                 type="text"
-                placeholder="enter the faculty's name"
+                placeholder="enter the Department's name"
                 onChange= {(event) => { this.state.name = event.target.value }}
+            />
+            <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+            </Form.Group >
+            <Form.Group as={Col} controlId="HOD" md="4">
+            <Form.Label>Head of department(HOD) ID</Form.Label>
+            <Form.Control
+                type="text"
+                placeholder="enter the New HOD's ID"
+                onChange= {(event) => { this.state.HODID = event.target.value }}
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group >
@@ -81,4 +105,4 @@ class UpdateFaculty extends Component {
     }
 }
 
-export default UpdateFaculty;
+export default updateDepartment;

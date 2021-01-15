@@ -1,11 +1,11 @@
 import React, { Component, useState} from 'react';
 import {Form, Col, Button, InputGroup, Container} from 'react-bootstrap';
-import * as facultyService from "../components/faculties/facultyService"
+import * as departmentService from "../components/departments/departmentService"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import getHistory from "../index"
 
-class AddFaculty extends Component {
+class AddDepartment extends Component {
     state = {};
 
   constructor(props) {
@@ -13,6 +13,7 @@ class AddFaculty extends Component {
     this.state = {
         validated: false,
         name: "",
+        faculty: ""
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -31,13 +32,14 @@ class AddFaculty extends Component {
             validated: true
         });
 
-        const newFaculty = this.state.name;
+        const facultyName = this.state.faculty;
+        const newDepartment = this.state.name;
     
 
-        facultyService.addFaculty(newFaculty)
+        departmentService.addDepartment(facultyName, newDepartment)
         .then((res) => {
-            toast.success("faculty " + newFaculty + " was added successfully");
-            getHistory().push('/faculties');
+            toast.success("Department " + newDepartment + " was added successfully");
+            getHistory().push('/departments');
         })
         .catch(err => {
             if(err.response.data.msg)
@@ -55,22 +57,31 @@ class AddFaculty extends Component {
         <Container>
         <Form noValidate validated={this.state.validated} onSubmit={this.handleSubmit}>
         <Form.Row>
-            <Form.Group as={Col} controlId="Faculty" md="4">
+        <Form.Group as={Col} controlId="Faculty" md="4">
             <Form.Label>Faculty name</Form.Label>
             <Form.Control
                 required
                 type="text"
-                placeholder="enter the faculty's name"
+                placeholder="enter the faculty under which you want to add your department"
+                onChange= {(event) => { this.state.faculty = event.target.value }}
+            />
+            </Form.Group>
+            <Form.Group as={Col} controlId="Department" md="4">
+            <Form.Label>Department name</Form.Label>
+            <Form.Control
+                required
+                type="text"
+                placeholder="enter the Department's name"
                 onChange= {(event) => { this.state.name = event.target.value }}
             />
             </Form.Group>
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
         </Form.Row>
-        <Button type="submit">Add faculty</Button>
+        <Button type="submit">Add Department</Button>
         </Form>
         </Container>
         );
     }
 }
 
-export default AddFaculty;
+export default AddDepartment;

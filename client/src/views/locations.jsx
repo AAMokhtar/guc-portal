@@ -45,7 +45,10 @@ class Locations extends Component {
         toast.success(res);
     })
     .catch(err => {
-        toast.error(err.response.data.msg);
+        if(err.response.data.msg)
+            toast.error(err.response.data.msg);
+        else
+            toast.error(err.response.data);
     });
   };
 

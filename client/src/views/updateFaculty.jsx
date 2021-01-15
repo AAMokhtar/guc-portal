@@ -5,14 +5,14 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import getHistory from "../index"
 
-class AddFaculty extends Component {
+class UpdateFaculty extends Component {
     state = {};
 
   constructor(props) {
     super(props);
     this.state = {
         validated: false,
-        name: "",
+        oldname: this.props.location.state.oldname,
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -31,12 +31,13 @@ class AddFaculty extends Component {
             validated: true
         });
 
-        const newFaculty = this.state.name;
-    
+        const newFaculty = {
+            name: this.state.name,
+        };
 
-        facultyService.addFaculty(newFaculty)
+        facultyService.updateFaculty(this.state.oldname, newFaculty)
         .then((res) => {
-            toast.success("faculty " + newFaculty + " was added successfully");
+            toast.success("Faculty " + this.state.oldname + " was updated successfully");
             getHistory().push('/faculties');
         })
         .catch(err => {
@@ -60,17 +61,26 @@ class AddFaculty extends Component {
             <Form.Control
                 required
                 type="text"
+                placeholder= {this.state.oldname}
+                readOnly
+            />
+            <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+            </Form.Group >
+            <Form.Group as={Col} controlId="New faculty" md="4">
+            <Form.Label>New faculty name</Form.Label>
+            <Form.Control
+                type="text"
                 placeholder="enter the faculty's name"
                 onChange= {(event) => { this.state.name = event.target.value }}
             />
-            </Form.Group>
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+            </Form.Group >
         </Form.Row>
-        <Button type="submit">Add faculty</Button>
+        <Button type="submit">Add Faculty</Button>
         </Form>
         </Container>
         );
     }
 }
 
-export default AddFaculty;
+export default UpdateFaculty;

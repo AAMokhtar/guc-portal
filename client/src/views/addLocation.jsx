@@ -47,7 +47,10 @@ class AddLocation extends Component {
             getHistory().push('/locations');
         })
         .catch(err => {
-            toast.error(err.response.data.msg);
+            if(err.response.data.msg)
+                toast.error(err.response.data.msg);
+            else
+                toast.error(err.response.data);
         })
     }
 

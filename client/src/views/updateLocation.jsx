@@ -4,8 +4,6 @@ import * as locationsService from "../components/locations/locationsService"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import getHistory from "../index"
-// import { useLocation } from "react-router-dom";
-// const location = useLocation();
 
 class UpdateLocation extends Component {
     state = {};
@@ -50,7 +48,10 @@ class UpdateLocation extends Component {
             getHistory().push('/locations');
         })
         .catch(err => {
-            toast.error(err.response.data.msg);
+            if(err.response.data.msg)
+                toast.error(err.response.data.msg);
+            else
+                toast.error(err.response.data);
         })
     }
 
@@ -76,7 +77,6 @@ class UpdateLocation extends Component {
             <Form.Group as={Col} controlId="New location" md="4">
             <Form.Label>New location</Form.Label>
             <Form.Control
-                required
                 type="text"
                 placeholder="enter the location"
                 onChange= {(event) => { this.state.name = event.target.value }}
@@ -86,7 +86,6 @@ class UpdateLocation extends Component {
             <Form.Group as={Col} controlId="Capacity" md="4">
             <Form.Label>Capacity</Form.Label>
             <Form.Control
-                required
                 type="number"
                 placeholder="enter the location's capacity"
                 onChange= {(event) => { this.state.capacity = event.target.value }}
@@ -98,16 +97,13 @@ class UpdateLocation extends Component {
             <Form.Control
                 type="number"
                 placeholder="enter the number of occupied seats"
-                defaultValue = {0}
                 onChange= {(event) => { this.state.curSeats = event.target.value }}
-                required
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group>
             <Form.Group as={Col} controlId="Type" md="6">
             <Form.Label>Type</Form.Label>
             <Form.Control
-             required  
              placeholder="select location type" 
              as="select"
              multiple

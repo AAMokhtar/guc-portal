@@ -1,22 +1,22 @@
 import React, { Component } from "react";
 import { Container, Jumbotron , Table} from "react-bootstrap";
-import * as departmentService from "../components/departments/departmentService"
+import * as courseService from "../components/courses/courseService"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import getHistory from "../index"
 
-class Departments extends Component {
+class Courses extends Component {
   state = {};
 
   constructor(props) {
     super(props);
     this.state = {
-        dList: [],
+        cList: [],
         user: JSON.parse(localStorage.getItem("user")),
         isHR: false
     };
 
-    this.onDeleteDepartment = this.onDeleteDepartment.bind(this);
+    this.onDeleteCourse = this.onDeleteCourse.bind(this);
     this.onModify = this.onModify.bind(this);
 
   }
@@ -27,21 +27,21 @@ class Departments extends Component {
     this.setState({
         isHR: this.state.user.role == "HR"
     })
-    //get all Departments
-    departmentService.getDepartments().then((res) => {
-      this.setState({ dList: res });
+    //get all Courses
+    courseService.getCourses().then((res) => {
+      this.setState({ cList: res });
     })
     .catch(err => {
-        toast.error("failed to load Departments");
+        toast.error("failed to load Courses");
     });
   }
 
-  onRemoveDepartment(index){
-    departmentService.removeDepartment(this.state.dList[index].name, this.state.dList[index].faculty)
+  onRemoveCourse(index){
+    courseService.removeCourse(this.state.cList[index].department, this.state.cList[index].courseCode)
     .then(res => {
-        this.state.dList[index].faculty = "-";
+        this.state.cList[index].department = "-";
         this.setState({
-            dList: this.state.dList
+            cList: this.state.cList
         });
 
         toast.success(res);
@@ -54,8 +54,8 @@ class Departments extends Component {
     });
   };
 
-  onDeleteDepartment(Department, index){
-    departmentService.deleteDepartment(Department)
+  onDeleteCourse(courseCode, index){
+    courseService.deleteCourse(courseCode)
     .then(res => {
         var elem = document.getElementById("row" + index);
         elem.parentNode.removeChild(elem);
@@ -70,10 +70,10 @@ class Departments extends Component {
     });
   };
 
-  onModify(Department, faculty){
+  onModify(department, courseCode){
     getHistory().push({
-        pathname: "/updateDepartment",
-        state: { oldname: Department, faculty: faculty }
+        pathname: "/updateCourse",
+        state: { oldname: courseCode, department: department }
     })
   }
 
@@ -83,9 +83,9 @@ class Departments extends Component {
       <Container>
         <Jumbotron>
           <Container>
-            <h1>Departments</h1>
+            <h1>Courses</h1>
             <p>
-              On this page, you can view all the available Departments.
+              On this page, you can view all the available Courses.
             </p>
           </Container>
         </Jumbotron>
@@ -93,32 +93,30 @@ class Departments extends Component {
   <thead>
     <tr>
       <th>#</th>
+      <th>Course code</th>
       <th>Department name</th>
-      <th>Faculty name</th>
-      <th>Head of department(HOD) ID</th>
       {this.state.isHR && <th>Actions</th>}
     </tr>
   </thead>
   <tbody>
-    {this.state.dList.map((Department, index) => {
+    {this.state.cList.map((Course, index) => {
         return (<tr id={"row" + index}>
         <td className="text-center">{index}</td>
-        <td className="text-center">{Department.name}</td>
-        <td className="text-center">{Department.faculty?Department.faculty:"-"}</td>
-        <td className="text-center">{Department.hodStaffID?Department.hodStaffID:"-"}</td>
+        <td className="text-center">{Course.courseCode}</td>
+        <td className="text-center">{Course.department?Course.department:"-"}</td>
         {this.state.isHR && 
         
         <th>
             <center>
-            <a className="btn btn-primary m-3" onClick={() => {this.onModify(Department.name, Department.faculty)}} role="button">
+            <a className="btn btn-primary m-3" onClick={() => {this.onModify(Course.department, Course.courseCode)}} role="button">
             Modify
             </a>
 
-            <a className="btn btn-primary btn-danger m-3" role="button" onClick={() => {this.onRemoveDepartment(index)}}>
-            Remove from faculty
+            <a className="btn btn-primary btn-danger m-3" role="button" onClick={() => {this.onRemoveCourse(index)}}>
+            Remove from department
             </a>
 
-            <a className="btn btn-primary btn-danger" role="button" onClick={() => {this.onDeleteDepartment(Department.name, index)}}>
+            <a className="btn btn-primary btn-danger" role="button" onClick={() => {this.onDeleteCourse(Course.courseCode, index)}}>
             Delete
             </a>
             </center>
@@ -131,10 +129,10 @@ class Departments extends Component {
   </tbody>
 </Table>
 { this.state.isHR &&
-(<a className="btn btn-primary btn-success" href="/addfaculty" role="button"> Add department under faculty</a>)}
+(<a className="btn btn-primary btn-success" href="/addfaculty" role="button"> Add course under department</a>)}
       </Container>
     );
   }
 }
 
-export default Departments;
+export default Courses;

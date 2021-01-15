@@ -72,6 +72,12 @@ class MainComponent extends Component {
                 text: 'View all the available Departments',
                 link: '/departments'
             },
+            {
+                src: "https://picsum.photos/id/100/500/325",
+                title: "Courses",
+                text: 'View all the available courses',
+                link: '/courses'
+            },
 
 
         ];

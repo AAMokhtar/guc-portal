@@ -120,7 +120,7 @@ class UpdateLocation extends Component {
             </Form.Control.Feedback>
             </Form.Group>
         </Form.Row>
-        <Button type="submit">Add location</Button>
+        <Button type="submit">Update location</Button>
         </Form>
         </Container>
         );

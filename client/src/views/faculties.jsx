@@ -104,9 +104,9 @@ class Faculties extends Component {
     
   </tbody>
 </Table>
-<a className="btn btn-primary btn-success" href="/addfaculty" role="button">
-            Add faculty
-</a>
+
+{ this.state.isHR &&
+(<a className="btn btn-primary btn-success" href="/addfaculty" role="button"> Add faculty</a>)}
       </Container>
     );
   }

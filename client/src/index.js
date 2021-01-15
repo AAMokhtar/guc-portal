@@ -29,6 +29,9 @@ import UpdateFaculty from "./views/updateFaculty";
 import Departments from "./views/departments";
 import AddDepartment from "./views/addDepartment";
 import UpdateDepartment from "./views/updateDepartment";
+import Courses from "./views/courses";
+import AddCourse from "./views/addCourse";
+import UpdateCourse from "./views/updateCourse";
 
 
 //for routing
@@ -124,6 +127,9 @@ ReactDOM.render(
               <Route path="/departments" component={Departments}></Route>
               <Route path="/addDepartment" component={AddDepartment}></Route>
               <Route path="/updateDepartment" component={UpdateDepartment}></Route>
+              <Route path="/courses" component={Courses}></Route>
+              <Route path="/addCourse" component={AddCourse}></Route>
+              <Route path="/updateCourse" component={UpdateCourse}></Route>
               <Route
                 path="/viewStaffRequests"
                 component={ViewStaffRequests}

@@ -1,11 +1,11 @@
 import React, { Component, useState} from 'react';
 import {Form, Col, Button, InputGroup, Container} from 'react-bootstrap';
-import * as departmentService from "../components/departments/departmentService"
+import * as courseService from "../components/courses/courseService"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import getHistory from "../index"
 
-class updateDepartment extends Component {
+class updateCourse extends Component {
     state = {};
 
   constructor(props) {
@@ -13,8 +13,8 @@ class updateDepartment extends Component {
     this.state = {
         validated: false,
         oldname: this.props.location.state.oldname,
-        faculty: this.props.location.state.faculty,
-        HODID: ""
+        department: this.props.location.state.department,
+        code: ""
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -33,17 +33,17 @@ class updateDepartment extends Component {
             validated: true
         });
 
-        const newDepartment = {
-            name: this.state.name,
-            HODID: this.state.HODID
+        const newCourse = {
+            code: this.state.code,
         };
 
-        departmentService.updateDepartment(this.state.faculty, this.state.oldname, newDepartment)
+        courseService.updateCourse(this.state.department, this.state.oldname, newCourse)
         .then((res) => {
-            toast.success("Department " + this.state.oldname + " was updated successfully");
-            getHistory().push('/departments');
+            toast.success("Course " + this.state.oldname + " was updated successfully");
+            getHistory().push('/courses');
         })
         .catch(err => {
+            console.log(err);
             if(err.response.data.msg)
                 toast.error(err.response.data.msg);
             else
@@ -59,18 +59,18 @@ class updateDepartment extends Component {
         <Container>
         <Form noValidate validated={this.state.validated} onSubmit={this.handleSubmit}>
         <Form.Row>
-            <Form.Group as={Col} controlId="Faculty" md="4">
-            <Form.Label>Faculty name</Form.Label>
+            <Form.Group as={Col} controlId="Department" md="4">
+            <Form.Label>Department name</Form.Label>
             <Form.Control
                 
                 type="text"
-                placeholder= {this.state.faculty}
+                placeholder= {this.state.department}
                 readOnly
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group >
-            <Form.Group as={Col} controlId="Department" md="4">
-            <Form.Label>Department name</Form.Label>
+            <Form.Group as={Col} controlId="Course" md="4">
+            <Form.Label>Course code</Form.Label>
             <Form.Control
                 
                 type="text"
@@ -79,30 +79,21 @@ class updateDepartment extends Component {
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group >
-            <Form.Group as={Col} controlId="New Department" md="4">
-            <Form.Label>New Department name</Form.Label>
+            <Form.Group as={Col} controlId="New course" md="4">
+            <Form.Label>New course code</Form.Label>
             <Form.Control
                 type="text"
-                placeholder="enter the Department's name"
-                onChange= {(event) => { this.state.name = event.target.value }}
-            />
-            <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-            </Form.Group >
-            <Form.Group as={Col} controlId="HOD" md="4">
-            <Form.Label>Head of department(HOD) ID</Form.Label>
-            <Form.Control
-                type="text"
-                placeholder="enter the New HOD's ID"
-                onChange= {(event) => { this.state.HODID = event.target.value }}
+                placeholder="enter the course's name"
+                onChange= {(event) => { this.state.code = event.target.value }}
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group >
         </Form.Row>
-        <Button type="submit">Update department</Button>
+        <Button type="submit">Update course</Button>
         </Form>
         </Container>
         );
     }
 }
 
-export default updateDepartment;
+export default updateCourse;

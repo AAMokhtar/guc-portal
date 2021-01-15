@@ -33,7 +33,11 @@ import Courses from "./views/courses";
 import AddCourse from "./views/addCourse";
 import UpdateCourse from "./views/updateCourse";
 import AddStaff from "./views/newStaff";
-
+import ViewStaff from "./views/viewStaff";
+import UpdateStaff from "./views/updateStaff";
+import UpdateSalary from "./views/updateSalary";
+import ViewStaffAttendance from "./views/viewStaffAttendance";
+import AddSignInOut from "./views/addSignInOut";
 
 //for routing
 const createHistory = require("history").createBrowserHistory;
@@ -132,6 +136,12 @@ ReactDOM.render(
               <Route path="/addCourse" component={AddCourse}></Route>
               <Route path="/updateCourse" component={UpdateCourse}></Route>
               <Route path="/newStaff" component={AddStaff}></Route>
+              <Route path="/viewStaff" component={ViewStaff}></Route>
+              <Route path="/updateStaff" component={UpdateStaff}></Route>
+              <Route path="/updateSalary" component={UpdateSalary}></Route>
+              <Route path="/viewStaffAttendance" component={ViewStaffAttendance}></Route>
+              <Route path="/addSignInOut" component={AddSignInOut}></Route>
+
 
               <Route
                 path="/viewStaffRequests"

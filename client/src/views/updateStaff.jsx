@@ -3,23 +3,24 @@ import {Form, Col, Button, InputGroup, Container} from 'react-bootstrap';
 import * as staffService from "../components/staffManagement/staffService"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
+import getHistory from "../index"
 
-class AddStaff extends Component {
+class UpdateStaff extends Component {
     state = {};
 
   constructor(props) {
     super(props);
     this.state = {
         validated: false,
+        staffID: this.props.location.state.staffID,
         email:"", 
         name: "",
         gender:"Male",
-        dayOff:"",
-        salary: 0,
+        leaveBalance: 0,
+        accidentDays: 0,
         officeLocation:"",
         faculty:"",
         department:"",
-        role:"",
         others:""
     };
 
@@ -35,23 +36,23 @@ class AddStaff extends Component {
     }
     else{
 
-        const newUser = {
+        const updatedUser = {
+            staffID: this.state.staffID,
             email: this.state.email, 
             name: this.state.name,
             gender:this.state.gender,
-            dayOff: this.state.dayOff,
-            salary: this.state.salary,
+            leaveBalance: this.state.leaveBalance,
+            accidentDays: this.state.accidentDays,
             officeLocation: this.state.officeLocation,
             faculty: this.state.faculty,
             department: this.state.department,
-            role: this.state.role,
             others: { additionalInfo: this.state.others}
         };
 
-        staffService.addStaff(newUser)
+        staffService.updateStaff(updatedUser)
         .then((res) => {
-            toast.success("User was added successfully");
-            setTimeout(()=> window.location.reload(), 1000);
+            toast.success("User was updated successfully");
+            getHistory().push('/viewStaff');
             
         })
         .catch(err => {
@@ -74,29 +75,22 @@ class AddStaff extends Component {
         <Form noValidate validated={this.state.validated} onSubmit={this.handleSubmit}>
         <Form.Row>
 
-            <Form.Group as={Col} controlId="role" md="4">
-            <Form.Label>Role*</Form.Label>
+            <Form.Group as={Col} controlId="staffID" md="4">
+            <Form.Label>staff ID</Form.Label>
             <Form.Control
-             required  
-             placeholder="select a role" 
-             as="select"
-             multiple
-             onChange= {(event) => { this.state.role = event.target.value }}
-            >
-                <option>HR</option>
-                <option>Course Coordinator</option>
-                <option>Course Instructor</option>
-                <option>TA</option>
-                <option>HOD</option>
-            </Form.Control>
-            <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-            </Form.Group>
+                readOnly
+                type="text"
+                placeholder= {this.state.staffID}
+                onChange= {(event) => { this.state.staffID = event.target.value }}
+            />
+            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">enter a valid email</Form.Control.Feedback>
+            </Form.Group >
 
             <Form.Group as={Col} controlId="email" md="4">
-            <Form.Label>Email*</Form.Label>
+            <Form.Label>Email</Form.Label>
             <Form.Control
                 id="validationCustom02"
-                required
                 type="email"
                 placeholder="enter Email"
                 onChange= {(event) => { this.state.email = event.target.value }}
@@ -114,14 +108,10 @@ class AddStaff extends Component {
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group>
-
-        </Form.Row>
-        <Form.Row>
-
+            
             <Form.Group as={Col} controlId="gender" md="4">
-            <Form.Label>Gender*</Form.Label>
+            <Form.Label>Gender</Form.Label>
             <Form.Control
-             required  
              placeholder="select a gender" 
              as="select"
              multiple
@@ -133,13 +123,28 @@ class AddStaff extends Component {
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group as={Col} controlId="salary" md="4">
-            <Form.Label>Salary</Form.Label>
+        </Form.Row>
+        <Form.Row>
+
+            <Form.Group as={Col} controlId="leaveBalance" md="4">
+            <Form.Label>Leave balance</Form.Label>
+            <Form.Control
+             placeholder="select a role" 
+             type="number"
+             step=".01"
+             min="0"
+             onChange= {(event) => { this.state.leaveBalance = event.target.value }}
+            />
+            <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group as={Col} controlId="accident days" md="4">
+            <Form.Label>Accident days</Form.Label>
             <Form.Control
                 type="number"
                 min="0"
-                placeholder="enter salary"
-                onChange= {(event) => { this.state.salary = event.target.value }}
+                placeholder="enter accident days"
+                onChange= {(event) => { this.state.accidentDays = event.target.value }}
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group>
@@ -175,25 +180,7 @@ class AddStaff extends Component {
             />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             </Form.Group>
-
-            <Form.Group as={Col} controlId="day off" md="4">
-            <Form.Label>Day off</Form.Label>
-            <Form.Control
-             placeholder="select a day" 
-             as="select"
-             multiple
-             onChange= {(event) => { this.state.dayOff = event.target.value }}
-            >
-                <option>Saturday</option>
-                <option>Sunday</option>
-                <option>Monday</option>
-                <option>Tuesday</option>
-                <option>Wednesday</option>
-                <option>Thursday</option>
-            </Form.Control>
-            <Form.Control.Feedback type="valid">Looks good!</Form.Control.Feedback>
-            </Form.Group >   
-            
+    
             <Form.Group as={Col} controlId="others" md="4">
             <Form.Label>Additional info</Form.Label>
             <Form.Control
@@ -205,11 +192,11 @@ class AddStaff extends Component {
             </Form.Group >   
 
         </Form.Row>
-        <Button type="submit">Add staff member</Button>
+        <Button type="submit">Update staff member</Button>
         </Form>
         </Container>
         );
     }
 }
 
-export default AddStaff;
+export default UpdateStaff;

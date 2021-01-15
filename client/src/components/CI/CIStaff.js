@@ -28,6 +28,9 @@ export class CIStaff extends Component {
     this.handleClick = this.handleClick.bind(this);
     this.handleAssign = this.handleAssign.bind(this);
     this.filterHandler = this.filterHandler.bind(this);
+    this.handleUpdateSlot = this.handleUpdateSlot.bind(this);
+    this.handleAssignSlot = this.handleAssignSlot.bind(this);
+    this.handleDeleteSlot = this.handleDeleteSlot.bind(this);
 
     this.handleDelete = this.handleDelete.bind(this);
     this.state = {
@@ -38,6 +41,11 @@ export class CIStaff extends Component {
       schedule: [],
       assign: null,
       //assign - delete
+      assignSlotCourse: null,
+      assignLocation: null,
+      assignNumber: null,
+      assignWeekDay: null,
+      //
       updateSlotCourseBefore: null,
       updateLocationBefore: null,
       updateNumberBefore: null,
@@ -49,6 +57,7 @@ export class CIStaff extends Component {
       updateWeekDayAfter: null,
       //
       courseCodeBefore: null,
+      courseCode: null,
       courseCodeAfter: null,
       delete: null,
       courseFilter: null,
@@ -209,6 +218,7 @@ export class CIStaff extends Component {
       staff: Response.data.result,
       radio,
       result,
+      data,
       assignments: scheduleResult,
       locations: locResult,
       weekday: WeekResult,
@@ -332,13 +342,112 @@ export class CIStaff extends Component {
 
     axios(config)
       .then(function (response) {
+        toast.success("Success");
+      })
+      .catch(function (error) {
+        toast.error(error.response.data.msg);
+      });
+  }
+  handleAssignSlot() {
+    var axios = require("axios");
+    var data = JSON.stringify({
+      data: {
+        staffID: this.Result.current.state.radio,
+        weekday: this.state.assignWeekDay,
+        number: this.state.assignNumber,
+        courseCode: this.state.courseCode,
+        location: this.state.assignLocation,
+      },
+    });
+
+    var config = {
+      method: "post",
+      url: "http://localhost:4000/ci/AssignUnassignedSlot",
+      headers: {
+        "auth-token":
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+    console.log(config);
+
+    axios(config)
+      .then(function (response) {
         toast.success("Course updated Successfully");
       })
       .catch(function (error) {
         toast.error(error.response.data.msg);
       });
   }
+  handleDeleteSlot() {
+    var axios = require("axios");
+    var data = JSON.stringify({
+      data: {
+        staffID: this.Result.current.state.radio,
+        weekday: this.state.assignWeekDay,
+        number: this.state.assignNumber,
+        courseCode: this.state.courseCode,
+        location: this.state.assignLocation,
+      },
+    });
 
+    var config = {
+      method: "post",
+      url: "http://localhost:4000/ci/deleteAcademicFromSlot",
+      headers: {
+        "auth-token":
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+    console.log(config);
+
+    axios(config)
+      .then(function (response) {
+        toast.success("Success");
+      })
+      .catch(function (error) {
+        toast.error(error.response.data.msg);
+      });
+  }
+  handleUpdateSlot() {
+    var axios = require("axios");
+    var data = JSON.stringify({
+      data: {
+        staffID: this.Result.current.state.radio,
+        courseCode: this.state.courseCodeBefore,
+
+        weekdayBefore: this.state.updateWeekDayBefore,
+        numberBefore: this.state.updateNumberBefore,
+        locationBefore: this.state.updateLocationBefore,
+        weekdayAfter: this.state.updateWeekDayBefore,
+        numberAfter: this.state.updateNumberAfter,
+        locationAfter: this.state.updateLocationAfter,
+      },
+    });
+
+    console.log(data);
+    var config = {
+      method: "post",
+      url: "http://localhost:4000/ci/updateSlot",
+      headers: {
+        "auth-token":
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    axios(config)
+      .then(function (response) {
+        toast.success("Success");
+      })
+      .catch(function (error) {
+        toast.error(error.response.data.msg);
+      });
+  }
   render() {
     return (
       <Container>
@@ -456,7 +565,7 @@ export class CIStaff extends Component {
           <button
             type="button"
             class="btn btn-primary"
-            onClick={this.handleAssign.bind(this)}
+            onClick={this.handleAssignSlot.bind(this)}
           >
             Submit Assignment{" "}
           </button>
@@ -502,7 +611,7 @@ export class CIStaff extends Component {
           <label for="sel1">choose the course code:</label>
           <select
             class="form-select"
-            onChange={this.setValue.bind(this)}
+            onChange={(e) => this.setState({ courseCode: e.target.value })}
             onfocus="this.selectedIndex = -1;"
             aria-label="Default select example"
           >
@@ -512,7 +621,7 @@ export class CIStaff extends Component {
           <label for="sel1">choose the weekday:</label>
           <select
             class="form-select"
-            onChange={this.setValue.bind(this)}
+            onChange={(e) => this.setState({ assignWeekDay: e.target.value })}
             onfocus="this.selectedIndex = -1;"
             aria-label="Default select example"
           >
@@ -521,7 +630,7 @@ export class CIStaff extends Component {
           <label for="sel1">choose the slot number:</label>
           <select
             class="form-select"
-            onChange={this.setValue.bind(this)}
+            onChange={(e) => this.setState({ assignNumber: e.target.value })}
             onfocus="this.selectedIndex = -1;"
             aria-label="Default select example"
           >
@@ -530,7 +639,7 @@ export class CIStaff extends Component {
           <label for="sel1">choose the location:</label>
           <select
             class="form-select"
-            onChange={this.setValue.bind(this)}
+            onChange={(e) => this.setState({ assignLocation: e.target.value })}
             onfocus="this.selectedIndex = -1;"
             aria-label="Default select example"
           >
@@ -542,74 +651,86 @@ export class CIStaff extends Component {
           <button
             type="button"
             class="btn btn-danger"
-            onClick={this.handleDelete.bind(this)}
+            onClick={this.handleDeleteSlot.bind(this)}
           >
             Delete Slot Assignment{" "}
           </button>
         </div>
         <div class="collapse multi-collapse" id="updateSlot">
-          <label for="sel1">Update Slot: The old slot</label>
-          <select
-            class="form-select"
-            aria-label="Default select example"
-            onChange={this.setBeforeCode.bind(this)}
-            onfocus="this.selectedIndex = -1;"
-          >
-            {this.state.result}
-          </select>
-
-          <label for="sel2">Update Slot: The new Slot</label>
-          <select
-            class="form-select"
-            aria-label="Default select example"
-            onChange={this.setAfterCode.bind(this)}
-            onfocus="this.selectedIndex = -1;"
-          >
-            {this.state.result}
-          </select>
-
-          <br />
-          <button
-            type="button"
-            class="btn btn-primary"
-            onClick={this.handleClick}
-          >
-            Submit Update{" "}
-          </button>
-        </div>
-        <div class="collapse multi-collapse" id="assignSlot">
           <label for="sel1">choose the course code:</label>
           <select
             class="form-select"
-            onChange={this.setValue.bind(this)}
+            onChange={(e) =>
+              this.setState({ courseCodeBefore: e.target.value })
+            }
             onfocus="this.selectedIndex = -1;"
             aria-label="Default select example"
           >
             {this.state.result}
           </select>
 
-          <label for="sel1">choose the weekday:</label>
+          <label for="sel1">choose the old weekday:</label>
           <select
             class="form-select"
-            onChange={this.setValue.bind(this)}
+            onChange={(e) =>
+              this.setState({ updateWeekDayBefore: e.target.value })
+            }
             onfocus="this.selectedIndex = -1;"
             aria-label="Default select example"
           >
             {this.state.weekday}
           </select>
-          <label for="sel1">choose the slot number:</label>
+          <label for="sel1">choose the old slot number:</label>
           <select
             class="form-select"
-            onChange={this.setValue.bind(this)}
+            onChange={(e) =>
+              this.setState({ updateNumberBefore: e.target.value })
+            }
             onfocus="this.selectedIndex = -1;"
             aria-label="Default select example"
           >
             {this.state.number}
           </select>
-          <label for="sel1">choose the location:</label>
+          <label for="sel1">choose the old location:</label>
           <select
             class="form-select"
-            onChange={this.setValue.bind(this)}
+            onChange={(e) =>
+              this.setState({ updateLocationBefore: e.target.value })
+            }
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.locations}
+          </select>
+
+          <label for="sel1">choose the new weekday:</label>
+          <select
+            class="form-select"
+            onChange={(e) =>
+              this.setState({ updateWeekDayAfter: e.target.value })
+            }
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.weekday}
+          </select>
+          <label for="sel1">choose the new slot number:</label>
+          <select
+            class="form-select"
+            onChange={(e) =>
+              this.setState({ updateNumberAfter: e.target.value })
+            }
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.number}
+          </select>
+          <label for="sel1">choose the new location:</label>
+          <select
+            class="form-select"
+            onChange={(e) =>
+              this.setState({ updateLocationAfter: e.target.value })
+            }
             onfocus="this.selectedIndex = -1;"
             aria-label="Default select example"
           >
@@ -620,7 +741,55 @@ export class CIStaff extends Component {
           <button
             type="button"
             class="btn btn-primary"
-            onClick={this.handleAssign.bind(this)}
+            onClick={this.handleUpdateSlot.bind(this)}
+          >
+            Submit Update{" "}
+          </button>
+        </div>
+        <div class="collapse multi-collapse" id="assignSlot">
+          <label for="sel1">choose the course code:</label>
+          <select
+            class="form-select"
+            onChange={(e) => this.setState({ courseCode: e.target.value })}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.result}
+          </select>
+
+          <label for="sel1">choose the weekday:</label>
+          <select
+            class="form-select"
+            onChange={(e) => this.setState({ assignWeekDay: e.target.value })}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.weekday}
+          </select>
+          <label for="sel1">choose the slot number:</label>
+          <select
+            class="form-select"
+            onChange={(e) => this.setState({ assignNumber: e.target.value })}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.number}
+          </select>
+          <label for="sel1">choose the location:</label>
+          <select
+            class="form-select"
+            onChange={(e) => this.setState({ assignLocation: e.target.value })}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.locations}
+          </select>
+
+          <br />
+          <button
+            type="button"
+            class="btn btn-primary"
+            onClick={this.handleAssignSlot.bind(this)}
           >
             Submit Assignment{" "}
           </button>

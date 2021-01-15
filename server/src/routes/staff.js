@@ -12,6 +12,7 @@ const Request = require("../mongoose/dao/request.js");
 const faculty = require("../mongoose/dao/faculty");
 const Location = require("../mongoose/dao/location");
 const department = require("../mongoose/dao/department");
+const course = require("../mongoose/dao/course");
 
 //=====================:-ROUTES-:======================
 
@@ -752,6 +753,49 @@ router.get("/extrahours", async function (req, res) {
   return res
     .status(HTTP_CODES.OK)
     .send({ total: totalExtraHours, dates: extraHourDays });
+});
+
+/**
+ * get all locations
+ */
+router.get('/getlocations', async (req, res) => {
+  const locations = await Location.find();
+  return res.status(HTTP_CODES.OK).send(locations);
+});
+
+/**
+ * get all faculties
+ */
+router.get('/getFaculties', async (req, res) => {
+  const faculties = await faculty.find();
+  return res.status(HTTP_CODES.OK).send(faculties);
+});
+
+/**
+ * get all departments
+ */
+router.get('/getDepartments', async (req, res) => {
+  const departments = await department.find();
+
+  return res.status(HTTP_CODES.OK).send(departments);
+});
+
+/**
+ * get all courses
+ */
+router.get('/getCourses', async (req, res) => {
+  const courses = await course.find();
+  
+  return res.status(HTTP_CODES.OK).send(courses);
+});
+
+/**
+ * get all staff
+ */
+router.get('/getstaff', async (req, res) => {
+  const staff = await Staff.find();
+  
+  return res.status(HTTP_CODES.OK).send(staff);
 });
 
 //=======================:-HELPER FUNCTIONS-:=============================

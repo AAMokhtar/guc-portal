@@ -17,6 +17,7 @@ const key = properties.JWT_KEY;
 //-------------------------------------------------MODELS---------------------------------------------------------------------------------------
 
 const staff = require("../mongoose/dao/staff.js");
+const location = require("../mongoose/dao/location");
 
 //-------------------------------------------------END OF MODELS--------------------------------------------------------------------------
 
@@ -67,6 +68,28 @@ router.post("/HRregister", async (req, res) => {
 });
 
 //login route
+router.get("/getLocations", async function (req, res) {
+  try {
+    // get uID
+    // let { staffID } = req.query;
+    let rst = [];
+    let result = await location.find({});
+    result.map((el) => {
+      rst.push(el.name);
+    });
+    res.status(200).json({
+      result: rst,
+    });
+
+    // make sure staff id is valid
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      msg: error.message,
+    });
+  }
+});
+
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -103,44 +126,41 @@ router.post("/login", async (req, res) => {
     //create a token
     let token = jwt.sign(payload, key, {
       noTimestamp: true,
-      expiresIn: 900, //14 days
+      expiresIn: "900h", //14 days
     });
     //give the token to the user by adding it to the header of the response
     res.header({ "auth-token": token });
 
     //TODO: what to send to the user?
-    return res.json({ msg: "Login Successful" });
+    return res.json({ msg: "Login Successful", token });
   } catch (error) {
     res.status(400).json({ msg: error.message });
   }
 });
 
-
 router.post("/refresh-token", async (req, res) => {
   const oldToken = req.body.jwt;
 
-  if(!oldToken)
-    return res.status(401).json({ msg: "no token was provided" });
+  if (!oldToken) return res.status(401).json({ msg: "no token was provided" });
 
   var decoded = jwt_decode(oldToken);
 
   decoded = {
     staffID: decoded.staffID,
     role: decoded.role,
-    objectID: decoded.objectID
-  }
+    objectID: decoded.objectID,
+  };
 
   //new token
   let token = jwt.sign(decoded, key, {
     noTimestamp: true,
-    expiresIn: 900, //14 days
+    expiresIn: "900h", //14 days
   });
 
   res.header({ "auth-token": token });
 
   return res.json({ msg: "token refreshed" });
 });
-
 //------------------------------------------END OF ROUTES-----------------------------------------------------
 
 module.exports = router;

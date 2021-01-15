@@ -29,14 +29,18 @@ router.post(
       if (tempStaff) {
         let objectID = tempStaff.id;
         // make sure HOD ID is valid and it has the right to add to this course
+
         let doc = await staff.find({ staffID: uID });
+
         //     console.log(doc);
         if (doc && doc.length > 0) {
-          let result = await department.findOne({ id: doc.departmentID });
+          let result = await department.findOne({ _id: doc[0].departmentID });
           // make sure coursecode is valid
           let output;
-          if (tempStaff.role == "HR") {
-            throw Error("Cannot assign hr to a course !");
+          if (tempStaff.role != "Course Instructor") {
+            throw Error(
+              "HOD can assign courses only to course instructors .. to assign TAs please use an instructor account"
+            );
           } else if (tempStaff.role == "Course Instructor") {
             output = await course.findOneAndUpdate(
               {
@@ -52,7 +56,6 @@ router.post(
               { new: true }
             );
           }
-
           let updateStaff = await staff.findByIdAndUpdate(
             { _id: objectID },
             { $addToSet: { courseIDs: output.id } },
@@ -258,13 +261,30 @@ router.get(
       });
       // console.log(temp);
 
-      result = await staff.find(
-        { _id: { $in: temp } },
-        { password: 0, tokens: 0 }
-      );
+      result = await staff
+        .find({ _id: { $in: temp } }, { password: 0, tokens: 0 })
+        .populate({
+          path: "schedule.location schedule.course courseIDs departmentID",
+          //    populate: {
+          //     path: "instructorIDs taList coordinatorID",}
+        });
+      let rst = [];
+      result.map((el) => {
+        let localRst = [];
+        let d = el.departmentID ? el.departmentID.name : el.departmentID;
+        el.courseIDs.map((course) => {
+          localRst.push(course.courseCode);
+        });
+        el = el._doc;
+        rst.push({
+          ...el,
+          courseIDs: localRst,
+          departmentID: d,
+        });
+      });
 
       res.status(200).json({
-        result,
+        result: rst,
       });
       // make sure staff id is valid
     } catch (error) {
@@ -328,18 +348,35 @@ router.get(
 
       if (staffID) {
         let staffDoc = await staff.findOne({ staffID });
-        requests = await request.find({
-          receiverID: objectID,
-          senderID: staffDoc.id,
-        });
+        requests = await request
+          .find({
+            receiverID: objectID,
+            senderID: staffDoc.id,
+          })
+          .populate({
+            path: "receiverID senderID",
+          });
       } else {
-        requests = await request.find({
-          receiverID: objectID,
-        });
+        requests = await request
+          .find({
+            receiverID: objectID,
+          })
+          .populate({
+            path: "receiverID senderID",
+          });
       }
+      let ret = [];
+      requests.map((req) => {
+        req = req._doc;
+        ret.push({
+          ...req,
+          receiverID: req.receiverID ? req.receiverID.staffID : null,
+          senderID: req.senderID ? req.senderID.staffID : null,
+        });
+      });
 
       res.status(200).json({
-        result: requests,
+        result: ret,
       });
 
       // make sure staff id is valid
@@ -372,7 +409,7 @@ router.get(
         });
       let result = [];
       //console.log(JSON.stringify(departmentDoc));
-
+      console.log(req.user);
       await Promise.all(
         departmentDoc.coursesIDs.map(async (course) => {
           let slots = await slot.find({ course: course._id });
@@ -400,6 +437,7 @@ router.get(
 
       // make sure staff id is valid
     } catch (error) {
+      console.log(error);
       res.status(400).json({
         msg: error.message,
       });
@@ -542,10 +580,12 @@ router.post(
       }
       request["responseDate"] = Date.now();
       request.status = "Accepted";
+      request["comment"] = "";
       let result = await request.save();
       request = request.toObject();
       delete request._id;
-      receiverDoc["notifications"].push({ message: request });
+      if (receiverDoc["notifications"])
+        receiverDoc["notifications"].push({ message: request });
       await receiverDoc.save();
       //console.log(JSON.stringify(departmentDoc));
 
@@ -617,6 +657,37 @@ router.post(
       //   .("coursesIDs.taList");
       res.status(200).json({
         result: result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+router.get(
+  "/getCourses",
+  authenticateAndAuthorise("HOD"),
+  async function (req, res) {
+    try {
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      let doc = await department.findOne({ hodID: objectID }).populate({
+        path: "coursesIDs",
+        //    populate: {
+        //     path: "instructorIDs taList coordinatorID",}
+      });
+      let result = [];
+      if (!doc) throw Error("not found ");
+      doc.coursesIDs.forEach((element) => {
+        result.push(element.courseCode);
+      });
+      res.status(200).json({
+        result,
       });
 
       // make sure staff id is valid

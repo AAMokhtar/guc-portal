@@ -134,7 +134,6 @@ export class ViewProfiles extends Component {
       },
     ];
     let data = [];
-    console.log(this.props);
 
     this.props.staff.staff.map((el) => {
       let id = (

@@ -15,7 +15,7 @@
     "react-dom": "^17.0.1",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.1",
+    "react-scripts": "^4.0.1",
     "react-simple-sidenav": "^2.0.0",
     "react-smart-data-table": "^0.8.0",
     "react-toastify": "^6.2.0",

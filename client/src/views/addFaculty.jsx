@@ -24,12 +24,8 @@ class AddFaculty extends Component {
 
     if (form.checkValidity() === false) {
       event.stopPropagation();
-      toast.error("please provide all the fields");
     }
     else{
-        this.setState({
-            validated: true
-        });
 
         const newFaculty = this.state.name;
     
@@ -47,6 +43,9 @@ class AddFaculty extends Component {
         })
     }
 
+    this.setState({
+        validated: true
+    });
     
   };
 

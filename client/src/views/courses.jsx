@@ -129,7 +129,7 @@ class Courses extends Component {
   </tbody>
 </Table>
 { this.state.isHR &&
-(<a className="btn btn-primary btn-success" href="/addfaculty" role="button"> Add course under department</a>)}
+(<a className="btn btn-primary btn-success" href="/assCourse" role="button"> Add course under department</a>)}
       </Container>
     );
   }

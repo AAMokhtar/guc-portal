@@ -41,7 +41,7 @@ class MainComponent extends Component {
             {
                 src: "https://picsum.photos/id/100/500/325",
                 title: "Existing Staff",
-                text: 'View Existing Staff Member',
+                text: 'View Existing Staff Members',
                 link: '/viewStaff'
             },
             {

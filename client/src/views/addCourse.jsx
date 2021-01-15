@@ -25,12 +25,8 @@ class AddCourse extends Component {
 
     if (form.checkValidity() === false) {
       event.stopPropagation();
-      toast.error("please provide all the fields");
     }
     else{
-        this.setState({
-            validated: true
-        });
 
         const department = this.state.department;
         const newCourse = this.state.courseCode;
@@ -49,6 +45,9 @@ class AddCourse extends Component {
         })
     }
 
+    this.setState({
+        validated: true
+    });
     
   };
 

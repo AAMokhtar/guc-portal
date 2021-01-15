@@ -32,6 +32,7 @@ import UpdateDepartment from "./views/updateDepartment";
 import Courses from "./views/courses";
 import AddCourse from "./views/addCourse";
 import UpdateCourse from "./views/updateCourse";
+import AddStaff from "./views/newStaff";
 
 
 //for routing
@@ -130,6 +131,8 @@ ReactDOM.render(
               <Route path="/courses" component={Courses}></Route>
               <Route path="/addCourse" component={AddCourse}></Route>
               <Route path="/updateCourse" component={UpdateCourse}></Route>
+              <Route path="/newStaff" component={AddStaff}></Route>
+
               <Route
                 path="/viewStaffRequests"
                 component={ViewStaffRequests}

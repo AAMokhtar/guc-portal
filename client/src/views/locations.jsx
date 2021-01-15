@@ -111,7 +111,7 @@ class Locations extends Component {
   </tbody>
 </Table>
 { this.state.isHR &&
-(<a className="btn btn-primary btn-success" href="/addfaculty" role="button"> Add Location</a>)}
+(<a className="btn btn-primary btn-success" href="/addLocation" role="button"> Add Location</a>)}
       </Container>
     );
   }

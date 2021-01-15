@@ -25,12 +25,8 @@ class AddDepartment extends Component {
 
     if (form.checkValidity() === false) {
       event.stopPropagation();
-      toast.error("please provide all the fields");
     }
     else{
-        this.setState({
-            validated: true
-        });
 
         const facultyName = this.state.faculty;
         const newDepartment = this.state.name;
@@ -48,6 +44,10 @@ class AddDepartment extends Component {
                 toast.error(err.response.data);
         })
     }
+
+    this.setState({
+        validated: true
+    });
 
     
   };

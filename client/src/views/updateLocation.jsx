@@ -28,12 +28,8 @@ class UpdateLocation extends Component {
 
     if (form.checkValidity() === false) {
       event.stopPropagation();
-      toast.error("please provide all the fields");
     }
     else{
-        this.setState({
-            validated: true
-        });
 
         const newLocation = {
             name: this.state.name,
@@ -55,7 +51,10 @@ class UpdateLocation extends Component {
         })
     }
 
-    
+    this.setState({
+        validated: true
+    });
+
   };
 
   render(){

@@ -40,7 +40,13 @@ import Courses from "./views/courses";
 import AddCourse from "./views/addCourse";
 import UpdateCourse from "./views/updateCourse";
 import AddStaff from "./views/newStaff";
-
+import CIStaff from "./components/CI/CIStaff";
+import ViewStaff from "./views/viewStaff";
+import UpdateStaff from "./views/updateStaff";
+import UpdateSalary from "./views/updateSalary";
+import ViewStaffAttendance from "./views/viewStaffAttendance";
+import AddSignInOut from "./views/addSignInOut";
+import ViewStaffMissing from "./views/viewStaffMissing";
 
 //for routing
 const createHistory = require("history").createBrowserHistory;
@@ -51,7 +57,7 @@ const browserHistory = createHistory();
 //add token to every request, even login (doesn't hurt).
 axios.defaults.headers.common["auth-token"] = localStorage.getItem("token");
 
-//refresh token if when it expires
+/* //refresh token if when it expires
 axios.interceptors.response.use(
   (response) => {
     // Return a successful response back to the calling service
@@ -98,7 +104,7 @@ axios.interceptors.response.use(
       });
   }
 );
-
+ */
 //==============================:-RENDERING-:==================================
 const wrapper = {
   className: "d-flex",
@@ -123,6 +129,7 @@ ReactDOM.render(
               <Route exact path="/" component={Home} />
               <Route path="/editProfile" component={EditProfile}></Route>
               <Route path="/HOD/viewStaff" component={Staff}></Route>
+              <Route path="/CI/viewStaff" component={CIStaff}></Route>
               <Route path="/viewProfile" component={ViewProfile}></Route>
               <Route path="/schedule" component={Schedule}></Route>
               <Route path="/viewAttendance" component={Attendance}></Route>
@@ -134,11 +141,26 @@ ReactDOM.render(
               <Route path="/updateFaculty" component={UpdateFaculty}></Route>
               <Route path="/departments" component={Departments}></Route>
               <Route path="/addDepartment" component={AddDepartment}></Route>
-              <Route path="/updateDepartment" component={UpdateDepartment}></Route>
+              <Route
+                path="/updateDepartment"
+                component={UpdateDepartment}
+              ></Route>
               <Route path="/courses" component={Courses}></Route>
               <Route path="/addCourse" component={AddCourse}></Route>
               <Route path="/updateCourse" component={UpdateCourse}></Route>
               <Route path="/newStaff" component={AddStaff}></Route>
+              <Route path="/viewStaff" component={ViewStaff}></Route>
+              <Route path="/updateStaff" component={UpdateStaff}></Route>
+              <Route path="/updateSalary" component={UpdateSalary}></Route>
+              <Route
+                path="/viewStaffAttendance"
+                component={ViewStaffAttendance}
+              ></Route>
+              <Route path="/addSignInOut" component={AddSignInOut}></Route>
+              <Route
+                path="/viewStaffMissing"
+                component={ViewStaffMissing}
+              ></Route>
 
               <Route path="/course-coordinator/slot" component={Slot}></Route>
               <Route path="/course-coordinator/slot-linking-requests" component={Requests}></Route>
@@ -168,6 +190,6 @@ ReactDOM.render(
 reportWebVitals();
 
 // export react-router history
-export default function getHistory() {    
+export default function getHistory() {
   return browserHistory;
 }

@@ -39,6 +39,7 @@ const { findOne } = require("../mongoose/dao/staff.js");
 
 //---------------------------------END OF MODELS--------------------------------------------------
 
+<<<<<<< HEAD
 //--------------------------------------Extra Routes------------------------------------------------
 
 router.get("/get-slots", authenticateAndAuthorise("Course Coordinator"), async (req, res) =>
@@ -202,6 +203,8 @@ router.get("/get-slots", authenticateAndAuthorise("Course Coordinator"), async (
 //-----------------------------------------------------------------------------------------------------
 
 
+=======
+>>>>>>> c975df46abc4676d284d3e23c5a3cb58f3a8b692
 //---------------------------------------COURSE COORDINATOR FUNCTIONALITIES-------------------------------------------------
 
 //show slot linking notifications route
@@ -554,6 +557,7 @@ router.post(
         if(ccID && ccID.equals(user.objectID))
           courseCoordinated = courses[i];
       }
+      console.log(courseCoordinated);
       //add the slot to the slot table
       let slot;
       await Slot.create({

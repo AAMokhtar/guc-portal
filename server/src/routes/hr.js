@@ -33,9 +33,11 @@ router.post('/addlocation', async (req, res) => {
     req.body.name = req.body.name.toUpperCase();
 
   if(req.body.type)
-    req.body.name = req.body.type.toUpperCase();
+    req.body.type = req.body.type.toUpperCase();
 
   const newLocation = new Location(req.body);
+  console.log(req.body);
+  console.log(newLocation);
 
   await newLocation.save().then(() => {
     return res.status(HTTP_CODES.OK).send(newLocation);
@@ -247,6 +249,7 @@ router.delete('/deletefaculty/:facultyName', async (req, res) => {
  */
 router.post('/adddepartment/:facultyName/:departmentName', async (req, res) => {
   //validation is handled in mongoose
+  console.log(req.params);
   if(req.params.facultyName)
     req.params.facultyName = req.params.facultyName.toUpperCase();
 
@@ -268,6 +271,7 @@ router.post('/adddepartment/:facultyName/:departmentName', async (req, res) => {
 
   if(departmentDoc){
     newDepartment = departmentDoc;
+    newDepartment.faculty = req.params.facultyName;
 
     //add department to faculty 
     facultyDoc.departments.addToSet(newDepartment);
@@ -282,7 +286,7 @@ router.post('/adddepartment/:facultyName/:departmentName', async (req, res) => {
   }
   else{
     newDepartment = new Department({name: req.params.departmentName});
-
+    newDepartment.faculty = req.params.facultyName;
 
     //try adding department
     await newDepartment.save().then( async() => {
@@ -373,6 +377,7 @@ router.put('/updatedepartment/:facultyName/:departmentName', async (req, res) =>
       .json({msg: "the HOD id provided does not belong to a HOD"});
 
     departmentDoc.hodID = hod._id;
+    departmentDoc.hodStaffID = hod.staffID;
 
     hod.facultyID = facultyDoc._id;
     hod.departmentID = departmentDoc._id;
@@ -442,10 +447,16 @@ router.put('/removedepartment/:facultyName/:departmentName', async (req, res) =>
   }
 
   facultyDoc.departments = facultyDoc.departments.filter((item) => {return !item._id.equals(departmentDoc._id)});
-
+  departmentDoc.faculty = "-"
   //validation is handled by mongoose
   await facultyDoc.save().then(async () => {
-    return res.status(HTTP_CODES.OK).send(facultyDoc);
+    await departmentDoc.save().then(async () => {
+      return res.status(HTTP_CODES.OK).send(facultyDoc);
+    })
+    .catch((err) => {
+      return res.status(HTTP_CODES.BAD_REQUEST)
+      .json(err.message);
+    })
   })
   .catch((err) => {
     return res.status(HTTP_CODES.BAD_REQUEST)
@@ -510,21 +521,30 @@ router.post('/addcourse/:departmentName/:courseCode', async (req, res) => {
 
   if(courseDoc){
     newCourse = courseDoc;
+    newCourse.department = departmentDoc.name;
 
     //add department to department 
     departmentDoc.coursesIDs.addToSet(newCourse);
 
     //save department document
-    await departmentDoc.save().then(() => {
-      return res.status(HTTP_CODES.OK).send(newDepartment);
+    await departmentDoc.save().then(async () => {
+
+      await newCourse.save().then(() => {
+        return res.status(HTTP_CODES.OK).send(newCourse);
+      }).catch((err) => { 
+        console.log(err);
+        return res.status(HTTP_CODES.BAD_REQUEST)
+        .json("could not insert course " + req.params.courseCode + " under department " + req.params.departmentName);
+      });
     }).catch((err) => { 
+      console.log(err);
       return res.status(HTTP_CODES.BAD_REQUEST)
       .json("could not insert course " + req.params.courseCode + " under department " + req.params.departmentName);
     });
   }
   else{
     newCourse = new Course({courseCode: req.params.courseCode});
-
+    newCourse.department = departmentDoc.name;
 
     //try adding department
     await newCourse.save().then( async() => {
@@ -536,6 +556,7 @@ router.post('/addcourse/:departmentName/:courseCode', async (req, res) => {
     await departmentDoc.save().then(() => {
       return res.status(HTTP_CODES.OK).send(newCourse);
     }).catch((err) => { 
+      console.log(err);
       return res.status(HTTP_CODES.BAD_REQUEST)
       .json("could not insert course " + req.params.courseCode + " under department " + req.params.departmentName);
     });
@@ -659,10 +680,17 @@ router.put('/removecourse/:departmentName/:courseCode', async (req, res) => {
   }
 
   departmentDoc.coursesIDs = departmentDoc.coursesIDs.filter((item) => {return !item._id.equals(courseDoc._id)});
-
+  courseDoc.department = "-";
   //validation is handled by mongoose
   await departmentDoc.save().then(async () => {
-    return res.status(HTTP_CODES.OK).send(departmentDoc);
+    await courseDoc.save().then(async () => {
+    
+      return res.status(HTTP_CODES.OK).send(departmentDoc);
+    })
+    .catch((err) => {
+      return res.status(HTTP_CODES.BAD_REQUEST)
+      .json(err.message);
+    })
   })
   .catch((err) => {
     return res.status(HTTP_CODES.BAD_REQUEST)
@@ -984,8 +1012,9 @@ router.put('/updatestaff', async function(req, res) {
     if(userOffice)
       await userOffice.save();
 
-    if(dep && user.role == "HOD");
-      dep.hodID = user._id;
+    // if(dep && user.role == "HOD"){
+    //   dep.hodID = user._id;
+    // }
     
     return res.status(HTTP_CODES.OK).send(user);
   }).catch((err) => {
@@ -1044,6 +1073,7 @@ router.put('/addmissingattendance/:staffID', async function(req, res) {
     return res.status(HTTP_CODES.BAD_REQUEST)
     .json({msg: "you cannot update your own attendance"});
 
+    
   if(!req.body.attendanceDateTime)
     return res.status(HTTP_CODES.BAD_REQUEST)
     .json({msg: "please provide the date of the attendance record"});
@@ -1107,7 +1137,6 @@ router.get('/viewattendance/:staffID', async function(req, res) {
 
 
   var user = await Staff.findOne({'staffID': req.params.staffID});
-
   //undefined document --> not found
   if(!user){
     return res.status(HTTP_CODES.NOT_FOUND).json({msg: "user not found"});

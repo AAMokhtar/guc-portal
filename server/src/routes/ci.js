@@ -409,7 +409,10 @@ router.post(
         location: locationID,
         course: courseID,
       });
-      if (!slotDoc) throw Error("Slot not found!");
+      if (!slotDoc)
+        throw Error(
+          "Slot not found please make sure you create this slot with the same attributes you entered {location,slot number ,day}!"
+        );
 
       slotDoc.staffID = null;
       await slotDoc.save();
@@ -514,7 +517,10 @@ router.post(
         location: locationID,
         course: courseID,
       });
-      if (!slotDoc) throw Error("Slot not found!");
+      if (!slotDoc)
+        throw Error(
+          "Slot not found please make sure you create this slot with the same attributes you entered {location,slot number ,day}!"
+        );
 
       if (slotDoc.staffID != null)
         throw Error("Slot is already assigned to an academic member!");
@@ -851,5 +857,124 @@ router.get(
     }
   }
 );
+router.get(
+  "/viewStaff",
+  authenticateAndAuthorise("Course Instructor"),
+  async function (req, res) {
+    try {
+      // get uID
+      let { courseCode } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      let user = await staff.findOne({ staffID: uID });
+      console.log(user);
+
+      let { coursesIDs } = await department.findOne({ _id: user.departmentID });
+      let result;
+      if (courseCode) {
+        result = await course.find({ courseCode });
+        if (result.length == 0) throw Error("Wrong course code !");
+
+        if (!coursesIDs.includes(result[0].id))
+          throw Error("This course isnt in same department of HOD");
+      } else {
+        result = await course.find({ _id: { $in: coursesIDs } });
+      }
+      let temp = [];
+      result.forEach((element) => {
+        // staff ?
+        temp = _.union(temp, element.instructorIDs, element.taList);
+      });
+      // console.log(temp);
+
+      result = await staff
+        .find({ _id: { $in: temp } }, { password: 0, tokens: 0 })
+        .populate({
+          path: "schedule.location schedule.course courseIDs departmentID",
+          //    populate: {
+          //     path: "instructorIDs taList coordinatorID",}
+        });
+      let rst = [];
+      result.map((el) => {
+        let localRst = [];
+        let d = el.departmentID ? el.departmentID.name : el.departmentID;
+        el.courseIDs.map((course) => {
+          localRst.push(course.courseCode);
+        });
+        el = el._doc;
+        rst.push({
+          ...el,
+          courseIDs: localRst,
+          departmentID: d,
+        });
+      });
+
+      res.status(200).json({
+        result: rst,
+      });
+      // make sure staff id is valid
+    } catch (error) {
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+
+router.get(
+  "/getCourses",
+  authenticateAndAuthorise("Course Instructor"),
+  async function (req, res) {
+    try {
+      // get uID
+      // let { staffID } = req.query;
+      let { staffID: uID, objectID } = req.user;
+      let user = await staff.findOne({ staffID: uID });
+
+      let doc = await department.findOne({ _id: user.departmentID }).populate({
+        path: "coursesIDs",
+        //    populate: {
+        //     path: "instructorIDs taList coordinatorID",}
+      });
+      console.log(user.departmentID);
+      let result = [];
+      if (!doc) throw Error("not found ");
+      doc.coursesIDs.forEach((element) => {
+        result.push(element.courseCode);
+      });
+      res.status(200).json({
+        result,
+      });
+
+      // make sure staff id is valid
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({
+        msg: error.message,
+      });
+    }
+  }
+);
+
+router.get("/getLocations", async function (req, res) {
+  try {
+    // get uID
+    // let { staffID } = req.query;
+    let rst = [];
+    let result = await location.find({});
+    result.map((el) => {
+      rst.push(el.name);
+    });
+    res.status(200).json({
+      result: rst,
+    });
+
+    // make sure staff id is valid
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      msg: error.message,
+    });
+  }
+});
 
 module.exports = router;

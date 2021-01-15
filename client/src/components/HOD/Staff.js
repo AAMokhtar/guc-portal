@@ -1,5 +1,6 @@
 import React, { Component, createRef, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import BootstrapTable from "react-bootstrap-table-next";
 
 import {
   Container,
@@ -17,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import ViewProfiles from "../../views/viewStaffProfiles";
 import Schedule from "../../views/schedule";
+import { parseSchedule } from "../../util/parseSchedule";
 let token = localStorage.getItem("token");
 var axios = require("axios");
 
@@ -25,6 +27,8 @@ export class Staff extends Component {
     super(props);
     this.handleClick = this.handleClick.bind(this);
     this.handleAssign = this.handleAssign.bind(this);
+    this.filterHandler = this.filterHandler.bind(this);
+
     this.handleDelete = this.handleDelete.bind(this);
     this.state = {
       staff: [],
@@ -36,7 +40,22 @@ export class Staff extends Component {
       courseCodeBefore: null,
       courseCodeAfter: null,
       delete: null,
+      courseFilter: null,
+      initial: "Show coverage",
+      data: [],
+      columns: [
+        {
+          dataField: "courseCode",
+          text: "Course Code",
+        },
+        {
+          dataField: "coverage",
+          text: "Coverage",
+        },
+      ],
+      assignments: [],
     };
+
     this.Result = createRef();
   }
   setValue(event) {
@@ -58,7 +77,11 @@ export class Staff extends Component {
   async componentWillMount() {
     var config = {
       method: "get",
-      url: "http://localhost:4000/hod/viewStaff",
+      url:
+        "http://localhost:4000/hod/viewStaff" +
+        (this.state.courseFilter
+          ? "?courseCode=" + this.state.courseFilter
+          : ""),
       headers: {
         "auth-token": localStorage.getItem("token"),
       },
@@ -70,11 +93,23 @@ export class Staff extends Component {
         "auth-token": localStorage.getItem("token"),
       },
     };
-    console.log(config);
-    let [Response, result2] = await Promise.all([
+
+    var configCoverage = {
+      method: "get",
+      url: "http://localhost:4000/hod/viewCoverage",
+      headers: {
+        "auth-token": localStorage.getItem("token"),
+      },
+    };
+
+    let [Response, result2, coverageResult] = await Promise.all([
       axios(config),
       axios(config2),
+      axios(configCoverage),
     ]);
+
+    let data = coverageResult.data.result;
+    console.log(data);
     let radio = Array(Response.data.result.length).fill(false);
     let result = [
       <option value="" selected disabled>
@@ -87,10 +122,23 @@ export class Staff extends Component {
       })
     );
 
+    let scheduleResult = [];
+
+    Response.data.result.map((el) => {
+      let schedule = el.schedule;
+      schedule = parseSchedule(schedule);
+
+      let temp = (
+        <Schedule staff={{ schedule, text: "Schedule: " + el.staffID }} />
+      );
+      scheduleResult.push(temp);
+    });
+
     this.setState({
       staff: Response.data.result,
       radio,
       result,
+      assignments: scheduleResult,
     });
   }
   handleDelete() {
@@ -106,7 +154,7 @@ export class Staff extends Component {
       url: "http://localhost:4000/hod/deleteInstructor",
       headers: {
         "auth-token": localStorage.getItem("token"),
-        "Content-Type": "application/json",
+        "Content-Tyipe": "application/json",
       },
       data: data,
     };
@@ -143,6 +191,48 @@ export class Staff extends Component {
         toast.error(error.response.data.msg);
       });
   }
+  async filterHandler(courseFilter) {
+    courseFilter = courseFilter ? courseFilter.target.value : courseFilter;
+    console.log(courseFilter);
+    var config = {
+      method: "get",
+      url:
+        "http://localhost:4000/hod/viewStaff" +
+        (courseFilter ? "?courseCode=" + courseFilter : ""),
+      headers: {
+        "auth-token": localStorage.getItem("token"),
+      },
+    };
+    var config2 = {
+      method: "get",
+      url: "http://localhost:4000/hod/getCourses",
+      headers: {
+        "auth-token": localStorage.getItem("token"),
+      },
+    };
+    console.log(config);
+    let [Response, result2] = await Promise.all([
+      axios(config),
+      axios(config2),
+    ]);
+    let radio = Array(Response.data.result.length).fill(false);
+    let result = [
+      <option value="" selected disabled>
+        Please select
+      </option>,
+    ];
+    result.push(
+      result2.data.result.map((el) => {
+        return <option value={el}>{el}</option>;
+      })
+    );
+
+    this.setState({
+      staff: Response.data.result,
+      radio,
+      result,
+    });
+  }
 
   handleClick() {
     var data = JSON.stringify({
@@ -177,6 +267,13 @@ export class Staff extends Component {
     return (
       <Container>
         <ToastContainer />
+        <div>Filter (Instructors only ... doesnt include the TAs):</div>
+        <Form.Control
+          value={this.state.courseFilter}
+          onChange={this.filterHandler.bind(this)}
+          type="text"
+          placeholder="Enter course code to be able to filter by course"
+        />
         <ViewProfiles ref={this.Result} staff={this.state} />{" "}
         <div>
           Please select a staffID first in order to perform the next
@@ -287,6 +384,48 @@ export class Staff extends Component {
           >
             Submit Assignment{" "}
           </button>
+        </div>
+        <br />
+        <br />
+        <hr
+          style={{
+            color: "black",
+            backgroundColor: "black",
+            height: 5,
+          }}
+        />
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-toggle="collapse"
+          href="#coverage"
+          aria-controls="coverage"
+        >
+          Show Coverage{" "}
+        </button>
+        <div class="collapse multi-collapse" id="coverage">
+          <p className="Table-header">Coverage</p>
+
+          <BootstrapTable
+            keyField="id"
+            data={this.state.data}
+            columns={this.state.columns}
+          />
+        </div>
+        <br />
+        <br />
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-toggle="collapse"
+          href="#assignment"
+          aria-controls="assignment"
+        >
+          Show course Assignments{" "}
+        </button>
+        <div class="collapse multi-collapse" id="assignment">
+          <p className="Table-header">Assignments</p>
+          {this.state.assignments}
         </div>
       </Container>
     );

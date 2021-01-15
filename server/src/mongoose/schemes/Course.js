@@ -7,6 +7,9 @@ const schema = new Schema({
     required: true,
     unique: true,
   },
+  department: {
+    type: String
+  },
   instructorIDs: [{ type: Schema.Types.ObjectId, ref: "Staff" }],
   coordinatorID: { type: Schema.Types.ObjectId, ref: "Staff" },
   //course name

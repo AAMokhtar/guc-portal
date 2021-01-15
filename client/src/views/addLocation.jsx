@@ -76,6 +76,7 @@ class AddLocation extends Component {
             <Form.Control
                 required
                 type="number"
+                min="0"
                 placeholder="enter the location's capacity"
                 onChange= {(event) => { this.state.capacity = event.target.value }}
             />
@@ -87,6 +88,7 @@ class AddLocation extends Component {
                 type="number"
                 placeholder="enter the number of occupied seats"
                 defaultValue = {0}
+                min="0"
                 onChange= {(event) => { this.state.curSeats = event.target.value }}
                 required
             />

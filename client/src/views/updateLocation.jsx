@@ -86,6 +86,7 @@ class UpdateLocation extends Component {
             <Form.Label>Capacity</Form.Label>
             <Form.Control
                 type="number"
+                min="0"
                 placeholder="enter the location's capacity"
                 onChange= {(event) => { this.state.capacity = event.target.value }}
             />
@@ -95,6 +96,8 @@ class UpdateLocation extends Component {
             <Form.Label>currently occupied seats</Form.Label>
             <Form.Control
                 type="number"
+                min="0"
+                max = {this.state.capacity}
                 placeholder="enter the number of occupied seats"
                 onChange= {(event) => { this.state.curSeats = event.target.value }}
             />

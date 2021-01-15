@@ -83,16 +83,14 @@ export class Staff extends Component {
           ? "?courseCode=" + this.state.courseFilter
           : ""),
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkyNzA1N30.MQ0Zkx2kacSKuSiQaFu0SexhYmqCiSNAJdrvkPo9uGI",
+        "auth-token": localStorage.getItem("token"),
       },
     };
     var config2 = {
       method: "get",
       url: "http://localhost:4000/hod/getCourses",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkyNzA1N30.MQ0Zkx2kacSKuSiQaFu0SexhYmqCiSNAJdrvkPo9uGI",
+        "auth-token": localStorage.getItem("token"),
       },
     };
 
@@ -100,8 +98,7 @@ export class Staff extends Component {
       method: "get",
       url: "http://localhost:4000/hod/viewCoverage",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzk1MDEwN30.SNBopj6EOvxPFqN6kEuJbBdxU3n_bpQKO5kIrCNQuOM",
+        "auth-token": localStorage.getItem("token"),
       },
     };
 
@@ -203,16 +200,14 @@ export class Staff extends Component {
         "http://localhost:4000/hod/viewStaff" +
         (courseFilter ? "?courseCode=" + courseFilter : ""),
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkyNzA1N30.MQ0Zkx2kacSKuSiQaFu0SexhYmqCiSNAJdrvkPo9uGI",
+        "auth-token": localStorage.getItem("token"),
       },
     };
     var config2 = {
       method: "get",
       url: "http://localhost:4000/hod/getCourses",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkyNzA1N30.MQ0Zkx2kacSKuSiQaFu0SexhYmqCiSNAJdrvkPo9uGI",
+        "auth-token": localStorage.getItem("token"),
       },
     };
     console.log(config);

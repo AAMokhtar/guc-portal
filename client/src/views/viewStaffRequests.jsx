@@ -35,15 +35,17 @@ class ViewStaffRequests extends Component {
       method: "get",
       url: "http://localhost:4000/hod/viewRequests/",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkxNDIxM30.8RojPKBD5J8GP7PJsrKuHZVBh0puSag__Fk_9vinbME",
+        "auth-token": localStorage.getItem("token"),
       },
     };
-
-    let response = await axios(config);
-    this.setState({
-      result: response.data.result,
-    });
+    try {
+      let response = await axios(config);
+      this.setState({
+        result: response.data.result,
+      });
+    } catch (error) {
+      toast.error(error.response.data.msg);
+    }
   }
   async handleChanges() {
     let { requestID, val } = this.state;
@@ -57,8 +59,7 @@ class ViewStaffRequests extends Component {
         "http://localhost:4000/hod/RejectRequest" +
         (val ? "?comment=" + val : ""),
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkxNDIxM30.8RojPKBD5J8GP7PJsrKuHZVBh0puSag__Fk_9vinbME",
+        "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
       },
       data: data,
@@ -128,8 +129,7 @@ class ViewStaffRequests extends Component {
         method: "post",
         url: "http://localhost:4000/hod/AcceptRequest",
         headers: {
-          "auth-token":
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkxNDIxM30.8RojPKBD5J8GP7PJsrKuHZVBh0puSag__Fk_9vinbME",
+          "auth-token": localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
         data: data,

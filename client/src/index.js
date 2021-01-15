@@ -50,7 +50,7 @@ const browserHistory = createHistory();
 //add token to every request, even login (doesn't hurt).
 axios.defaults.headers.common["auth-token"] = localStorage.getItem("token");
 
-//refresh token if when it expires
+/* //refresh token if when it expires
 axios.interceptors.response.use(
   (response) => {
     // Return a successful response back to the calling service
@@ -97,7 +97,7 @@ axios.interceptors.response.use(
       });
   }
 );
-
+ */
 //==============================:-RENDERING-:==================================
 const wrapper = {
   className: "d-flex",
@@ -150,8 +150,10 @@ ReactDOM.render(
                 component={ViewStaffAttendance}
               ></Route>
               <Route path="/addSignInOut" component={AddSignInOut}></Route>
-              <Route path="/viewStaffMissing" component={ViewStaffMissing}></Route>
-
+              <Route
+                path="/viewStaffMissing"
+                component={ViewStaffMissing}
+              ></Route>
 
               <Route
                 path="/viewStaffRequests"

@@ -116,16 +116,14 @@ export class CIStaff extends Component {
           ? "?courseCode=" + this.state.courseFilter
           : ""),
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "auth-token": localStorage.getItem("token"),
       },
     };
     var config2 = {
       method: "get",
       url: "http://localhost:4000/ci/getCourses",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "auth-token": localStorage.getItem("token"),
       },
     };
 
@@ -133,8 +131,7 @@ export class CIStaff extends Component {
       method: "get",
       url: "http://localhost:4000/ci/viewCoverage",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "auth-token": localStorage.getItem("token"),
       },
     };
     var configLocations = {
@@ -284,16 +281,14 @@ export class CIStaff extends Component {
         "http://localhost:4000/ci/viewStaff" +
         (courseFilter ? "?courseCode=" + courseFilter : ""),
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "auth-token": localStorage.getItem("token"),
       },
     };
     var config2 = {
       method: "get",
       url: "http://localhost:4000/hod/getCourses",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkyNzA1N30.MQ0Zkx2kacSKuSiQaFu0SexhYmqCiSNAJdrvkPo9uGI",
+        "auth-token": localStorage.getItem("token"),
       },
     };
     console.log(config);
@@ -364,8 +359,7 @@ export class CIStaff extends Component {
       method: "post",
       url: "http://localhost:4000/ci/AssignUnassignedSlot",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
       },
       data: data,
@@ -396,8 +390,7 @@ export class CIStaff extends Component {
       method: "post",
       url: "http://localhost:4000/ci/deleteAcademicFromSlot",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
       },
       data: data,
@@ -433,8 +426,7 @@ export class CIStaff extends Component {
       method: "post",
       url: "http://localhost:4000/ci/updateSlot",
       headers: {
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
+        "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
       },
       data: data,

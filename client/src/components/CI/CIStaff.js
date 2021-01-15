@@ -22,7 +22,7 @@ import { parseSchedule } from "../../util/parseSchedule";
 let token = localStorage.getItem("token");
 var axios = require("axios");
 
-export class Staff extends Component {
+export class CIStaff extends Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
@@ -37,12 +37,33 @@ export class Staff extends Component {
       result: [],
       schedule: [],
       assign: null,
+      //assign - delete
+      updateSlotCourseBefore: null,
+      updateLocationBefore: null,
+      updateNumberBefore: null,
+      updateWeekDayBefore: null,
+      // update
+      updateSlotCourseAfter: null,
+      updateLocationAfter: null,
+      updateNumberAfter: null,
+      updateWeekDayAfter: null,
+      //
       courseCodeBefore: null,
       courseCodeAfter: null,
       delete: null,
       courseFilter: null,
       initial: "Show coverage",
       data: [],
+      locations: [],
+      number: ["First", "Second", "Third", "Fourth", "Fifth"],
+      weekday: [
+        "Saturday",
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+      ],
       columns: [
         {
           dataField: "courseCode",
@@ -57,6 +78,9 @@ export class Staff extends Component {
     };
 
     this.Result = createRef();
+  }
+  courseChooseHandler(event) {
+    this.setState({ assignSlotCourse: event.target.value });
   }
   setValue(event) {
     this.setState({ assign: event.target.value });
@@ -78,37 +102,48 @@ export class Staff extends Component {
     var config = {
       method: "get",
       url:
-        "http://localhost:4000/hod/viewStaff" +
+        "http://localhost:4000/ci/viewStaff" +
         (this.state.courseFilter
           ? "?courseCode=" + this.state.courseFilter
           : ""),
       headers: {
         "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkyNzA1N30.MQ0Zkx2kacSKuSiQaFu0SexhYmqCiSNAJdrvkPo9uGI",
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
       },
     };
     var config2 = {
       method: "get",
-      url: "http://localhost:4000/hod/getCourses",
+      url: "http://localhost:4000/ci/getCourses",
       headers: {
         "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkyNzA1N30.MQ0Zkx2kacSKuSiQaFu0SexhYmqCiSNAJdrvkPo9uGI",
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
       },
     };
 
     var configCoverage = {
       method: "get",
-      url: "http://localhost:4000/hod/viewCoverage",
+      url: "http://localhost:4000/ci/viewCoverage",
       headers: {
         "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzk1MDEwN30.SNBopj6EOvxPFqN6kEuJbBdxU3n_bpQKO5kIrCNQuOM",
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
       },
     };
+    var configLocations = {
+      method: "get",
+      url: "http://localhost:4000/general/getLocations",
+      headers: {},
+    };
 
-    let [Response, result2, coverageResult] = await Promise.all([
+    let [
+      Response,
+      result2,
+      coverageResult,
+      locationResult,
+    ] = await Promise.all([
       axios(config),
       axios(config2),
       axios(configCoverage),
+      axios(configLocations),
     ]);
 
     let data = coverageResult.data.result;
@@ -137,11 +172,47 @@ export class Staff extends Component {
       scheduleResult.push(temp);
     });
 
+    // locations
+    let locResult = [
+      <option value="" selected disabled>
+        Please select
+      </option>,
+    ];
+    locResult.push(
+      locationResult.data.result.map((el) => {
+        return <option value={el}>{el}</option>;
+      })
+    );
+
+    let WeekResult = [
+      <option value="" selected disabled>
+        Please select
+      </option>,
+    ];
+    WeekResult.push(
+      this.state.weekday.map((el) => {
+        return <option value={el}>{el}</option>;
+      })
+    );
+
+    let numberResult = [
+      <option value="" selected disabled>
+        Please select
+      </option>,
+    ];
+    numberResult.push(
+      this.state.number.map((el) => {
+        return <option value={el}>{el}</option>;
+      })
+    );
     this.setState({
       staff: Response.data.result,
       radio,
       result,
       assignments: scheduleResult,
+      locations: locResult,
+      weekday: WeekResult,
+      number: numberResult,
     });
   }
   handleDelete() {
@@ -154,7 +225,7 @@ export class Staff extends Component {
 
     var config = {
       method: "delete",
-      url: "http://localhost:4000/hod/deleteInstructor",
+      url: "http://localhost:4000/ci/deleteTafromCourse",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Tyipe": "application/json",
@@ -178,7 +249,7 @@ export class Staff extends Component {
     });
     var config = {
       method: "post",
-      url: "http://localhost:4000/hod/assignInstructor",
+      url: "http://localhost:4000/ci/assignTaToCourse",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
@@ -200,11 +271,11 @@ export class Staff extends Component {
     var config = {
       method: "get",
       url:
-        "http://localhost:4000/hod/viewStaff" +
+        "http://localhost:4000/ci/viewStaff" +
         (courseFilter ? "?courseCode=" + courseFilter : ""),
       headers: {
         "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkyNzA1N30.MQ0Zkx2kacSKuSiQaFu0SexhYmqCiSNAJdrvkPo9uGI",
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNiIsInJvbGUiOiJDb3Vyc2UgSW5zdHJ1Y3RvciIsIm9iamVjdElEIjoiNWZkZmRmYmEyZGU2OWEzMGQ0MGIwZmYwIiwiZXhwIjoxNjEzOTY0NjI3fQ.bKaLJoATEKC6KLgydvBDYPPqt0VmqnKjFAE-oGxyL1o",
       },
     };
     var config2 = {
@@ -251,7 +322,7 @@ export class Staff extends Component {
 
     var config = {
       method: "post",
-      url: "http://localhost:4000/hod/updateInstructor",
+      url: "http://localhost:4000/ci/updateTACourse",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
@@ -390,6 +461,171 @@ export class Staff extends Component {
             Submit Assignment{" "}
           </button>
         </div>
+        <br></br>
+        <div class="d-flex justify-content-around">
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-toggle="collapse"
+            href="#assignSlot"
+            aria-controls="assignSlot"
+          >
+            Assign slot to a member{" "}
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-warning"
+            onClick={() => {
+              this.setState({ show: this.state.show });
+            }}
+            data-toggle="collapse"
+            href="#updateSlot"
+            aria-controls="updateSlot"
+            aria-label="Default select example"
+            role="button"
+            aria-expanded="true"
+          >
+            Update member slot
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-toggle="collapse"
+            href="#deleteSlot"
+            aria-controls="deleteSlot"
+          >
+            Delete member from a slot{" "}
+          </button>
+        </div>
+        <div class="collapse multi-collapse" id="deleteSlot">
+          <label for="sel1">choose the course code:</label>
+          <select
+            class="form-select"
+            onChange={this.setValue.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.result}
+          </select>
+
+          <label for="sel1">choose the weekday:</label>
+          <select
+            class="form-select"
+            onChange={this.setValue.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.weekday}
+          </select>
+          <label for="sel1">choose the slot number:</label>
+          <select
+            class="form-select"
+            onChange={this.setValue.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.number}
+          </select>
+          <label for="sel1">choose the location:</label>
+          <select
+            class="form-select"
+            onChange={this.setValue.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.locations}
+          </select>
+
+          <br />
+          <br />
+          <button
+            type="button"
+            class="btn btn-danger"
+            onClick={this.handleDelete.bind(this)}
+          >
+            Delete Slot Assignment{" "}
+          </button>
+        </div>
+        <div class="collapse multi-collapse" id="updateSlot">
+          <label for="sel1">Update Slot: The old slot</label>
+          <select
+            class="form-select"
+            aria-label="Default select example"
+            onChange={this.setBeforeCode.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+          >
+            {this.state.result}
+          </select>
+
+          <label for="sel2">Update Slot: The new Slot</label>
+          <select
+            class="form-select"
+            aria-label="Default select example"
+            onChange={this.setAfterCode.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+          >
+            {this.state.result}
+          </select>
+
+          <br />
+          <button
+            type="button"
+            class="btn btn-primary"
+            onClick={this.handleClick}
+          >
+            Submit Update{" "}
+          </button>
+        </div>
+        <div class="collapse multi-collapse" id="assignSlot">
+          <label for="sel1">choose the course code:</label>
+          <select
+            class="form-select"
+            onChange={this.setValue.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.result}
+          </select>
+
+          <label for="sel1">choose the weekday:</label>
+          <select
+            class="form-select"
+            onChange={this.setValue.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.weekday}
+          </select>
+          <label for="sel1">choose the slot number:</label>
+          <select
+            class="form-select"
+            onChange={this.setValue.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.number}
+          </select>
+          <label for="sel1">choose the location:</label>
+          <select
+            class="form-select"
+            onChange={this.setValue.bind(this)}
+            onfocus="this.selectedIndex = -1;"
+            aria-label="Default select example"
+          >
+            {this.state.locations}
+          </select>
+
+          <br />
+          <button
+            type="button"
+            class="btn btn-primary"
+            onClick={this.handleAssign.bind(this)}
+          >
+            Submit Assignment{" "}
+          </button>
+        </div>
+        <br></br>
         <br />
         <br />
         <hr
@@ -438,4 +674,4 @@ export class Staff extends Component {
   }
 }
 
-export default Staff;
+export default CIStaff;

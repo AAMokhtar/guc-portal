@@ -3,6 +3,7 @@ import "./schedule.css";
 
 class Schedule extends Component {
   state = {
+    text: "Schedule",
     arr: [
       {
         day: "mon",
@@ -50,7 +51,16 @@ class Schedule extends Component {
       this.setState({
         arr: tmp,
       });
-      let schedule = this.props.location.state;
+      console.log(this.props);
+
+      let schedule = this.props.location
+        ? this.props.location.state
+        : this.props.location;
+      if (!schedule) {
+        schedule = this.props.staff.schedule;
+        if (this.props.staff.text)
+          this.setState({ text: this.props.staff.text });
+      }
       console.log(schedule);
       let cur;
       if (day == 4)
@@ -109,8 +119,12 @@ class Schedule extends Component {
         <div className="schedule content-block">
           <div className="container">
             <h2 data-aos="zoom-in-up" className="aos-init aos-animate">
-              Schedule
+              {this.state.text}
             </h2>
+            <div>
+              Note: Please click on the table headers to access the schedule of
+              each day !
+            </div>
 
             <div className="timetable">
               <nav className="nav nav-tabs">

@@ -33,6 +33,7 @@ import Courses from "./views/courses";
 import AddCourse from "./views/addCourse";
 import UpdateCourse from "./views/updateCourse";
 import AddStaff from "./views/newStaff";
+import CIStaff from "./components/CI/CIStaff";
 import ViewStaff from "./views/viewStaff";
 import UpdateStaff from "./views/updateStaff";
 import UpdateSalary from "./views/updateSalary";
@@ -120,6 +121,7 @@ ReactDOM.render(
               <Route exact path="/" component={Home} />
               <Route path="/editProfile" component={EditProfile}></Route>
               <Route path="/HOD/viewStaff" component={Staff}></Route>
+              <Route path="/CI/viewStaff" component={CIStaff}></Route>
               <Route path="/viewProfile" component={ViewProfile}></Route>
               <Route path="/schedule" component={Schedule}></Route>
               <Route path="/viewAttendance" component={Attendance}></Route>
@@ -131,7 +133,10 @@ ReactDOM.render(
               <Route path="/updateFaculty" component={UpdateFaculty}></Route>
               <Route path="/departments" component={Departments}></Route>
               <Route path="/addDepartment" component={AddDepartment}></Route>
-              <Route path="/updateDepartment" component={UpdateDepartment}></Route>
+              <Route
+                path="/updateDepartment"
+                component={UpdateDepartment}
+              ></Route>
               <Route path="/courses" component={Courses}></Route>
               <Route path="/addCourse" component={AddCourse}></Route>
               <Route path="/updateCourse" component={UpdateCourse}></Route>
@@ -139,9 +144,11 @@ ReactDOM.render(
               <Route path="/viewStaff" component={ViewStaff}></Route>
               <Route path="/updateStaff" component={UpdateStaff}></Route>
               <Route path="/updateSalary" component={UpdateSalary}></Route>
-              <Route path="/viewStaffAttendance" component={ViewStaffAttendance}></Route>
+              <Route
+                path="/viewStaffAttendance"
+                component={ViewStaffAttendance}
+              ></Route>
               <Route path="/addSignInOut" component={AddSignInOut}></Route>
-
 
               <Route
                 path="/viewStaffRequests"
@@ -164,6 +171,6 @@ ReactDOM.render(
 reportWebVitals();
 
 // export react-router history
-export default function getHistory() {    
+export default function getHistory() {
   return browserHistory;
 }

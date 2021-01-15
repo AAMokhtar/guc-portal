@@ -8,37 +8,187 @@ import {
   Form,
   Modal,
 } from "react-bootstrap";
+import BootstrapTable from "react-bootstrap-table-next";
+
 import faker from "faker";
 import SmartDataTable from "react-smart-data-table";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const axios = require("axios");
 axios.defaults.headers.common["auth-token"] = localStorage.getItem("token");
 
 class ViewStaffRequests extends Component {
-  state = {
-    show: false,
-    persons: [],
-  };
+  constructor(props) {
+    super(props);
+    this.handleChanges = this.handleChanges.bind(this);
 
-  componentDidMount() {
-    console.log("getting");
-    axios.get("http://localhost:4000/hod/viewStaff").then((res) => {
-      console.log("resss", res);
-      const persons = res.data;
-      this.setState({ persons });
-    });
+    this.state = {
+      show: false,
+      requestID: null,
+      result: [],
+      val: "",
+    };
   }
 
+  async componentWillMount() {
+    var config = {
+      method: "get",
+      url: "http://localhost:4000/hod/viewRequests/",
+      headers: {
+        "auth-token":
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkxNDIxM30.8RojPKBD5J8GP7PJsrKuHZVBh0puSag__Fk_9vinbME",
+      },
+    };
+
+    let response = await axios(config);
+    this.setState({
+      result: response.data.result,
+    });
+  }
+  async handleChanges() {
+    let { requestID, val } = this.state;
+    var data = JSON.stringify({
+      data: { requestID },
+    });
+
+    var config = {
+      method: "post",
+      url:
+        "http://localhost:4000/hod/RejectRequest" +
+        (val ? "?comment=" + val : ""),
+      headers: {
+        "auth-token":
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkxNDIxM30.8RojPKBD5J8GP7PJsrKuHZVBh0puSag__Fk_9vinbME",
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    try {
+      let response = await axios(config);
+      toast.success("Success!");
+    } catch (error) {
+      toast.error(error.response.data.msg);
+    }
+  }
   render() {
-    const handleShow = () => {
-      this.setState({ show: true });
+    const columns = [
+      {
+        dataField: "status",
+        text: "Status",
+      },
+      {
+        dataField: "comment",
+        text: "Comments by the HOD",
+      },
+      {
+        dataField: "senderID",
+        text: "senderID",
+      },
+      {
+        dataField: "receiverID",
+        text: "receiverID",
+      },
+      {
+        dataField: "reason",
+        text: "Reason",
+      },
+      {
+        dataField: "reasonDetails",
+        text: "Reason Details",
+      },
+      {
+        dataField: "sentDate",
+        text: "sentDate",
+      },
+      {
+        dataField: "responseDate",
+        text: "replyDate",
+      },
+      {
+        dataField: "decision",
+        text: "   HOD Decision  ",
+      },
+    ];
+
+    const handleShow = (requestID) => {
+      this.setState({ show: true, requestID });
     };
 
     const handleClose = () => {
       this.setState({ show: false });
     };
 
+    const handleAccept = async (requestID) => {
+      var data = JSON.stringify({
+        data: { requestID },
+      });
+
+      var config = {
+        method: "post",
+        url: "http://localhost:4000/hod/AcceptRequest",
+        headers: {
+          "auth-token":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFmZklEIjoiYWMtNSIsInJvbGUiOiJIT0QiLCJvYmplY3RJRCI6IjVmZGUwZDU1NGRkMzBlMzRmYzI2NThlZiIsImV4cCI6MTYxMzkxNDIxM30.8RojPKBD5J8GP7PJsrKuHZVBh0puSag__Fk_9vinbME",
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+      console.log(config);
+      try {
+        let response = await axios(config);
+        toast.success("Success!");
+      } catch (error) {
+        toast.error(error.response.data.msg);
+      }
+    };
+    let data = [];
+    this.state.result.map((request) => {
+      let { leave, dayOff, replacement, linkingSlot } = request;
+      let reason;
+      let reasonDetails;
+      if (leave) {
+        reason = "leave";
+        reasonDetails = leave;
+      }
+      if (dayOff) {
+        reason = "dayOff";
+        reasonDetails = dayOff;
+      }
+      if (replacement) {
+        reason = "replacement";
+        reasonDetails = replacement;
+      }
+      if (linkingSlot) {
+        reason = "linkingSlot";
+        reasonDetails = linkingSlot;
+      }
+      let decision = (
+        <Col>
+          <Button varient="success" onClick={() => handleAccept(request._id)}>
+            Accept
+          </Button>{" "}
+          <Button onClick={() => handleShow(request._id)} variant="danger">
+            Reject
+          </Button>
+        </Col>
+      );
+      reasonDetails = !reasonDetails
+        ? null
+        : Object.keys(reasonDetails).map((key, i) => (
+            <p key={i}>
+              <span> {key}</span>
+              <span> {reasonDetails[key]}</span>
+            </p>
+          ));
+      data.push({ ...request, reasonDetails, reason, decision });
+    });
+    console.log(data);
+
     return (
       <Container>
+        <ToastContainer />
+
         <Jumbotron>
           <h1>Staff Requests!</h1>
           <p>
@@ -56,7 +206,12 @@ class ViewStaffRequests extends Component {
               {" "}
               <Form.Group controlId="formBasicEmail">
                 <Form.Label>Response</Form.Label>
-                <Form.Control type="text" placeholder="Enter ur response" />
+                <Form.Control
+                  value={this.state.val}
+                  onChange={(e) => this.setState({ val: e.target.value })}
+                  type="text"
+                  placeholder="Enter ur response"
+                />
                 <Form.Text className="text-muted">
                   Response will be viewd by the staff.
                 </Form.Text>
@@ -67,62 +222,12 @@ class ViewStaffRequests extends Component {
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
-            <Button variant="primary" onClick={handleClose}>
+            <Button variant="primary" onClick={() => this.handleChanges()}>
               Save Changes
             </Button>
           </Modal.Footer>
         </Modal>
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Type</th>
-              <th>Execuse</th>
-              <th>Decision</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>Mark</td>
-              <td>Otto</td>
-              <td>
-                <Col>
-                  <Button varient="success">Accept</Button>{" "}
-                  <Button onClick={handleShow} variant="danger">
-                    Reject
-                  </Button>
-                </Col>
-              </td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Jacob</td>
-              <td>Thornton</td>
-              <td>
-                <Col>
-                  <Button varient="success">Accept</Button>{" "}
-                  <Button onClick={handleShow} variant="danger">
-                    Reject
-                  </Button>
-                </Col>
-              </td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Jacob</td>
-              <td>Thornton</td>
-              <td>
-                <Col>
-                  <Button varient="success">Accept</Button>{" "}
-                  <Button onClick={handleShow} variant="danger">
-                    Reject
-                  </Button>
-                </Col>
-              </td>
-            </tr>
-          </tbody>
-        </Table>
+        <BootstrapTable keyField="id" data={data} columns={columns} />
       </Container>
     );
   }

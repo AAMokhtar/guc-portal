@@ -71,14 +71,16 @@ export class Staff extends Component {
     };
 
     let response = await axios(config3);
+
     this.setState({
       staff: Response.data.result,
       radio,
       result,
       schedule: response.data.schedule,
     });
-    console.log(this.state);
+    console.log(this.staff);
   }
+
   handleClick() {
     var data = JSON.stringify({
       data: {
@@ -116,9 +118,7 @@ export class Staff extends Component {
           {" "}
           <ViewProfiles ref={this.Result} staff={this.state} />{" "}
         </div>
-        <div>
-          <Schedule schedule={this.state} />
-        </div>
+
         <div class="d-flex justify-content-around">
           <button
             type="button"

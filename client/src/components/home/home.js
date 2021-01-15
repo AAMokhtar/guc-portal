@@ -41,7 +41,7 @@ class MainComponent extends Component {
             {
                 src: "https://picsum.photos/id/100/500/325",
                 title: "Existing Staff",
-                text: 'View Existing Staff Member',
+                text: 'View Existing Staff Members',
                 link: '/viewStaff'
             },
             {
@@ -65,6 +65,18 @@ class MainComponent extends Component {
                 title: "Faculties",
                 text: 'View all the available faculties',
                 link: '/faculties'
+            },
+            {
+                src: "https://picsum.photos/id/100/500/325",
+                title: "Departments",
+                text: 'View all the available Departments',
+                link: '/departments'
+            },
+            {
+                src: "https://picsum.photos/id/100/500/325",
+                title: "Courses",
+                text: 'View all the available courses',
+                link: '/courses'
             },
 
 

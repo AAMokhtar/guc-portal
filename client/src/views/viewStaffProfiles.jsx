@@ -1,5 +1,8 @@
-import React, { Component } from "react";
+import React, { Component, useRef } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
+import getHistory from "../index";
+import { Router, Route, Redirect } from "react-router-dom";
+
 import {
   Form,
   Button,
@@ -7,18 +10,39 @@ import {
   FormControl,
   ControlLabel,
 } from "react-bootstrap";
+import { parseSchedule } from "../util/parseSchedule";
+import Schedule from "./schedule";
 
 export class ViewProfiles extends Component {
-  state = {};
+  constructor(props) {
+    super(props);
+    this.state = { radio: "", schedule: null };
+    this.handleSchedule = this.handleSchedule.bind(this);
+  }
   onChange(value, index) {
     //  console.log(value, index);
   }
   setValue(event) {
     this.setState({ radio: event.target.value });
-    console.log(this.state);
+  }
+  handleSchedule(scheduleProp) {
+    this.setState({
+      schedule: scheduleProp,
+    });
   }
 
   render() {
+    if (this.state.schedule != null) {
+      return (
+        <Redirect
+          to={{
+            pathname: "/schedule",
+            state: this.state.schedule,
+          }}
+        />
+      );
+    }
+
     /*   const data = [
       { id: 1, name: "Gob", value: "2" },
       {
@@ -95,37 +119,48 @@ export class ViewProfiles extends Component {
         dataField: "others",
         text: "Others",
       },
-      /*   {
+      {
         dataField: "courseIDs",
         text: "Courses Ids",
-      }, */
+      },
 
       /*     {
         dataField: "attendance",
         text: "Attendance",
       }, */
-      /*       {
+      {
         dataField: "schedule",
         text: "Schedule",
-      }, */
+      },
     ];
     let data = [];
-    console.log(this.props.staff.staff);
 
     this.props.staff.staff.map((el) => {
-      console.log(el);
       let id = (
         <div onChange={this.setValue.bind(this)}>
           <input type="radio" value={el.staffID} name="staffID" />
           {el.staffID}
         </div>
       );
+      let courses = el.courseIDs.map((course) => {
+        return <div>{`"` + course + `"`}</div>;
+      });
+
+      let schedule = el.schedule;
+      schedule = parseSchedule(schedule);
+      let schedule2 = (
+        <a class="btn btn-info" onClick={() => this.handleSchedule(schedule)}>
+          Info
+        </a>
+      );
+
       data.push({
         ...el,
         staffID: id,
+        schedule: schedule2,
+        courseIDs: courses,
       });
     });
-
     return (
       <div className="App">
         <p className="Table-header">Staff Profile</p>

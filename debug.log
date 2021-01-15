@@ -1,3 +1,11 @@
 [0114/214352.031:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)
 [0114/222401.680:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)
 [0115/153816.585:ERROR:process_info.cc(359)] UncheckedAllocate
+[0115/160233.727:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)
+[0115/162143.058:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)
+[0115/170331.498:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)
+[0115/180312.860:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)
+[0115/194810.303:ERROR:file_io.cc(135)] WriteFile: There is not enough space on the disk. (0x70)
+[0115/194810.303:ERROR:crash_report_exception_handler.cc(113)] WriteEverything failed
+[0115/194810.304:ERROR:filesystem_win.cc(148)] DeleteFile c:\Users\Mayar\AppData\Roaming\Code\User\workspaceStorage\4046812d7cca7797cf44e176ac875a8a\ms-vscode.js-debug\.profile\Crashpad\reports\0a0e7fdf-4f35-4c85-ac22-13d4c0fc94f6.dmp: The process cannot access the file because it is being used by another process. (0x20)
+[0115/195825.277:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)

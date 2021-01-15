@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
-var axios = require("axios");
 
 function getRequests()
 {
     let res = [
-        {objectID: "438577463", senderID: "43247548357", receiverID: "4yu453y8543", status: "Pending", comment: "Ana 3ayez amoot", linkingSlot: {slot: {weekday: "Monday", number: "Second", location: "47587389435", course: "3234758295749", staffID: null}}, sentDate: new Date(2020, 5, 12), responseDate: null},
-        {objectID: "676458933", senderID: "43247548357", receiverID: "4yu453y8543", status: "Accepted", comment: "Ana 3ayez amoot", linkingSlot: {slot: {weekday: "Monday", number: "Second", location: "47587389435", course: "3234758295749", staffID: null}}, sentDate: new Date(2020, 5, 12), responseDate: new Date(2020, 5, 15)},
-        {objectID: "943789587", senderID: "43247548357", receiverID: "4yu453y8543", status: "Rejected", comment: "Ana 3ayez amoot", linkingSlot: {slot: {weekday: "Monday", number: "Second", location: "47587389435", course: "3234758295749", staffID: null}}, sentDate: new Date(2020, 5, 12), responseDate: new Date(2020, 5, 16)}
+        {objectID: "438577463", senderID: "43247548357", receiverID: "4yu453y8543", status: "Pending", comment: "kjdlksfjal;dkdjfsdsal", replacement: {replacementDay: new Date(2020, 5, 6), replacementSlot: {slot: {weekday: "Monday", number: "Second", location: "47587389435", course: "3234758295749", staffID: "ac-3"}}}, sentDate: new Date(2020, 5, 12), responseDate: null},
+        {objectID: "676458933", senderID: "43247548357", receiverID: "4yu453y8543", status: "Accepted", comment: "adskfjhdaskljfhdslkjahfjldsajh", replacement: {replacementDay: new Date(2020, 5, 6), replacementSlot: {slot: {weekday: "Tuesday", number: "First", location: "47587389435", course: "3234758295749", staffID: "ac-4"}}}, sentDate: new Date(2020, 5, 12), responseDate: new Date(2021, 1, 1)},
+        {objectID: "943789587", senderID: "43247548357", receiverID: "4yu453y8543", status: "Rejected", comment: "dfasndhsakljdhflkahdflkadsf", replacement: {replacementDay: new Date(2020, 5, 6), replacementSlot: {slot: {weekday: "Sunday", number: "Fifth", location: "47587389435", course: "3234758295749", staffID: "ac-8"}}}, sentDate: new Date(2020, 5, 12), responseDate: new Date(2021, 1, 1)}
     ]
 
     return res;
@@ -57,8 +57,9 @@ function PendingItem({req, index, func})
                 <div className="card-body">
                     <div className="d-block mb-3">
                         <p className="d-inline">Sender: {req.senderID}</p>
-                        <p className="d-inline ms-3">Course: {req.linkingSlot.slot.course}</p>
-                        <p className="d-inline ms-3">Slot: {req.linkingSlot.slot.weekday} {req.linkingSlot.slot.number}</p>
+                        <p className="d-inline ms-3">Course: {req.replacement.replacementSlot.slot.course}</p>
+                        <p className="d-inline ms-3">Date: {req.replacement.replacementDay.toLocaleString('en-GB')}</p>
+                        <p className="d-inline ms-3">Slot: {req.replacement.replacementSlot.slot.weekday} {req.replacement.replacementSlot.slot.number}</p>
                         <p className="d-inline ms-3">Sent: {req.sentDate.toLocaleString('en-GB')}</p>
                     </div>
                     <div className="d-flex justify-content-center">
@@ -90,8 +91,9 @@ function AcceptedItem({req})
                 <div className="card-body">
                     <div className="d-block mb-3">
                         <p className="d-inline">Sender: {req.senderID}</p>
-                        <p className="d-inline ms-3">Course: {req.linkingSlot.slot.course}</p>
-                        <p className="d-inline ms-3">Slot: {req.linkingSlot.slot.weekday} {req.linkingSlot.slot.number}</p>
+                        <p className="d-inline ms-3">Course: {req.replacement.replacementSlot.slot.course}</p>
+                        <p className="d-inline ms-3">Date: {req.replacement.replacementDay.toLocaleString('en-GB')}</p>
+                        <p className="d-inline ms-3">Slot: {req.replacement.replacementSlot.slot.weekday} {req.replacement.replacementSlot.slot.number}</p>
                         <p className="d-inline ms-3">Sent: {req.sentDate.toLocaleString('en-GB')}</p>
                         <p className="d-inline ms-3">Response: {req.responseDate.toLocaleString('en-GB')}</p>
                     </div>
@@ -118,8 +120,9 @@ function RejectedItem({req})
                 <div className="card-body">
                     <div className="d-block mb-3">
                         <p className="d-inline">Sender: {req.senderID}</p>
-                        <p className="d-inline ms-3">Course: {req.linkingSlot.slot.course}</p>
-                        <p className="d-inline ms-3">Slot: {req.linkingSlot.slot.weekday} {req.linkingSlot.slot.number}</p>
+                        <p className="d-inline ms-3">Course: {req.replacement.replacementSlot.slot.course}</p>
+                        <p className="d-inline ms-3">Date: {req.replacement.replacementDay.toLocaleString('en-GB')}</p>
+                        <p className="d-inline ms-3">Slot: {req.replacement.replacementSlot.slot.weekday} {req.replacement.replacementSlot.slot.number}</p>
                         <p className="d-inline ms-3">Sent: {req.sentDate.toLocaleString('en-GB')}</p>
                         <p className="d-inline ms-3">Response: {req.responseDate.toLocaleString('en-GB')}</p>
                     </div>
@@ -140,12 +143,15 @@ function Rejected(props)
 }
 
 
-function Requests(props)
+
+function Replacement()
 {
     const requests = getRequests();
     const [pending, setPending] = useState([]);
     const [accepted, setAccepted] = useState([]);
     const [rejected, setRejected] = useState([]);
+
+    const [addReq, setAddReq] = useState(false);
 
     //Mount 
     useEffect( () => {
@@ -175,10 +181,14 @@ function Requests(props)
         removePending: removePending,
         addRejected: addRejected
     }
-
+;
+    
     return (
         <div className="m-5">
-            <h4 className="mb-4">Slot Linking Request</h4>
+            <h4 className="mb-4">Replacement Request</h4>
+        <div className="d-flex justify-content-center m-4">
+            <Link className="btn btn-success" to="/academic/send-replacement">Send Replacement</Link>
+        </div>
         <div>
             <h5>Pending</h5>
             <Pending pending= {pending} func={vals}/>
@@ -193,9 +203,8 @@ function Requests(props)
             <h5>Rejected</h5>
             <Rejected rejected={rejected}/>
         </div>
-
         </div>
     )
 }
 
-export default Requests;
+export default Replacement;

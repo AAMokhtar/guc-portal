@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+var axios = require("axios");
+
 const WEEKDAYS = [
     "Saturday",
     "Sunday",
@@ -25,8 +27,6 @@ function getSlots()
         },
       course: "777"
     }
-
-    
     return res;
 }
 
@@ -119,8 +119,6 @@ function DaySlotItem({slot, index, func})
     }
 
     const onDel = () =>  {
-        console.log(slot);
-        console.log(index);
         del(slot, index);
     }
 
@@ -238,11 +236,29 @@ function AddCard({func})
 
 function Slot()
 {
+    /*
+    const fetchSlots = async () =>{
+        const URL = 'http://localhost:4000/course-coordinator/get-slots';
+        const result = await axios(URL, 
+        {
+          method: 'GET',
+          headers: {
+            "auth-token": localStorage.getItem("token")
+          },
+        });
+        console.log("slots: " + JSON.stringify(result.data.courseSlots))
+        return {...result.data.courseSlots};
+    }
+    */
+
     const {courseSlots, course} = getSlots();
     const [slots, setSlots] = useState(courseSlots);
     const [selectedSlot, setSelectedSlot] = useState();
     const [addSlot, setAddSlot] = useState(false);
     const [index, setIndex] = useState();
+
+    console.log("result: " + slots);
+    
 
     //TODO: zift mongoose
     const update = (slot, index, newWeekday, newNum, newLocation) => {
@@ -259,7 +275,7 @@ function Slot()
 
     const addToTable = (weekday, number, location) => {
 
-        let slot = {objectID: "dhfdjkaskdhsfkdsahjfdsklj", weekday: weekday, number: number, location: location, course: course, staffID: null};
+        let slot = {objectID: "dhfdjkaskdhsfkdsahjfdsklj", weekday: weekday, number: number, location: location, course: course._id, staffID: null};
 
         add(slot);
     }

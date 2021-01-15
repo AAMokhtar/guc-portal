@@ -55,16 +55,16 @@ router.get("/get-slots", authenticateAndAuthorise("Course Coordinator"), async (
         {
           path: "courseIDs",
         })).courseIDs;
-
+    
     //get the course coordinated by the coordinator
     let courseCoordinated;
     for (i = 0; i < courses.length; i++) {
-      if (courses[i].coordinatorID.equals(user.objectID))
+      let ccID = courses[i].coordinatorID;
+      if (ccID && ccID.equals(user.objectID))
         courseCoordinated = courses[i];
     }
 
     //get the slots of the course
-
     const {slots} = await Course.findById(courseCoordinated).populate(
       {
         path: "slots"
@@ -190,9 +190,9 @@ router.get("/get-slots", authenticateAndAuthorise("Course Coordinator"), async (
     });
 
     //add the days together into one object as the  whole schedule
-    const res = { sat: sat, sun: sun, mon: mon, tue: tue, wed: wed, thu: thu };
+    const result = { sat: sat, sun: sun, mon: mon, tue: tue, wed: wed, thu: thu };
 
-    return res.status(200).json( { slots: res });
+    return res.status(200).json( { courseSlots: result, course: courseCoordinated });
     
   } catch (error) {
     res.status(500).json({ msg: error.message });
@@ -550,10 +550,12 @@ router.post(
       let courseCoordinated;
       for(i=0; i<courses.length; i++)
       {
-        if(courses[i].coordinatorID.equals(user.objectID))
+        let ccID = courses[i].coordinatorID;
+        if(ccID && ccID.equals(user.objectID))
           courseCoordinated = courses[i];
       }
       //add the slot to the slot table
+      let slot;
       await Slot.create({
         weekday: weekday,
         number: slotNum,
@@ -568,7 +570,7 @@ router.post(
         });
       });
 
-      return res.status(200).json({ msg: "Slot added"});
+      return res.status(200).json({ msg: "Slot added", slot: slot});
     } catch (error) {
       res.status(500).json({ msg: error.message });
     }

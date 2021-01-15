@@ -15,6 +15,13 @@ import Login from "./components/login/login";
 import EditProfile from "./views/editProfile";
 import ViewProfile from "./views/viewProfile";
 import Staff from "./components/HOD/Staff";
+
+import Slot from "./components/cc/slot";
+import Requests from "./components/cc/slotRequests";
+import Replacement from "./components/academic/repReq";
+import Sch from "./components/academic/schedule";
+import SendRep from "./components/academic/sendRep";
+
 //styles
 import "./page-basics.css";
 import Schedule from "./views/schedule";
@@ -132,6 +139,13 @@ ReactDOM.render(
               <Route path="/addCourse" component={AddCourse}></Route>
               <Route path="/updateCourse" component={UpdateCourse}></Route>
               <Route path="/newStaff" component={AddStaff}></Route>
+
+              <Route path="/course-coordinator/slot" component={Slot}></Route>
+              <Route path="/course-coordinator/slot-linking-requests" component={Requests}></Route>
+              <Route path="/academic/replacement" component={Replacement}></Route>
+              <Route path="/academic/schedule" component={Sch}></Route>
+              <Route path="/academic/send-replacement" component={SendRep}></Route>
+              
 
               <Route
                 path="/viewStaffRequests"

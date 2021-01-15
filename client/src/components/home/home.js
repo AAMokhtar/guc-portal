@@ -46,9 +46,9 @@ class MainComponent extends Component {
             },
             {
                 src: "https://picsum.photos/id/100/500/325",
-                title: "Staff Attendance",
-                text: 'View current staff Attendance',
-                link: '/viewaStaffAttendance'
+                title: "Staff missing days/hours",
+                text: 'View current every staff member with missing days or hours',
+                link: '/viewStaffMissing'
             },
 
         ];

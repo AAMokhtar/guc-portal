@@ -38,6 +38,7 @@ import UpdateStaff from "./views/updateStaff";
 import UpdateSalary from "./views/updateSalary";
 import ViewStaffAttendance from "./views/viewStaffAttendance";
 import AddSignInOut from "./views/addSignInOut";
+import ViewStaffMissing from "./views/viewStaffMissing";
 
 //for routing
 const createHistory = require("history").createBrowserHistory;
@@ -141,6 +142,8 @@ ReactDOM.render(
               <Route path="/updateSalary" component={UpdateSalary}></Route>
               <Route path="/viewStaffAttendance" component={ViewStaffAttendance}></Route>
               <Route path="/addSignInOut" component={AddSignInOut}></Route>
+              <Route path="/viewStaffMissing" component={ViewStaffMissing}></Route>
+
 
 
               <Route

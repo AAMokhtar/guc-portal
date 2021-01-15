@@ -108,6 +108,20 @@ export const viewAttendance = (id) => {
     });
 };
 
+export const viewMissing = () => {
+  const URL = 'http://localhost:4000/hr/viewmissingusers';
+  return axios(URL, {
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json', // whatever you want
+    },
+  })
+  .then(response => response.data)
+  .catch(error => {
+      throw error;
+  });
+};
+
 
 //delete staff member
 export const deleteStaff = id => {

@@ -9,16 +9,16 @@ const isEmail = require("isemail");
 
 //=====================:-MODELS-:======================
 
-const Staff = require('../mongoose/dao/staff.js');
-const Request = require('../mongoose/dao/request.js');
-const LinkingSlot = require('../mongoose/dao/linkingSlot.js');
-const Leave = require('../mongoose/dao/leave.js');
-const DayOff = require('../mongoose/dao/dayOff.js');
-const Replacement = require('../mongoose/dao/replacement.js');
-const Faculty = require('../mongoose/dao/faculty');
-const Department = require('../mongoose/dao/department');
-const Location = require('../mongoose/dao/location');
-const Course = require('../mongoose/dao/course');
+const Staff = require('../models/staff.js');
+const Request = require('../models/request.js');
+const LinkingSlot = require('../models/linkingSlot.js');
+const Leave = require('../models/leave.js');
+const DayOff = require('../models/dayOff.js');
+const Replacement = require('../models/replacement.js');
+const Faculty = require('../models/faculty');
+const Department = require('../models/department');
+const Location = require('../models/location');
+const Course = require('../models/course');
 
 
 //=====================:-ROUTES-:======================

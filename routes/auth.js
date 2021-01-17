@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const properties = require("../../properties.js");
-const staff = require("../mongoose/dao/staff.js");
+const properties = require("../server/properties.js");
+const staff = require("../models/staff.js");
 const HTTP_CODES = require("./r_util/httpCodes");
 
 //key used for jsonwebtoken

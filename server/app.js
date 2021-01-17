@@ -18,19 +18,17 @@ const green = chalk.bold.green;
 const red = chalk.bold.red;
 
 //routers
-var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
-var staffRouter = require("./src/routes/staff");
-var generalRouter = require("./src/routes/general");
-var hrRouter = require("./src/routes/hr");
-var hodRouter = require("./src/routes/hod");
-var staffRouter = require("./src/routes/staff");
-var generalRouter = require("./src/routes/general");
-var ccRouter = require("./src/routes/cc");
-var ciRouter = require("./src/routes/ci");
+var staffRouter = require("../routes/staff");
+var generalRouter = require("../routes/general");
+var hrRouter = require("../routes/hr");
+var hodRouter = require("../routes/hod");
+var staffRouter = require("../routes/staff");
+var generalRouter = require("../routes/general");
+var ccRouter = require("../routes/cc");
+var ciRouter = require("../routes/ci");
 
-var academicRouter = require("./src/routes/academic");
-const auth = require("./src/routes/auth");
+var academicRouter = require("../routes/academic");
+const auth = require("../routes/auth");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -67,17 +65,7 @@ cronJobs.lb.start();
 cronJobs.deduction.start();
 
 //DB + server connection
-require("./src/mongoose/util/connect&Initialize")(() => {
-  app.listen(properties.PORT, (err) => {
-    if (err)
-      console.log(
-        red("app failed to start " + "(PORT: " + properties.PORT + ")")
-      );
-    console.log(
-      green("CORS-enabled web server is listening to port " + properties.PORT)
-    );
-  });
-});
+require("../server");
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

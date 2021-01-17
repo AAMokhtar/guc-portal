@@ -8,7 +8,7 @@ var isEmail = require("isemail");
 const jwt = require("jsonwebtoken");
 const jwt_decode = require("jwt-decode");
 
-const properties = require("../../properties.js");
+const properties = require("../server/properties.js");
 
 //key used for jsonwebtoken
 const key = properties.JWT_KEY;
@@ -16,8 +16,8 @@ const key = properties.JWT_KEY;
 
 //-------------------------------------------------MODELS---------------------------------------------------------------------------------------
 
-const staff = require("../mongoose/dao/staff.js");
-const location = require("../mongoose/dao/location");
+const staff = require("../models/staff.js");
+const location = require("../models/location");
 
 //-------------------------------------------------END OF MODELS--------------------------------------------------------------------------
 

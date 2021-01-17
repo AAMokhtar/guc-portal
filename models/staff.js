@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const schema = require("../schemes/Staff");
+const schema = require("../server/src/mongoose/schemes/Staff");
 const bcrypt = require("bcryptjs");
 
 schema.statics = {

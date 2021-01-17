@@ -93,16 +93,16 @@ const WEEKDAYS = [
 
 //--------------------------------------MODELS----------------------------------------------------
 
-const Staff = require("../mongoose/dao/staff.js");
-const Course = require("../mongoose/dao/course.js");
-const Replacement = require("../mongoose/dao/replacement.js");
-const Request = require("../mongoose/dao/request.js");
-const Notification = require("../mongoose/dao/notification.js");
-const Slot = require("../mongoose/dao/slot.js");
-const LinkingSlot = require("../mongoose/dao/linkingSlot.js");
-const Department = require("../mongoose/dao/department.js");
-const Leave = require("../mongoose/dao/leave.js");
-const DayOff = require("../mongoose/dao/dayOff.js");
+const Staff = require("../models/staff.js");
+const Course = require("../models/course.js");
+const Replacement = require("../models/replacement.js");
+const Request = require("../models/request.js");
+const Notification = require("../models/notification.js");
+const Slot = require("../models/slot.js");
+const LinkingSlot = require("../models/linkingSlot.js");
+const Department = require("../models/department.js");
+const Leave = require("../models/leave.js");
+const DayOff = require("../models/dayOff.js");
 
 //---------------------------------END OF MODELS--------------------------------------------------
 

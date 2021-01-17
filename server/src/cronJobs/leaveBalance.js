@@ -1,4 +1,4 @@
-const Staff = require('../mongoose/dao/staff');
+const Staff = require('../../../models/staff');
 const chalk = require("chalk");
 
 const blue = chalk.bold.blue;

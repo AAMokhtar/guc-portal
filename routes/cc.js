@@ -26,16 +26,16 @@ const SLOTNUMS = ["First", "Second", "Third", "Fourth", "Fifth"];
 
 //--------------------------------------MODELS----------------------------------------------------
 
-const Staff = require("../mongoose/dao/staff.js");
-const Request = require("../mongoose/dao/request.js");
-const Slot = require("../mongoose/dao/slot.js");
-const LinkingSlot = require("../mongoose/dao/linkingSlot.js");
-const Replacement = require("../mongoose/dao/replacement");
-const Notification = require("../mongoose/dao/notification.js");
-const Course = require("../mongoose/dao/course.js");
-const Location = require("../mongoose/dao/location.js");
+const Staff = require("../models/staff.js");
+const Request = require("../models/request.js");
+const Slot = require("../models/slot.js");
+const LinkingSlot = require("../models/linkingSlot.js");
+const Replacement = require("../models/replacement");
+const Notification = require("../models/notification.js");
+const Course = require("../models/course.js");
+const Location = require("../models/location.js");
 const { NotImplemented } = require("http-errors");
-const { findOne } = require("../mongoose/dao/staff.js");
+const { findOne } = require("../models/staff.js");
 
 //---------------------------------END OF MODELS--------------------------------------------------
 

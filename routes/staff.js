@@ -7,12 +7,12 @@ const isEmail = require("isemail");
 
 //=====================:-MODELS-:======================
 
-const Staff = require("../mongoose/dao/staff.js");
-const Request = require("../mongoose/dao/request.js");
-const faculty = require("../mongoose/dao/faculty");
-const Location = require("../mongoose/dao/location");
-const department = require("../mongoose/dao/department");
-const course = require("../mongoose/dao/course");
+const Staff = require("../models/staff.js");
+const Request = require("../models/request.js");
+const faculty = require("../models/faculty");
+const Location = require("../models/location");
+const department = require("../models/department");
+const course = require("../models/course");
 
 //=====================:-ROUTES-:======================
 

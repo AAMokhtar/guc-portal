@@ -1,16 +1,15 @@
-const app = require("../../app");
-const staff = require("../mongoose/dao/staff");
+const staff = require("../models/staff");
 const mongoose = require("mongoose");
-const department = require("../mongoose/dao/department");
-const request = require("../mongoose/dao/request");
-const course = require("../mongoose/dao/course");
+const department = require("../models/department");
+const request = require("../models/request");
+const course = require("../models/course");
 const express = require("express");
-let slot = require("../mongoose/dao/slot");
+let slot = require("../models/slot");
 const { json } = require("express");
 var router = express.Router();
 const { authenticateAndAuthorise } = require("./auth.js");
 var _ = require("lodash");
-const Location = require("../mongoose/dao/location");
+const Location = require("../models/location");
 
 router.post(
   "/assignTaToCourse",

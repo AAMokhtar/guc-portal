@@ -1,3 +1,3 @@
 const mongoose = require('mongoose');
-const schema = require("../schemes/Department");
+const schema = require("../server/src/mongoose/schemes/Department");
 module.exports = mongoose.model("Department", schema);

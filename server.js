@@ -25,7 +25,7 @@ dbConnect(() => {
         res.sendFile(path.join(__dirname, "client", "build", "index.html"));
     });
 
-    app.listen(process.env.PORT || properties.PORT, (err) => {
+    app.listen(properties.PORT, (err) => {
       if (err)
         console.log(
           red("app failed to start " + "(PORT: " + properties.PORT + ")")

@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 // import {Carousel, Image, Container, Row, Col, Button} from 'react-bootstrap'
 import './some-styling.css'
+import { ToastContainer, toast } from "react-toastify";
+
 const axios = require('axios');
-axios.defaults.headers.common['auth-token'] = localStorage.getItem('token');
+axios.defaults.headers.common['auth-token'] = window.sessionStorage.getItem('token');
 
 
 
@@ -15,20 +17,78 @@ let resData;
 
 class ViewProfile extends Component {
 
+    state = {
+            user: JSON.parse(localStorage.getItem('user')),
+            name: (JSON.parse(localStorage.getItem('user'))).name,
+            email: (JSON.parse(localStorage.getItem('user'))).email,
+            password: (JSON.parse(localStorage.getItem('user'))).password,
+            gender: (JSON.parse(localStorage.getItem('user'))).gender,
+            officeLocation: (JSON.parse(localStorage.getItem('user'))).officeLocation,
+            facultyName: (JSON.parse(localStorage.getItem('user'))).facultyName,
+            departmentName: (JSON.parse(localStorage.getItem('user'))).departmentName,
+            likes: (JSON.parse(localStorage.getItem('user'))).others.likes,
+    }
+
+
+
+
+  //TODO: Success and fail toast if there's time!
+  handleUpdateProfile = (event) => {
+    const params = this.state.user.role == 'HR' ?  {
+        email: this.state.email,
+        password: this.state.password,
+        gender: this.state.gender,
+        officeLocation: this.state.officeLocation,
+        facultyName: this.state.facultyName,
+        departmentName: this.state.departmentName
+      } : 
+      {
+        email: this.state.email,
+        password: this.state.password,
+        gender: this.state.gender,
+        officeLocation: this.state.officeLocation,
+       
+      } ;
+    axios
+      .put("http://localhost:4000/staff/updateprofile", {
+        headers: {
+          'auth-token': localStorage.getItem('token') 
+        }
+      })
+      .then(function (response) {
+        toast.success("Profile Updated");
+        this.handleViewProfile();
+
+
+      })
+      .catch(function (error) {
+        // handle error
+        toast.error("Profile Update failed");
+
+        console.log(error);
+      })
+      .then(function () {
+        // always executed
+      });
+  };
+
+
+  
+
     
 handleViewProfile(event){
 
-    axios.get('http://localhost:4000/staff/myprofile'
+    axios.get('http://localhost:4000/staff/myprofile', {headers: {
+        'auth-token': localStorage.getItem('token') 
+      }
+    }
       )
       .then(function (response) {
         // handle success
         console.log("view profile works");
         console.log(response.data);
         resData = response.data;
-        // switch(role){
-        //     case "HR": responseItems = [role,name,staffID,email]; break;
-        //     case default: responseItems = [role,name,staffID,email]; break;
-        // }
+        localStorage.setItem("user", response.data)
       })
 
       .catch(function (error) {
@@ -40,9 +100,15 @@ handleViewProfile(event){
       });
   }
 
-    state = {  }
+  handleChange (evt, field) {
+    
+    this.setState({ [field]: evt.target.value });
+  }
+
+
     render() { 
         this.handleViewProfile();
+        
 
         return ( 
           <div className="container">
@@ -53,28 +119,28 @@ handleViewProfile(event){
                           <div className="row mt-5 align-items-center">
                               <div className="col-md-3 text-center mb-5">
                                   <div className="avatar avatar-xl">
-                                      <img src="https://lh3.googleusercontent.com/a-/AOh14Gj43WnACEauUzP5IxS3ZyPaNO5CsVmPIZThR-ZKfAg=s288-c-rg-br100" alt="..." className="avatar-img rounded-circle" />
+                                      <img src="https://img.icons8.com/cute-clipart/64/000000/user-male.png" alt="..." className="avatar-img rounded-circle" />
                                   </div>
                               </div>
                               <div className="col">
                                   <div className="row align-items-center">
                                       <div className="col-md-7">
                                           {/*TODO: placeholder. put the name of the current user here!! */}
-                                          <h4 className="mb-1">Basant Mounir</h4>
-                                          <p className="small mb-3"><span className="badge badge-dark">Cairo ,Egypt</span></p>
+                                          <h4 className="mb-1">{this.state.user.name}</h4>
+                                          <p className="small mb-3"><span className="badge badge-dark">{this.state.user.officeLocation}</span></p>
                                       </div>
                                   </div>
                                   <div className="row mb-4">
                                       <div className="col-md-7">
                                           <p className="text-muted">
                                               {/*TODO: placeholder. put the role of the current user here!! */}
-                                              43- MET CS Student
+                                              {this.state.user.departmentName}, {this.state.user.facultyName}
                                           </p>
                                       </div>
                                       <div className="col">
-                                          <p className="small mb-0 text-muted">Cairo, Egypt</p>
-                                          <p className="small mb-0 text-muted">Phone Number</p>
-                                          <p className="small mb-0 text-muted">Field Placeholder</p>
+                                          <p className="small mb-0 text-muted">{this.state.user.salary} NET</p>
+                                          <p className="small mb-0 text-muted">{this.state.user.email}</p>
+                                          <p className="small mb-0 text-muted">ID: {this.state.user.staffID}</p>
                                       </div>
                                   </div>
                               </div>
@@ -83,54 +149,56 @@ handleViewProfile(event){
                          {/** TODO: placeholders all over this page!!!! */}
                           <div className="form-row">
                               <div className="form-group col-md-6">
-                                  <label htmlFor="firstname">Firstname</label>
-                                  <input type="text" id="firstname" className="form-control" placeholder="Your first name" />
+                                  <label htmlFor="name">Name</label>
+                                  <input type="text" id="name" className="form-control" placeholder="Your name" value={this.state.name} onChange={(event)=>this.handleChange(event, "name")} />
                               </div>
                               <div className="form-group col-md-6">
-                                  <label htmlFor="lastname">Lastname</label>
-                                  <input type="text" id="lastname" className="form-control" placeholder="Your last name" />
-                              </div>
-                          </div>
-                          <div className="form-group">
-                              <label htmlFor="inputEmail4">Email</label>
-                              <input type="email" className="form-control" id="inputEmail4" placeholder="Your email" />
-                          </div>
-                          <div className="form-group">
-                              <label htmlFor="inputAddress5">Address</label>
-                              <input type="text" className="form-control" id="inputAddress5" placeholder="Your address" />
-                          </div>
-                          <div className="form-row">
-                              <div className="form-group col-md-6">
-                                  <label htmlFor="inputCompany5">Departement</label>
-                                  <input type="text" className="form-control" id="inputCompany5" placeholder="Your department" />
-                              </div>
-                              <div className="form-group col-md-4">
-                                  <label htmlFor="inputState5">Office </label>
-                                  <select id="inputState5" className="form-control">
-                                      <option defaultValue="">Office placeholder</option>
-                                      <option>...</option>
+                              <label htmlFor="gender">Gender  </label>
+                                  <select id="gender" className="form-control" onChange={(event)=>this.handleChange(event, "gender")}>
+                                  <option defaultValue={this.state.user.gender}>{this.state.user.gender}</option>
+                                  <option value='Male'>Male</option>
+                                  <option value='Female'>Female</option>
                                   </select>
                               </div>
+                          </div>
+                          <div className="form-group">
+                              <label htmlFor="email">Email</label>
+                              <input type="email" className="form-control" id="email" placeholder="Your email" valuw={this.state.user.email} onChange={(event)=>this.handleChange(event, "email")} />
+                          </div>
+                          <div className="form-group">
+                              <label htmlFor="officeLocation">Office Location</label>
+                              <input type="text" className="form-control" id="officeLocation" placeholder="Your office location" value={this.state.user.officeLocation} onChange={(event)=>this.handleChange(event, "officeLocation")}/>
+                          </div>
+                          <div className="form-row">
+                              {this.state.user.role == 'HR' ? <div className="form-group col-md-6">
+                                  <label htmlFor="departementName">Departement Name</label>
+                                  <input type="text" className="form-control" id="departementName" placeholder="Your department" value={this.state.user.departmentName} onChange={(event)=>this.handleChange(event, "departmentName")}/>
+                              </div> : <div></div>}
+                              {this.state.user.role == 'HR' ? <div className="form-group col-md-4">
+                              <label htmlFor="facultyName">Faculty Name</label>
+                                  <input type="text" className="form-control" id="facultyName" placeholder="Your faculty" value={this.state.user.facultyName}  onChange={(event)=>this.handleChange(event, "facultyName")}/>
+                              </div> : <div></div>}
+            
                               <div className="form-group col-md-2">
-                                  <label htmlFor="inputZip5">Other</label>
-                                  <input type="text" className="form-control" id="inputZip5" placeholder="Others" />
+                                  <label htmlFor="others">Other</label>
+                                  <input type="text" className="form-control" id="others" placeholder="Others" value={this.state.likes} onChange={(event)=>this.handleChange(event, "likes")}/>
                               </div>
                           </div>
                           <hr className="my-4" />
                           <div className="row mb-4">
                               <div className="col-md-6">
-                                  <div className="form-group">
+                                  {/* <div className="form-group">
                                       <label htmlFor="inputPassword4">Old Password</label>
                                       <input type="password" className="form-control" id="inputPassword5" />
-                                  </div>
+                                  </div> */}
                                   <div className="form-group">
-                                      <label htmlFor="inputPassword5">New Password</label>
-                                      <input type="password" className="form-control" id="inputPassword5" />
+                                      <label htmlFor="password">New Password</label>
+                                      <input type="password" className="form-control" id="password" />
                                   </div>
-                                  <div className="form-group">
-                                      <label htmlFor="inputPassword6">Confirm Password</label>
-                                      <input type="password" className="form-control" id="inputPassword6" />
-                                  </div>
+                                  {/* <div className="form-group">
+                                      <label htmlFor="password">Confirm Password</label>
+                                      <input type="password" className="form-control" id="password" />
+                                  </div> */}
                               </div>
                               <div className="col-md-6">
                                   <p className="mb-2">Password requirements</p>
@@ -146,7 +214,7 @@ handleViewProfile(event){
                           <div>
                             {/* <EditProfile/> */}
                           </div>
-                          <button type="submit" className="btn btn-primary">Save Change</button>
+                          <button onClick={this.handleUpdateProfile} className="btn btn-primary">Save Change</button>
                       </form>
                   </div>
               </div>

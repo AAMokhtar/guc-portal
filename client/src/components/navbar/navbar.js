@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import * as authService from "../login/authenticationService";
+
 import {
   Navbar,
   Nav,
@@ -23,6 +24,7 @@ class NavComponent extends Component {
   state = {
     showNav: false,
     currentPage: "",
+    user: JSON.parse(localStorage.getItem('user'))
   };
 
   handleLogout = (event) => {
@@ -43,7 +45,11 @@ class NavComponent extends Component {
   //TODO: Success and fail toast if there's time!
   handleSignOut = (event) => {
     axios
-      .put("http://localhost:4000/staff/signout")
+      .put("http://localhost:4000/staff/signout", {
+        headers: {
+          'auth-token': localStorage.getItem('token') 
+        }
+      })
       .then(function (response) {
         toast.success("Signed Out Successfully");
 
@@ -62,8 +68,12 @@ class NavComponent extends Component {
 
   //TODO: Success and fail toast if there's time!
   handleSignIn = (event) => {
-    axios
-      .put("http://localhost:4000/staff/signin")
+    let req = axios
+      .put("http://localhost:4000/staff/signin", {
+        headers: {
+          'auth-token': localStorage.getItem('token') 
+        }
+      })
       .then(function (response) {
         // handle success
         toast.success("Signed In Successfully");
@@ -78,6 +88,8 @@ class NavComponent extends Component {
       .then(function () {
         // always executed
       });
+
+      console.log(req);
   };
 
   render() {
@@ -181,9 +193,15 @@ class NavComponent extends Component {
     //TODO: placeholder - replace with role of logged in user
     const popover = (
       <Popover id="popover-basic">
-        <Popover.Title as="h3">Basant Mounir</Popover.Title>
+        <Popover.Title as="h3"> Quick Info</Popover.Title>
         <Popover.Content>
-          43- GUC MET - Student and Aspiring Data Scientist &lt;3 ❤
+          Day Off: {this.state.user.dayOff}
+          <br></br>
+          Office Location: {this.state.user.officeLocation}
+          <br></br>
+          Faculty: {this.state.user.facultyName}
+          <br></br>
+          ðŸ’“ {this.state.user.others.likes}
         </Popover.Content>
       </Popover>
     );
@@ -199,7 +217,7 @@ class NavComponent extends Component {
             }}
           >
             <Image
-              src="https://lh6.ggpht.com/gNy40q6S_519oQZ_AE9sGypZ-Z94zDy2Xpm5Tg5mYf8yVOSLAxAhEatKLn0vJDyFErE=w300"
+              src="https://img.icons8.com/cute-clipart/64/000000/user-male.png"
               width="40"
               height="40"
             />
@@ -257,13 +275,13 @@ class NavComponent extends Component {
               <Nav.Link>
                 {/*todo: this is a placeholder. Put name of the current user!*/}
                 <OverlayTrigger placement="bottom" overlay={popover}>
-                  <Button variant="dark">Basant Mounir</Button>
+                  <Button variant="dark">{this.state.user.name}</Button>
                 </OverlayTrigger>
               </Nav.Link>
 
               <div className="avatar avatar-xl">
                 <img
-                  src="https://lh3.googleusercontent.com/a-/AOh14Gj43WnACEauUzP5IxS3ZyPaNO5CsVmPIZThR-ZKfAg=s288-c-rg-br100"
+                  src="https://img.icons8.com/cute-clipart/64/000000/user-male.png"
                   style={{ maxHeight: 50, maxWidth: 50 }}
                   alt="..."
                   className="avatar-img rounded-circle"

@@ -8,7 +8,7 @@ var createError = require("http-errors");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const cronJobs = require("./src/cronJobs/scheduling");
+const cronJobs = require("./src/yyi/scheduling");
 
 //console colors
 const chalk = require("chalk");

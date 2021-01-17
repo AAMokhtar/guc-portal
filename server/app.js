@@ -8,7 +8,7 @@ var createError = require("http-errors");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const cronJobs = require("./src/CronJobs/scheduling");
+// const cronJobs = require("./src/CronJobs/scheduling");
 
 //console colors
 const chalk = require("chalk");
@@ -58,9 +58,9 @@ app.use("/academic", academicRouter);
 app.use("/ci", ciRouter);
 
 //start monitoring cron jobs
-cronJobs.nxtAtt.start();
-cronJobs.lb.start();
-cronJobs.deduction.start();
+// cronJobs.nxtAtt.start();
+// cronJobs.lb.start();
+// cronJobs.deduction.start();
 
 //DB + server connection
 require("../server");

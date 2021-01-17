@@ -8,7 +8,10 @@ import { Cards } from "../cards/cards";
 import { Footer } from "../footer/footer";
 
 class MainComponent extends Component {
-  state = {};
+  state = {
+    user: JSON.parse(localStorage.getItem("user")),
+
+  };
   render() {
     let infoArr = [
       {
@@ -104,22 +107,20 @@ class MainComponent extends Component {
                 <Image
                   style={{ height: 100 }}
                   className="m-3"
-                  src="https://lh3.googleusercontent.com/a-/AOh14Gj43WnACEauUzP5IxS3ZyPaNO5CsVmPIZThR-ZKfAg=s288-c-rg-br100"
+                  src="https://img.icons8.com/cute-clipart/50/000000/user-male.png"
                   roundedCircle
                 />
+
               </span>
-              Welcome Basant Mounir!
+              Welcome {this.state.user.role} {this.state.user.name}!
             </h1>
 
             <p className="lead">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa,
-              ipsam, eligendi, in quo sunt possimus non incidunt odit vero
-              aliquid similique quaerat nam nobis illo aspernatur vitae fugiat
-              numquam repellat.
+              You have {this.state.user.notifications.length} notifications
+              <br></br>
+              Signed in as {this.state.user.email}
             </p>
-            <a className="btn btn-primary btn-lg" href="#" role="button">
-              Call to action!
-            </a>
+            
           </div>
           <Alert variant="secondary" className="m-3">
             My Information

@@ -26,7 +26,7 @@ class ViewProfile extends Component {
             officeLocation: (JSON.parse(localStorage.getItem('user'))).officeLocation,
             facultyName: (JSON.parse(localStorage.getItem('user'))).facultyName,
             departmentName: (JSON.parse(localStorage.getItem('user'))).departmentName,
-            likes: (JSON.parse(localStorage.getItem('user'))).others.likes,
+            others: (JSON.parse(localStorage.getItem('user'))).others
     }
 
 
@@ -181,7 +181,7 @@ handleViewProfile(event){
             
                               <div className="form-group col-md-2">
                                   <label htmlFor="others">Other</label>
-                                  <input type="text" className="form-control" id="others" placeholder="Others" value={this.state.likes} onChange={(event)=>this.handleChange(event, "likes")}/>
+                                  <input type="text" className="form-control" id="others" placeholder="Others" value={this.state.others} onChange={(event)=>this.handleChange(event, "others")}/>
                               </div>
                           </div>
                           <hr className="my-4" />

@@ -35,7 +35,7 @@ class ViewStaffMissing extends Component {
     staffService.viewMissing().then((res) => {
         
         this.setState({
-           attList: res,
+           mList: res,
            isLoaded: true
         });
     })
@@ -85,7 +85,7 @@ class ViewStaffMissing extends Component {
     {this.state.mList.map((member, index) => {
         return (<tr id={"row" + index}>
         <td className="text-center">{index}</td>
-        <td className="text-center">{member.date}</td>
+        <td className="text-center">{member.staffID}</td>
         <td className="text-center">{member.missingDays}</td>
         <td className="text-center">{member.missingHours}</td>
     </tr>

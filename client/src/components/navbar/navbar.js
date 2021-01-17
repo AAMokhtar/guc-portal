@@ -201,7 +201,7 @@ class NavComponent extends Component {
           <br></br>
           Faculty: {this.state.user.facultyName}
           <br></br>
-          ðŸ’“ {this.state.user.others.likes}
+          ðŸ’“ {this.state.user.others}
         </Popover.Content>
       </Popover>
     );

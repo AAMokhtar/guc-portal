@@ -59,7 +59,7 @@ class ViewStaffAttendance extends Component {
         <td className="text-center">{index}</td>
         <td className="text-center">{date.date}</td>
         <td className="text-center">{date.signIn.map((signin, index) => {return <li>{signin}</li> })}</td>
-        <td className="text-center">{date.signIn.map((signout, index) => {return <li>{signout}</li> })}</td>
+        <td className="text-center">{date.signOut.map((signout, index) => {return <li>{signout}</li> })}</td>
     </tr>
     )
     })}

@@ -8,8 +8,6 @@ var createError = require("http-errors");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const assert = require("assert");
-const properties = require("./properties");
 const cronJobs = require("./src/cronJobs/scheduling");
 
 //console colors

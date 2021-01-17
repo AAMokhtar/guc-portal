@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const properties = require("../server/properties");
+const properties = require("./server/properties");
 const path = require("path")
 
 const chalk = require("chalk");

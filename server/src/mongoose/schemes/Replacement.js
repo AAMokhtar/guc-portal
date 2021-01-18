@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Slot = require("./slot.js");
+const Slot = require("./Slot");
 const Schema = mongoose.Schema;
 const schema = new Schema({
   replacementDay: {

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 //const { CustomGender } = require("../util/CustomGender");
 const Notification = require("./Notification");
-const Slot = require("./slot.js");
+const Slot = require("./Slot");
 const bcrypt = require("bcryptjs");
 
 const Schema = mongoose.Schema;

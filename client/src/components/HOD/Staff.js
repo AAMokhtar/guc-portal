@@ -78,7 +78,7 @@ export class Staff extends Component {
     var config = {
       method: "get",
       url:
-        "http://localhost:4000/hod/viewStaff" +
+        "/hod/viewStaff" +
         (this.state.courseFilter
           ? "?courseCode=" + this.state.courseFilter
           : ""),
@@ -88,7 +88,7 @@ export class Staff extends Component {
     };
     var config2 = {
       method: "get",
-      url: "http://localhost:4000/hod/getCourses",
+      url: "/hod/getCourses",
       headers: {
         "auth-token": localStorage.getItem("token"),
       },
@@ -96,7 +96,7 @@ export class Staff extends Component {
 
     var configCoverage = {
       method: "get",
-      url: "http://localhost:4000/hod/viewCoverage",
+      url: "/hod/viewCoverage",
       headers: {
         "auth-token": localStorage.getItem("token"),
       },
@@ -151,7 +151,7 @@ export class Staff extends Component {
 
     var config = {
       method: "delete",
-      url: "http://localhost:4000/hod/deleteInstructor",
+      url: "/hod/deleteInstructor",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Tyipe": "application/json",
@@ -175,7 +175,7 @@ export class Staff extends Component {
     });
     var config = {
       method: "post",
-      url: "http://localhost:4000/hod/assignInstructor",
+      url: "/hod/assignInstructor",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
@@ -197,7 +197,7 @@ export class Staff extends Component {
     var config = {
       method: "get",
       url:
-        "http://localhost:4000/hod/viewStaff" +
+        "/hod/viewStaff" +
         (courseFilter ? "?courseCode=" + courseFilter : ""),
       headers: {
         "auth-token": localStorage.getItem("token"),
@@ -205,7 +205,7 @@ export class Staff extends Component {
     };
     var config2 = {
       method: "get",
-      url: "http://localhost:4000/hod/getCourses",
+      url: "/hod/getCourses",
       headers: {
         "auth-token": localStorage.getItem("token"),
       },
@@ -246,7 +246,7 @@ export class Staff extends Component {
 
     var config = {
       method: "post",
-      url: "http://localhost:4000/hod/updateInstructor",
+      url: "/hod/updateInstructor",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",

@@ -71,7 +71,7 @@ axios.interceptors.response.use(
       });
     }
 
-    if (error.config.url === "http://localhost:4000/general/refresh-token") {
+    if (error.config.url === "/general/refresh-token") {
       localStorage.removeItem("token");
       browserHistory.push("/");
 

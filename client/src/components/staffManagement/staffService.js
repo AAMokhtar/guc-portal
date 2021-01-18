@@ -2,7 +2,7 @@ import axios from 'axios';
 
 //get Courses
 export const addStaff = (payload) => {
-  const URL = 'http://localhost:4000/hr/addStaff';
+  const URL = '/hr/addStaff';
   return axios(URL, {
     method: 'POST',
     headers: {
@@ -18,7 +18,7 @@ export const addStaff = (payload) => {
 
 // get staff
 export const getStaff = () => {
-  const URL = 'http://localhost:4000/staff/getStaff/'
+  const URL = '/staff/getStaff/'
   return axios(URL, {
     method: 'GET',
     headers: {
@@ -33,7 +33,7 @@ export const getStaff = () => {
 
 // get staff
 export const getStaffAttendance = (staffID) => {
-    const URL = 'http://localhost:4000/hr/viewattendance/' + staffID
+    const URL = '/hr/viewattendance/' + staffID
     return axios(URL, {
       method: 'GET',
       headers: {
@@ -48,7 +48,7 @@ export const getStaffAttendance = (staffID) => {
 
 //update staff member
 export const updateStaff = payload => {
-  const URL = 'http://localhost:4000/hr/updatestaff/'
+  const URL = '/hr/updatestaff/'
   return axios(URL, {
     method: 'PUT',
     headers: {
@@ -64,7 +64,7 @@ export const updateStaff = payload => {
 
 //update staff member's salary
 export const updateSalary = (staffID, salary) => {
-    const URL = 'http://localhost:4000/hr/updateSalary/' + staffID + '/' + salary;
+    const URL = '/hr/updateSalary/' + staffID + '/' + salary;
     return axios(URL, {
       method: 'PUT',
       headers: {
@@ -79,7 +79,7 @@ export const updateSalary = (staffID, salary) => {
 
 //add missing attendace
 export const addSignInOut = (id, payload)=> {
-    const URL = 'http://localhost:4000/hr/addmissingattendance/' + id;
+    const URL = '/hr/addmissingattendance/' + id;
     return axios(URL, {
       method: 'PUT',
       headers: {
@@ -95,7 +95,7 @@ export const addSignInOut = (id, payload)=> {
 
 
 export const viewAttendance = (id) => {
-    const URL = 'http://localhost:4000/hr/viewattendance/' + id;
+    const URL = '/hr/viewattendance/' + id;
     return axios(URL, {
       method: 'GET',
       headers: {
@@ -109,7 +109,7 @@ export const viewAttendance = (id) => {
 };
 
 export const viewMissing = () => {
-  const URL = 'http://localhost:4000/hr/viewmissingusers';
+  const URL = '/hr/viewmissingusers';
   return axios(URL, {
     method: 'GET',
     headers: {
@@ -125,7 +125,7 @@ export const viewMissing = () => {
 
 //delete staff member
 export const deleteStaff = id => {
-    const URL = 'http://localhost:4000/hr/deletestaff/' + id;
+    const URL = '/hr/deletestaff/' + id;
     return axios(URL, {
       method: 'DELETE',
       headers: {

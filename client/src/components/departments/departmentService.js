@@ -2,7 +2,7 @@ import axios from 'axios';
 
 //get Departments
 export const getDepartments = () => {
-  const URL = 'http://localhost:4000/staff/getDepartments';
+  const URL = '/staff/getDepartments';
   return axios(URL, {
     method: 'GET',
     headers: {
@@ -17,7 +17,7 @@ export const getDepartments = () => {
 
 // add Department
 export const addDepartment = (faculty, name) => {
-  const URL = 'http://localhost:4000/hr/addDepartment/' + faculty + '/' + name;
+  const URL = '/hr/addDepartment/' + faculty + '/' + name;
   return axios(URL, {
     method: 'POST',
     headers: {
@@ -32,7 +32,7 @@ export const addDepartment = (faculty, name) => {
 
 //update Department
 export const updateDepartment = (faculty, departmentName, payload) => {
-  const URL = 'http://localhost:4000/hr/updateDepartment/' + faculty + '/' +departmentName;
+  const URL = '/hr/updateDepartment/' + faculty + '/' +departmentName;
   return axios(URL, {
     method: 'PUT',
     headers: {
@@ -48,7 +48,7 @@ export const updateDepartment = (faculty, departmentName, payload) => {
 
 //remove Department from faculty
 export const removeDepartment = (name, faculty) => {
-    const URL = 'http://localhost:4000/hr/removedepartment/' + faculty + '/' +  name;
+    const URL = '/hr/removedepartment/' + faculty + '/' +  name;
     return axios(URL, {
       method: 'PUT',
       headers: {
@@ -63,7 +63,7 @@ export const removeDepartment = (name, faculty) => {
 
 //delete Department
 export const deleteDepartment = Department => {
-    const URL = 'http://localhost:4000/hr/deleteDepartment/' + Department;
+    const URL = '/hr/deleteDepartment/' + Department;
     return axios(URL, {
       method: 'DELETE',
       headers: {

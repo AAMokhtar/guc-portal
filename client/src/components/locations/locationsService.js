@@ -2,7 +2,7 @@ import axios from 'axios';
 
 //get locations
 export const getLocations = () => {
-  const URL = 'http://localhost:4000/staff/getlocations';
+  const URL = '/staff/getlocations';
   return axios(URL, {
     method: 'GET',
     headers: {
@@ -17,7 +17,7 @@ export const getLocations = () => {
 
 // add location
 export const addLocation = payload => {
-  const URL = 'http://localhost:4000/hr/addlocation';
+  const URL = '/hr/addlocation';
   return axios(URL, {
     method: 'POST',
     headers: {
@@ -33,7 +33,7 @@ export const addLocation = payload => {
 
 //update location
 export const updateLocation = (locationName, payload) => {
-  const URL = 'http://localhost:4000/hr/updatelocation/' + locationName;
+  const URL = '/hr/updatelocation/' + locationName;
   return axios(URL, {
     method: 'PUT',
     headers: {
@@ -49,7 +49,7 @@ export const updateLocation = (locationName, payload) => {
 
 //delete location
 export const deleteLocation = location => {
-    const URL = 'http://localhost:4000/hr/deletelocation/' + location;
+    const URL = '/hr/deletelocation/' + location;
     return axios(URL, {
       method: 'DELETE',
       headers: {

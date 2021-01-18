@@ -238,7 +238,7 @@ function Slot()
 {
     /*
     const fetchSlots = async () =>{
-        const URL = 'http://localhost:4000/course-coordinator/get-slots';
+        const URL = '/course-coordinator/get-slots';
         const result = await axios(URL, 
         {
           method: 'GET',

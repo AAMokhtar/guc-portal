@@ -2,7 +2,7 @@ import axios from 'axios';
 
 //get Courses
 export const getCourses = () => {
-  const URL = 'http://localhost:4000/staff/getCourses';
+  const URL = '/staff/getCourses';
   return axios(URL, {
     method: 'GET',
     headers: {
@@ -17,7 +17,7 @@ export const getCourses = () => {
 
 // add Course
 export const addCourse = (departmentName, code) => {
-  const URL = 'http://localhost:4000/hr/addCourse/' + departmentName + '/' + code;
+  const URL = '/hr/addCourse/' + departmentName + '/' + code;
   return axios(URL, {
     method: 'POST',
     headers: {
@@ -32,7 +32,7 @@ export const addCourse = (departmentName, code) => {
 
 //update Course
 export const updateCourse = (departmentName, code, payload) => {
-  const URL = 'http://localhost:4000/hr/updateCourse/' + departmentName + '/' +code;
+  const URL = '/hr/updateCourse/' + departmentName + '/' +code;
   return axios(URL, {
     method: 'PUT',
     headers: {
@@ -48,7 +48,7 @@ export const updateCourse = (departmentName, code, payload) => {
 
 //remove Course from department
 export const removeCourse = (departmentName, code) => {
-    const URL = 'http://localhost:4000/hr/removeCourse/' + departmentName + '/' +  code;
+    const URL = '/hr/removeCourse/' + departmentName + '/' +  code;
     return axios(URL, {
       method: 'PUT',
       headers: {
@@ -63,7 +63,7 @@ export const removeCourse = (departmentName, code) => {
 
 //delete Course
 export const deleteCourse = code => {
-    const URL = 'http://localhost:4000/hr/deleteCourse/' + code;
+    const URL = '/hr/deleteCourse/' + code;
     return axios(URL, {
       method: 'DELETE',
       headers: {

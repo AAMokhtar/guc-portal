@@ -33,7 +33,7 @@ class ViewStaffRequests extends Component {
   async componentWillMount() {
     var config = {
       method: "get",
-      url: "http://localhost:4000/hod/viewRequests/",
+      url: "/hod/viewRequests/",
       headers: {
         "auth-token": localStorage.getItem("token"),
       },
@@ -56,7 +56,7 @@ class ViewStaffRequests extends Component {
     var config = {
       method: "post",
       url:
-        "http://localhost:4000/hod/RejectRequest" +
+        "/hod/RejectRequest" +
         (val ? "?comment=" + val : ""),
       headers: {
         "auth-token": localStorage.getItem("token"),
@@ -127,7 +127,7 @@ class ViewStaffRequests extends Component {
 
       var config = {
         method: "post",
-        url: "http://localhost:4000/hod/AcceptRequest",
+        url: "/hod/AcceptRequest",
         headers: {
           "auth-token": localStorage.getItem("token"),
           "Content-Type": "application/json",

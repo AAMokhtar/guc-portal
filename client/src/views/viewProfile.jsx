@@ -50,7 +50,7 @@ class ViewProfile extends Component {
        
       } ;
     axios
-      .put("http://localhost:4000/staff/updateprofile", {
+      .put("/staff/updateprofile", {
         headers: {
           'auth-token': localStorage.getItem('token') 
         }
@@ -78,7 +78,7 @@ class ViewProfile extends Component {
     
 handleViewProfile(event){
 
-    axios.get('http://localhost:4000/staff/myprofile', {headers: {
+    axios.get('/staff/myprofile', {headers: {
         'auth-token': localStorage.getItem('token') 
       }
     }

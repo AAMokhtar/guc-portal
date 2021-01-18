@@ -4,7 +4,7 @@ import axios from "axios";
 
 //login
 export const fetchUser = () => {
-  const URL = "http://localhost:4000/staff/myprofile";
+  const URL = "/staff/myprofile";
   return axios(URL, {
     method: "GET",
     headers: {
@@ -20,7 +20,7 @@ export const fetchUser = () => {
 };
 
 export const onLogout = (payload) => {
-  const URL = "http://localhost:4000/staff/logout";
+  const URL = "/staff/logout";
   return axios(URL, {
     method: "POST",
     headers: {
@@ -35,7 +35,7 @@ export const onLogout = (payload) => {
 
 //refresh token
 export const onTokenExpire = (payload) => {
-  const URL = "http://localhost:4000/general/refresh-token";
+  const URL = "/general/refresh-token";
   return axios(URL, {
     method: "POST",
     headers: {

@@ -111,7 +111,7 @@ export class CIStaff extends Component {
     var config = {
       method: "get",
       url:
-        "http://localhost:4000/ci/viewStaff" +
+        "/ci/viewStaff" +
         (this.state.courseFilter
           ? "?courseCode=" + this.state.courseFilter
           : ""),
@@ -121,7 +121,7 @@ export class CIStaff extends Component {
     };
     var config2 = {
       method: "get",
-      url: "http://localhost:4000/ci/getCourses",
+      url: "/ci/getCourses",
       headers: {
         "auth-token": localStorage.getItem("token"),
       },
@@ -129,14 +129,14 @@ export class CIStaff extends Component {
 
     var configCoverage = {
       method: "get",
-      url: "http://localhost:4000/ci/viewCoverage",
+      url: "/ci/viewCoverage",
       headers: {
         "auth-token": localStorage.getItem("token"),
       },
     };
     var configLocations = {
       method: "get",
-      url: "http://localhost:4000/general/getLocations",
+      url: "/general/getLocations",
       headers: {},
     };
 
@@ -232,7 +232,7 @@ export class CIStaff extends Component {
 
     var config = {
       method: "delete",
-      url: "http://localhost:4000/ci/deleteTafromCourse",
+      url: "/ci/deleteTafromCourse",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Tyipe": "application/json",
@@ -256,7 +256,7 @@ export class CIStaff extends Component {
     });
     var config = {
       method: "post",
-      url: "http://localhost:4000/ci/assignTaToCourse",
+      url: "/ci/assignTaToCourse",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
@@ -278,7 +278,7 @@ export class CIStaff extends Component {
     var config = {
       method: "get",
       url:
-        "http://localhost:4000/ci/viewStaff" +
+        "/ci/viewStaff" +
         (courseFilter ? "?courseCode=" + courseFilter : ""),
       headers: {
         "auth-token": localStorage.getItem("token"),
@@ -286,7 +286,7 @@ export class CIStaff extends Component {
     };
     var config2 = {
       method: "get",
-      url: "http://localhost:4000/hod/getCourses",
+      url: "/hod/getCourses",
       headers: {
         "auth-token": localStorage.getItem("token"),
       },
@@ -327,7 +327,7 @@ export class CIStaff extends Component {
 
     var config = {
       method: "post",
-      url: "http://localhost:4000/ci/updateTACourse",
+      url: "/ci/updateTACourse",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
@@ -357,7 +357,7 @@ export class CIStaff extends Component {
 
     var config = {
       method: "post",
-      url: "http://localhost:4000/ci/AssignUnassignedSlot",
+      url: "/ci/AssignUnassignedSlot",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
@@ -388,7 +388,7 @@ export class CIStaff extends Component {
 
     var config = {
       method: "post",
-      url: "http://localhost:4000/ci/deleteAcademicFromSlot",
+      url: "/ci/deleteAcademicFromSlot",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",
@@ -424,7 +424,7 @@ export class CIStaff extends Component {
     console.log(data);
     var config = {
       method: "post",
-      url: "http://localhost:4000/ci/updateSlot",
+      url: "/ci/updateSlot",
       headers: {
         "auth-token": localStorage.getItem("token"),
         "Content-Type": "application/json",

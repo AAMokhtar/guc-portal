@@ -36,7 +36,7 @@ export default class Login extends Component {
     async function onLogin(payload) {
       var config = {
         method: "post",
-        url: "http://localhost:4000/general/login",
+        url: "/general/login",
         headers: {
           "Content-Type": "application/json",
         },

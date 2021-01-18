@@ -2,7 +2,7 @@ import axios from 'axios';
 
 //get Faculties
 export const getFaculties = () => {
-  const URL = 'http://localhost:4000/staff/getFaculties';
+  const URL = '/staff/getFaculties';
   return axios(URL, {
     method: 'GET',
     headers: {
@@ -17,7 +17,7 @@ export const getFaculties = () => {
 
 // add Faculty
 export const addFaculty = name => {
-  const URL = 'http://localhost:4000/hr/addFaculty/' + name;
+  const URL = '/hr/addFaculty/' + name;
   return axios(URL, {
     method: 'POST',
     headers: {
@@ -32,7 +32,7 @@ export const addFaculty = name => {
 
 //update Faculty
 export const updateFaculty = (facultyName, payload) => {
-  const URL = 'http://localhost:4000/hr/updateFaculty/' + facultyName;
+  const URL = '/hr/updateFaculty/' + facultyName;
   return axios(URL, {
     method: 'PUT',
     headers: {
@@ -48,7 +48,7 @@ export const updateFaculty = (facultyName, payload) => {
 
 //delete Faculty
 export const deleteFaculty = faculty => {
-    const URL = 'http://localhost:4000/hr/deleteFaculty/' + faculty;
+    const URL = '/hr/deleteFaculty/' + faculty;
     return axios(URL, {
       method: 'DELETE',
       headers: {

@@ -45,7 +45,7 @@ class NavComponent extends Component {
   //TODO: Success and fail toast if there's time!
   handleSignOut = (event) => {
     axios
-      .put("http://localhost:4000/staff/signout", {
+      .put("/staff/signout", {
         headers: {
           'auth-token': localStorage.getItem('token') 
         }
@@ -69,7 +69,7 @@ class NavComponent extends Component {
   //TODO: Success and fail toast if there's time!
   handleSignIn = (event) => {
     let req = axios
-      .put("http://localhost:4000/staff/signin", {
+      .put("/staff/signin", {
         headers: {
           'auth-token': localStorage.getItem('token') 
         }

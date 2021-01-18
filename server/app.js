@@ -81,7 +81,4 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-// Serve static files from the React frontend app
-app.use(express.static(path.join(__dirname, "../frontend/build")));
-
 module.exports = app;

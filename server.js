@@ -1,43 +1,14 @@
 const mongoose = require("mongoose");
 const properties = require("./server/properties");
-const path = require("path")
 
 const chalk = require("chalk");
-const green = chalk.bold.green;
-const red = chalk.bold.red;
 
 const connected = chalk.bold.green;
 const error = chalk.bold.red;
 const disconnected = chalk.bold.yellow;
 const termination = chalk.bold.magenta;
 
-var express = require("express");
-var app = express();
-
-dbConnect(() => {
-
-    // ... other app.use middleware 
-    app.use(express.static(path.join(__dirname, "client", "build")))
-
-    // ...
-    // Right before your app.listen(), add this:
-    app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "client", "build", "index.html"));
-    });
-
-    app.listen(properties.PORT, (err) => {
-      if (err)
-        console.log(
-          red("app failed to start " + "(PORT: " + properties.PORT + ")")
-        );
-      console.log(
-        green("CORS-enabled web server is listening to port " + properties.PORT)
-      );
-    });
-  });
-
-
-function dbConnect(callback) {
+module.exports =  (callback) => {
   //========================================
   mongoose.connect(properties.CONNECTION_STRING, {
     useUnifiedTopology: true,

@@ -1,6 +1,7 @@
 var express = require("express");
 var app = express();
 var cors = require("cors");
+const properties = require("./properties");
 
 const bodyParser = require("body-parser");
 
@@ -42,21 +43,37 @@ app.use(cors(corsOptions));
 app.use("/general", generalRouter);
 app.use("/hr", auth.authenticateAndAuthorise("HR"), hrRouter);
 
-app.use(auth.authenticate);
-app.use("/staff", staffRouter);
-app.use("/course-coordinator", ccRouter);
-app.use("/general", generalRouter);
-app.use("/hod", hodRouter);
-app.use("/academic", academicRouter);
-app.use("/ci", ciRouter);
+app.use("/staff", auth.authenticate, staffRouter);
+app.use("/course-coordinator", auth.authenticate, ccRouter);
+app.use("/general", auth.authenticate, generalRouter);
+app.use("/hod", auth.authenticate, hodRouter);
+app.use("/academic", auth.authenticate, academicRouter);
+app.use("/ci", auth.authenticate, ciRouter);
 
 //start monitoring cron jobs
 cronJobs.nxtAtt.start();
 cronJobs.lb.start();
 cronJobs.deduction.start();
 
+app.use(express.static(path.join(__dirname, "..", "client", "build")))
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "client", "build", "index.html"));
+});
+
 //DB + server connection
-require("../server");
+require("../server")(() => {
+  app.listen(properties.PORT, (err) => {
+    if (err)
+      console.log(
+        red("app failed to start " + "(PORT: " + properties.PORT + ")")
+      );
+    console.log(
+      green("CORS-enabled web server is listening to port " + properties.PORT)
+    );
+  });
+});
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -71,7 +88,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
+  res.json(err);
 });
 
 module.exports = app;

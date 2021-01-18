@@ -48,7 +48,9 @@ export default class Login extends Component {
       return result.data.token;
     }
     (async () => {
+      try{
       let token = await onLogin(payload);
+    
       console.log(token);
       localStorage.setItem("token", token);
       console.log(token);
@@ -63,6 +65,10 @@ export default class Login extends Component {
         .catch(function (error) {
           console.log(error);
         });
+      }
+      catch(error) {
+        this.setState({ serverErr: error.response.data.msg});
+      }
     })();
   }
 

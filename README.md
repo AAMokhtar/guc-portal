@@ -1467,10 +1467,11 @@ Response Ex:
 ```
 ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
 
-Functionality: View “slot linking” request(s) from academic members linked to his/her course.
+Functionality: View “slot linking” request(s) from academic members linked to his/her course.j
 Route: /course-coordinator/slot-linking-request
 Request type: GET
 Response: Array of slot linking requests. Example:
+```
 {
     "requests": [
         {
@@ -1527,45 +1528,47 @@ Response: Array of slot linking requests. Example:
         }
     ]
 }
+```
 
-Functionality: Accept “slot linking” requests from academic members linked to his/her course.
-Route: /course-coordinator/slot-linking-request/accept
-Request type: POST
-Request body: { "requestID" : "5fe63fbbe8a2fc5f94a864a3" }
-Response: { msg: "Slot linking accepted." }
+Functionality: Accept “slot linking” requests from academic members linked to his/her course. \
+Route: /course-coordinator/slot-linking-request/accept \
+Request type: POST \
+Request body: { "requestID" : "5fe63fbbe8a2fc5f94a864a3" } \
+Response: { msg: "Slot linking accepted." } \
 
-Functionality: Reject “slot linking” requests from academic members linked to his/her course.
-Route: /course-coordinator/slot-linking-request/reject
-Request type: POST
-Request body: { "requestID" : "5fe63fbbe8a2fc5f94a864a3" }
-Response: { msg: "Slot linking rejected." }
+Functionality: Reject “slot linking” requests from academic members linked to his/her course. \
+Route: /course-coordinator/slot-linking-request/reject \
+Request type: POST \
+Request body: { "requestID" : "5fe63fbbe8a2fc5f94a864a3" } \
+Response: { msg: "Slot linking rejected." } \
 
-Functionality: Add course slot(s) in his/her course.
-Route: /course-coordinator/course-slot/add
-Request type: POST
-Request body: { "weekday": "Monday", "slotNum" : "Second", "locationId": "5fe5e72d1a8106b169946528" }
-Response: { msg: "Slot added"}
+Functionality: Add course slot(s) in his/her course. \
+Route: /course-coordinator/course-slot/add \
+Request type: POST \
+Request body: { "weekday": "Monday", "slotNum" : "Second", "locationId": "5fe5e72d1a8106b169946528" } \
+Response: { msg: "Slot added"} \
 
-Functionality: Delete course slot(s) in his/her course.
-Route: /course-coordinator/course-slot/delete
-Request type: DELETE
-Request body: { "slotId" : "5fe63172ea7dc545d86c8e24" }
-Response: { msg: "Slot deleted"}
-
-
-Functionality: Update course slot(s) in his/her course.
-Route: /course-coordinator/course-slot/update
-Request type: PUT
-Request body: { "slotId" : "5fe63172ea7dc545d86c8e24" , "newWeekday" : "Wednesday", "newSlotNum": "First", "newLocationId" : "5fe5e72d1a8106b169946528" }
-Response: { msg: "Slot updated"}
+Functionality: Delete course slot(s) in his/her course. \
+Route: /course-coordinator/course-slot/delete \
+Request type: DELETE \
+Request body: { "slotId" : "5fe63172ea7dc545d86c8e24" } \
+Response: { msg: "Slot deleted"} \
 
 
+Functionality: Update course slot(s) in his/her course. \
+Route: /course-coordinator/course-slot/update \
+Request type: PUT \
+Request body: { "slotId" : "5fe63172ea7dc545d86c8e24" , "newWeekday" : "Wednesday", "newSlotNum": "First", "newLocationId" : "5fe5e72d1a8106b169946528" } \
+Response: { msg: "Slot updated"} \
 
 
-Functionality: View their schedule.
-Route: /academic/schedule
-Request type: GET
-Response: An array of slots. Example:
+
+
+Functionality: View their schedule. \
+Route: /academic/schedule \
+Request type: GET \
+Response: An array of slots. Example: \
+```
 {
 	"schedule": {
 	  sat: {
@@ -1626,12 +1629,13 @@ Response: An array of slots. Example:
 	  }
 	}
 }
-
+```
 
 Functionality: view “replacement” request(s).
 Route: /academic/replacement-request
 Request type: GET
 Response: Array of replacement requests. Example:
+```
 {
     "requests": [
         {
@@ -1663,64 +1667,66 @@ Response: Array of replacement requests. Example:
         }
     ]
 }
+```
 
-Functionality: send “replacement” request(s).
-Route: /academic/replacement-request/send
-Request type: POST
-Request body: { "replacementDate" : "2020-12-31", "slotRep" : ["ac-12"]}
-Response: { msg: "Replacement requests sent." }
+Functionality: send “replacement” request(s). \
+Route: /academic/replacement-request/send \
+Request type: POST \
+Request body: { "replacementDate" : "2020-12-31", "slotRep" : ["ac-12"]} \
+Response: { msg: "Replacement requests sent." } \
 
-Functionality: Send a “slot linking” request
-Route: /academic/slot-linking-request/send
-Request type: POST
-Request body: { "slotID": "5fe63172ea7dc545d86c8e24" }
-Response: { msg: "Slot linking request sent." }
+Functionality: Send a “slot linking” request \
+Route: /academic/slot-linking-request/send \
+Request type: POST \
+Request body: { "slotID": "5fe63172ea7dc545d86c8e24" } \
+Response: { msg: "Slot linking request sent." } \
 
-Functionality: Change their day off by sending a “change day off” request 
-Route: /academic/day-off-request/send
-Request type: POST
-Request body:  { "dayOff" : "Sunday", "reason" : "any reason" }
-Response: { msg: "Day off request sent." }
-
-
-Functionality: Submit annual leave
-Route: /academic/annual-leave-request/send
-Request type: POST
-Request body:  { "startLeaveDate" : "2020-12-30", "endLeaveDate" : "2021-01-10", "reason" : "any reason" }
-Response: { msg: "Annual leave request sent. Please send replacement requests for the following working days: 
-Thu Dec 31 2020"}
-
-Functionality: Submit accidental leave
-Route: /academic/accidental-leave-request/send
-Request type: POST
-Request body:  { "startLeaveDate" : "2020-12-30", "endLeaveDate" : "2021-01-10", "reason" : "any reason" }
-Response: { msg: "Accidental leave request sent."}
+Functionality: Change their day off by sending a “change day off” request  \
+Route: /academic/day-off-request/send \
+Request type: POST \
+Request body:  { "dayOff" : "Sunday", "reason" : "any reason" } \
+Response: { msg: "Day off request sent." } \
 
 
-Functionality: Submit sick leave
-Route: /academic/sick-leave-request/send
-Request type: POST
-Request body:  { "startLeaveDate" : "2020-12-30", "endLeaveDate" : "2021-01-10", "reason" : "any reason"}
-Response: { msg: "Sick leave request sent." }
+Functionality: Submit annual leave \
+Route: /academic/annual-leave-request/send \
+Request type: POST \
+Request body:  { "startLeaveDate" : "2020-12-30", "endLeaveDate" : "2021-01-10", "reason" : "any reason" } \
+Response: { msg: "Annual leave request sent. Please send replacement requests for the following working days:  \
+Thu Dec 31 2020"} \
+
+Functionality: Submit accidental leave \
+Route: /academic/accidental-leave-request/send \
+Request type: POST \
+Request body:  { "startLeaveDate" : "2020-12-30", "endLeaveDate" : "2021-01-10", "reason" : "any reason" } \
+Response: { msg: "Accidental leave request sent."} \
 
 
-Functionality: Submit maternity leave
-Route: /academic/maternity-leave-request/send
-Request type: POST
-Request body:  { "startLeaveDate" : "2020-12-30", "endLeaveDate" : "2021-01-10", "reason" : "any reason"}
-Response: { msg: "Maternity leave request sent." }
+Functionality: Submit sick leave \
+Route: /academic/sick-leave-request/send \
+Request type: POST \
+Request body:  { "startLeaveDate" : "2020-12-30", "endLeaveDate" : "2021-01-10", "reason" : "any reason"} \
+Response: { msg: "Sick leave request sent." } \
 
 
-Functionality: Submit compensation leave
-Route: /academic/compensation-leave-request/send
-Request type: POST
-Request body:  { "compensationLeaveDate" : "2020-12-30", "compensationDate" : "2021-01-10", "reason" : "any reason"}
-Response: { msg: "Compensation leave request sent." }
+Functionality: Submit maternity leave \
+Route: /academic/maternity-leave-request/send \
+Request type: POST \
+Request body:  { "startLeaveDate" : "2020-12-30", "endLeaveDate" : "2021-01-10", "reason" : "any reason"} \
+Response: { msg: "Maternity leave request sent." } \
 
-Functionality: view notifications
-Route: /academic/notifications
-Request type: GET
-Response: An array of notifications. Example:
+
+Functionality: Submit compensation leave \
+Route: /academic/compensation-leave-request/send \
+Request type: POST \
+Request body:  { "compensationLeaveDate" : "2020-12-30", "compensationDate" : "2021-01-10", "reason" : "any reason"} \
+Response: { msg: "Compensation leave request sent." } \
+
+Functionality: view notifications \
+Route: /academic/notifications \
+Request type: GET \
+Response: An array of notifications. Example: \
+```
 {
     "notifications": [
         {
@@ -1834,11 +1840,13 @@ Response: An array of notifications. Example:
         }
     ]
 }
+```
 
-Functionality: view accepted notifications
-Route: /academic/notifications/accepted
-Request type: GET
-Response: An array of notifications. Example:
+Functionality: view accepted notifications \
+Route: /academic/notifications/accepted \
+Request type: GET \
+Response: An array of notifications. Example: \
+```
 {
     "notifications": [
         {
@@ -1952,11 +1960,13 @@ Response: An array of notifications. Example:
         }
     ]
 }
+```
 
-Functionality: view rejected notifications
-Route: /academic/notifications/rejected
-Request type: GET
-Response: An array of notifications. Example:
+Functionality: view rejected notifications \
+Route: /academic/notifications/rejected \
+Request type: GET \
+Response: An array of notifications. Example: \
+```
 {
     "notifications": [
         {
@@ -2070,11 +2080,13 @@ Response: An array of notifications. Example:
         }
     ]
 }
+```
 
-Functionality: view requests
-Route: /academic/requests
-Request type: GET
-Response: An array of requests. Example:
+Functionality: view requests \
+Route: /academic/requests \
+Request type: GET \
+Response: An array of requests. Example: \
+```
 {
     "requests": [
         {
@@ -2188,12 +2200,14 @@ Response: An array of requests. Example:
         }
     ]
 }
+```
 
 
-Functionality: view accepted requests
-Route: /academic/requests/accepted
-Request type: GET
-Response: An array of requests. Example:
+Functionality: view accepted requests \
+Route: /academic/requests/accepted \
+Request type: GET \
+Response: An array of requests. Example: \
+```
 {
     "requests": [
         {
@@ -2307,11 +2321,13 @@ Response: An array of requests. Example:
         }
     ]
 }
+```
 
-Functionality: view rejected requests
-Route: /academic/requests/rejected
-Request type: GET
-Response: An array of requests. Example:
+Functionality: view rejected requests \
+Route: /academic/requests/rejected \
+Request type: GET \
+Response: An array of requests. Example: \
+```
 {
     "requests": [
         {
@@ -2425,12 +2441,14 @@ Response: An array of requests. Example:
         }
     ]
 }
+```
 
 
-Functionality: view pending requests
-Route: /academic/requests/pending
-Request type: GET
-Response: An array of requests. Example:
+Functionality: view pending requests \
+Route: /academic/requests/pending \
+Request type: GET \
+Response: An array of requests. Example: \
+```
 {
     "requests": [
         {
@@ -2544,9 +2562,10 @@ Response: An array of requests. Example:
         }
     ]
 }
+```
 
-Functionality: cancel request
-Route: /academic/requests/cancel
-Request type: POST
-Request body:  { "reqID" : "5fe006752b20d1fd634dbc1e"}
-Response: { msg: "Request deleted." }
+Functionality: cancel request \
+Route: /academic/requests/cancel \
+Request type: POST \
+Request body:  `{ "reqID" : "5fe006752b20d1fd634dbc1e"}` \
+Response: `{ msg: "Request deleted." }` 
